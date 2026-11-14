@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/constants/theme.dart';
 
-/// Monochrome empty state placeholder widget.
+/// Polished empty state placeholder widget.
+/// Features an icon within an accentSoft circle, title, secondary message, and optional CTA action.
 class EmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -18,51 +19,55 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: AppTheme.borderRadius8,
-                border: Border.all(color: AppColors.border, width: 1),
+                color: palette.accentSoft,
+                shape: BoxShape.circle,
+                border: Border.all(color: palette.border, width: 1),
               ),
               child: Icon(
                 icon,
-                size: 28,
-                color: AppColors.secondaryText,
+                size: 26,
+                color: palette.accent,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
+              style: TextStyle(
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primaryText,
+                color: palette.textPrimary,
                 letterSpacing: -0.2,
               ),
             ),
             if (message != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 message!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.secondaryText,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: palette.textSecondary,
+                  height: 1.3,
                 ),
               ),
             ],
             if (action != null) ...[
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               action!,
             ],
           ],

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/constants/dimens.dart';
 import '../../core/constants/theme.dart';
 import '../../core/services/expense_reset_service.dart';
 import '../../providers/expenses_providers.dart';
-import '../../widgets/responsive_container.dart';
+import '../../widgets/responsive/page_container.dart';
 import 'widgets/expense_metrics_header.dart';
 import 'widgets/expenses_history_tab.dart';
 import 'widgets/monthly_ledger_tab.dart';
 
 /// Expenses screen:
 /// - 4-metric header for active month (Allowance, Spent, Remaining, Savings)
-/// - Segmented toggle between Ledger and History
-/// - Itemized ledger with month browser and strict single add action
+/// - Spending progress bar with budget tones
+/// - Segmented toggle between Ledger and History with 200 ms cross-fade
+/// - Itemized ledger with day grouping and swipe-to-delete + undo
 /// - Permanent closed months history with snapshot drill-down
 class ExpensesScreen extends ConsumerStatefulWidget {
   const ExpensesScreen({super.key});
@@ -47,8 +49,9 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           'Expenses',
@@ -68,60 +71,74 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
         ],
       ),
       body: SafeArea(
-        child: ResponsiveContainer(
-          maxWidth: 900,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 1. 4-Metric Header (Active Month)
-                const ExpenseMetricsHeader(),
-                const SizedBox(height: 14),
+        child: PageContainer(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 1. 4-Metric Header (Active Month)
+              const ExpenseMetricsHeader(),
+              const SizedBox(height: 14),
 
-                // 2. Segmented toggle: Ledger | History
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: AppTheme.borderRadius8,
-                    border: Border.all(color: AppColors.border, width: 1),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _buildSegmentButton(
-                          title: 'Monthly Ledger',
-                          icon: Icons.receipt_long_outlined,
-                          isSelected: _selectedSegment == 0,
-                          onTap: () => setState(() => _selectedSegment = 0),
-                        ),
-                      ),
-                      Container(width: 1, height: 32, color: AppColors.border),
-                      Expanded(
-                        child: _buildSegmentButton(
-                          title: 'History',
-                          icon: Icons.history_outlined,
-                          isSelected: _selectedSegment == 1,
-                          onTap: () => setState(() => _selectedSegment = 1),
-                        ),
-                      ),
-                    ],
-                  ),
+              // 2. Segmented toggle: Ledger | History
+              Container(
+                decoration: BoxDecoration(
+                  color: palette.card,
+                  borderRadius: AppDimens.borderRadiusSm,
+                  border: Border.all(color: palette.border, width: AppDimens.hairline),
                 ),
-                const SizedBox(height: 14),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildSegmentButton(
+                        title: 'Monthly Ledger',
+                        icon: Icons.receipt_long_outlined,
+                        isSelected: _selectedSegment == 0,
+                        onTap: () => setState(() => _selectedSegment = 0),
+                        palette: palette,
+                      ),
+                    ),
+                    Container(width: 1, height: 28, color: palette.border),
+                    Expanded(
+                      child: _buildSegmentButton(
+                        title: 'History',
+                        icon: Icons.history_outlined,
+                        isSelected: _selectedSegment == 1,
+                        onTap: () => setState(() => _selectedSegment = 1),
+                        palette: palette,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
 
-                // 3. Main content: Ledger or History
-                Expanded(
+              // 3. Main content: Ledger or History with 200 ms cross-fade
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  layoutBuilder: (currentChild, previousChildren) {
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ...previousChildren,
+                        ?currentChild,
+                      ],
+                    );
+                  },
                   child: _selectedSegment == 0
-                      ? const MonthlyLedgerTab()
+                      ? const MonthlyLedgerTab(key: ValueKey('monthly_ledger_view'))
                       : ExpensesHistoryTab(
+                          key: const ValueKey('expenses_history_view'),
                           onMonthTapped: (monthKey) {
                             setState(() => _selectedSegment = 0);
                           },
                         ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -133,31 +150,37 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
     required IconData icon,
     required bool isSelected,
     required VoidCallback onTap,
+    required AppPalette palette,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: AppTheme.borderRadius8,
+      borderRadius: AppDimens.borderRadiusSm,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryText : Colors.transparent,
-          borderRadius: AppTheme.borderRadius8,
+          color: isSelected ? palette.selectedFill : Colors.transparent,
+          borderRadius: AppDimens.borderRadiusSm,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
               size: 15,
-              color: isSelected ? AppColors.background : AppColors.secondaryText,
+              color: isSelected ? palette.onSelected : palette.textSecondary,
             ),
             const SizedBox(width: 6),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? AppColors.background : AppColors.secondaryText,
+            Flexible(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? palette.onSelected : palette.textSecondary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

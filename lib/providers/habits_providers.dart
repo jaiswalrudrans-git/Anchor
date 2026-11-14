@@ -55,7 +55,7 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
     state = await AsyncValue.guard(() => _fetchHabits());
   }
 
-  Future<Habit> createHabit(String title) async {
+  Future<Habit> createHabit(String title, {String icon = 'check_circle'}) async {
     final client = _supabase;
     final user = client?.auth.currentUser;
     final trimmed = title.trim();
@@ -67,6 +67,7 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
       id: _uuid.v4(),
       userId: user?.id ?? 'test_user',
       title: trimmed,
+      icon: icon,
       createdAt: DateTime.now(),
     );
 
@@ -75,12 +76,7 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
 
     if (client != null && user != null) {
       try {
-        await client.from('habits').insert({
-          'id': newHabit.id,
-          'user_id': newHabit.userId,
-          'title': newHabit.title,
-          'created_at': newHabit.createdAt.toIso8601String(),
-        });
+        await client.from('habits').insert(newHabit.toJson());
       } catch (e) {
         state = AsyncData(current);
         debugPrint('createHabit error: $e');
@@ -89,6 +85,37 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
     }
 
     return newHabit;
+  }
+
+  Future<void> editHabit(String id, {required String title, required String icon}) async {
+    final client = _supabase;
+    final trimmed = title.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError('Habit title cannot be empty');
+    }
+
+    final current = state.value ?? [];
+    final index = current.indexWhere((h) => h.id == id);
+    if (index == -1) return;
+
+    final updated = current[index].copyWith(title: trimmed, icon: icon);
+    final updatedList = List<Habit>.from(current);
+    updatedList[index] = updated;
+
+    state = AsyncData(updatedList);
+
+    if (client != null) {
+      try {
+        await client.from('habits').update({
+          'title': updated.title,
+          'icon': updated.icon,
+        }).eq('id', id);
+      } catch (e) {
+        state = AsyncData(current);
+        debugPrint('editHabit error: $e');
+        rethrow;
+      }
+    }
   }
 
   Future<void> deleteHabit(String habitId) async {

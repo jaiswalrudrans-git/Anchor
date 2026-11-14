@@ -96,6 +96,30 @@ class ExpenseSettingsNotifier extends AsyncNotifier<ExpenseSettings?> {
       rethrow;
     }
   }
+
+  Future<void> adjustSavings(double delta) async {
+    final client = _supabase;
+    final user = client?.auth.currentUser;
+    final current = state.value;
+    if (current == null) return;
+
+    final newSavings = max(0.0, current.totalSavings + delta);
+    final updated = current.copyWith(totalSavings: newSavings);
+    state = AsyncData(updated);
+
+    if (client != null && user != null) {
+      try {
+        await client
+            .from('expense_settings')
+            .update({'total_savings': newSavings})
+            .eq('user_id', user.id);
+      } catch (e) {
+        state = AsyncData(current);
+        debugPrint('adjustSavings failed: $e');
+        rethrow;
+      }
+    }
+  }
 }
 
 final expenseSettingsProvider =
@@ -214,9 +238,6 @@ class AllTransactionsNotifier extends AsyncNotifier<List<ExpenseTransaction>> {
   Future<void> deleteTransaction(ExpenseTransaction tx) async {
     final client = _supabase;
     final user = client?.auth.currentUser;
-    if (client == null || user == null) {
-      throw StateError('User not authenticated');
-    }
 
     final currentTxs = state.value ?? [];
     final updatedTxs = currentTxs.where((t) => t.id != tx.id).toList();
@@ -225,26 +246,42 @@ class AllTransactionsNotifier extends AsyncNotifier<List<ExpenseTransaction>> {
     state = AsyncData(updatedTxs);
 
     try {
-      // 1. If deleting a 'saved' transaction, decrement total_savings by same amount (bounded by 0)
+      // 1. If deleting a 'saved' transaction, decrement total_savings
       if (tx.txType == 'saved') {
-        final currentSettings = ref.read(expenseSettingsProvider).value;
-        if (currentSettings != null) {
-          final newSavings = max(0.0, currentSettings.totalSavings - tx.amount);
-          await client
-              .from('expense_settings')
-              .update({'total_savings': newSavings})
-              .eq('user_id', user.id);
-          await ref.read(expenseSettingsProvider.notifier).refreshSettings();
-        }
+        await ref.read(expenseSettingsProvider.notifier).adjustSavings(-tx.amount);
       }
 
-      // 2. Delete transaction row
-      await client.from('expense_transactions').delete().eq('id', tx.id);
+      // 2. Delete transaction row if authenticated
+      if (client != null && user != null) {
+        await client.from('expense_transactions').delete().eq('id', tx.id);
+      }
     } catch (e) {
       // Rollback optimistic delete
       state = AsyncData(currentTxs);
       debugPrint('deleteTransaction error: $e');
       rethrow;
+    }
+  }
+
+  Future<void> restoreTransaction(ExpenseTransaction tx) async {
+    final client = _supabase;
+    final user = client?.auth.currentUser;
+
+    final currentTxs = state.value ?? [];
+    final updatedTxs = [tx, ...currentTxs.where((t) => t.id != tx.id)]
+      ..sort((a, b) => b.txDate.compareTo(a.txDate));
+    state = AsyncData(updatedTxs);
+
+    try {
+      if (tx.txType == 'saved') {
+        await ref.read(expenseSettingsProvider.notifier).adjustSavings(tx.amount);
+      }
+
+      if (client != null && user != null) {
+        await client.from('expense_transactions').insert(tx.toJson());
+      }
+    } catch (e) {
+      debugPrint('restoreTransaction error: $e');
     }
   }
 }

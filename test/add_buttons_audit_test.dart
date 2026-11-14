@@ -11,11 +11,14 @@ import 'package:anchor/screens/expenses/widgets/add_transaction_sheet.dart';
 import 'package:anchor/screens/habits/widgets/add_habit_sheet.dart';
 import 'package:anchor/screens/home/widgets/add_todo_sheet.dart';
 import 'package:anchor/screens/main_shell.dart';
-import 'package:anchor/screens/workout/widgets/add_exercise_sheet.dart';
 
 void main() {
   group('Add-Button Audit: Strict Page-Specific Isolation', () {
-    testWidgets('MainShell contains ZERO FloatingActionButton', (tester) async {
+    testWidgets('MainShell contains exactly ONE global Quick Add button and zero FABs', (tester) async {
+      tester.view.physicalSize = const Size(500, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.lightTheme,
@@ -25,6 +28,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(FloatingActionButton), findsNothing);
+      expect(find.byKey(const Key('quick_add_button')), findsOneWidget);
     });
 
     testWidgets('Home AddTodoSheet contains ONLY to-do fields', (tester) async {
@@ -39,13 +43,12 @@ void main() {
       expect(find.byKey(const Key('add_todo_title_field')), findsOneWidget);
       expect(find.byKey(const Key('add_todo_sheet_submit_button')), findsOneWidget);
 
-      // Verify no expense, habit, academic, or workout fields
       expect(find.byKey(const Key('transaction_amount_field')), findsNothing);
-      expect(find.byKey(const Key('exercise_sets_reps_field')), findsNothing);
+      expect(find.byKey(const Key('add_assignment_subject_dropdown')), findsNothing);
       expect(find.byKey(const Key('add_habit_title_field')), findsNothing);
     });
 
-    testWidgets('Academics AddSubjectDialog contains ONLY subject name', (tester) async {
+    testWidgets('Academics AddSubjectDialog contains ONLY subject fields', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.lightTheme,
@@ -58,10 +61,10 @@ void main() {
       expect(find.byKey(const Key('add_subject_submit_button')), findsOneWidget);
 
       expect(find.byKey(const Key('transaction_amount_field')), findsNothing);
-      expect(find.byKey(const Key('exercise_name_field')), findsNothing);
+      expect(find.byKey(const Key('add_todo_title_field')), findsNothing);
     });
 
-    testWidgets('Academics AddModuleDialog contains ONLY module title', (tester) async {
+    testWidgets('Academics AddModuleDialog contains ONLY module fields', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.lightTheme,
@@ -74,7 +77,7 @@ void main() {
       expect(find.byKey(const Key('add_module_submit_button')), findsOneWidget);
 
       expect(find.byKey(const Key('transaction_amount_field')), findsNothing);
-      expect(find.byKey(const Key('exercise_name_field')), findsNothing);
+      expect(find.byKey(const Key('add_todo_title_field')), findsNothing);
     });
 
     testWidgets('Academics AddAssignmentSheet contains ONLY assignment fields', (tester) async {
@@ -87,11 +90,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('add_assignment_title_field')), findsOneWidget);
-      expect(find.byKey(const Key('add_assignment_date_picker')), findsOneWidget);
+      expect(find.byKey(const Key('assignment_subject_dropdown')), findsOneWidget);
       expect(find.byKey(const Key('add_assignment_submit_button')), findsOneWidget);
 
       expect(find.byKey(const Key('transaction_amount_field')), findsNothing);
-      expect(find.byKey(const Key('exercise_sets_reps_field')), findsNothing);
+      expect(find.byKey(const Key('add_habit_title_field')), findsNothing);
     });
 
     testWidgets('Academics AddExamSheet contains ONLY exam fields', (tester) async {
@@ -104,11 +107,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('add_exam_title_field')), findsOneWidget);
-      expect(find.byKey(const Key('add_exam_date_picker')), findsOneWidget);
+      expect(find.byKey(const Key('exam_subject_dropdown')), findsOneWidget);
       expect(find.byKey(const Key('add_exam_submit_button')), findsOneWidget);
 
       expect(find.byKey(const Key('transaction_amount_field')), findsNothing);
-      expect(find.byKey(const Key('exercise_sets_reps_field')), findsNothing);
+      expect(find.byKey(const Key('add_habit_title_field')), findsNothing);
     });
 
     testWidgets('Expenses AddTransactionSheet contains ONLY transaction fields', (tester) async {
@@ -120,17 +123,15 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('transaction_type_toggle')), findsOneWidget);
       expect(find.byKey(const Key('transaction_amount_field')), findsOneWidget);
-      expect(find.byKey(const Key('transaction_title_field')), findsOneWidget);
       expect(find.byKey(const Key('save_transaction_button')), findsOneWidget);
 
-      expect(find.byKey(const Key('add_assignment_date_picker')), findsNothing);
-      expect(find.byKey(const Key('exercise_name_field')), findsNothing);
+      expect(find.byKey(const Key('add_assignment_subject_dropdown')), findsNothing);
+      expect(find.byKey(const Key('add_todo_title_field')), findsNothing);
       expect(find.byKey(const Key('add_habit_title_field')), findsNothing);
     });
 
-    testWidgets('Habits AddHabitSheet contains ONLY habit title', (tester) async {
+    testWidgets('Habits AddHabitSheet contains ONLY habit title, icon, and frequency fields', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.lightTheme,
@@ -143,26 +144,7 @@ void main() {
       expect(find.byKey(const Key('create_habit_button')), findsOneWidget);
 
       expect(find.byKey(const Key('transaction_amount_field')), findsNothing);
-      expect(find.byKey(const Key('exercise_sets_reps_field')), findsNothing);
       expect(find.byKey(const Key('add_assignment_date_picker')), findsNothing);
-    });
-
-    testWidgets('Workout AddExerciseSheet contains ONLY exercise name and sets/reps', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.lightTheme,
-          home: const Scaffold(body: ProviderScope(child: AddExerciseSheet(weekday: 1))),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('exercise_name_field')), findsOneWidget);
-      expect(find.byKey(const Key('exercise_sets_reps_field')), findsOneWidget);
-      expect(find.byKey(const Key('save_exercise_button')), findsOneWidget);
-
-      expect(find.byKey(const Key('transaction_amount_field')), findsNothing);
-      expect(find.byKey(const Key('add_assignment_date_picker')), findsNothing);
-      expect(find.byKey(const Key('add_habit_title_field')), findsNothing);
     });
   });
 }

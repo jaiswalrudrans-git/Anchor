@@ -23,11 +23,12 @@ class TestHabitsNotifier extends HabitsNotifier {
   }
 
   @override
-  Future<Habit> createHabit(String title) async {
+  Future<Habit> createHabit(String title, {String icon = 'check_circle'}) async {
     final newHabit = Habit(
       id: 'habit-${_habits.length + 1}',
       userId: 'user-1',
       title: title.trim(),
+      icon: icon,
       createdAt: DateTime.now(),
     );
     _habits = [..._habits, newHabit];
@@ -277,15 +278,20 @@ void main() {
       expect(find.byKey(const Key('reality_metric_streak_breaks')), findsOneWidget);
       expect(find.byKey(const Key('reality_metric_rebounds')), findsOneWidget);
 
-      // Verify Matrix Grid title
-      expect(find.text('Monthly Consistency Matrix'), findsOneWidget);
+      // Verify Heatmap title
+      expect(find.text('Monthly Consistency Heatmap'), findsOneWidget);
 
-      // Tapping a past cell toggles it
-      final cellKey = Key('matrix_cell_h1_1'); // Day 1
+      // Tapping a past cell opens DayLogSheet, where toggling un-logs it
+      final cellKey = const Key('matrix_cell_h1_1'); // Day 1
       expect(find.byKey(cellKey), findsOneWidget);
 
-      // Tap cell to un-log
+      // Tap cell to open day log sheet
       await tester.tap(find.byKey(cellKey));
+      await tester.pumpAndSettle();
+
+      // Tap habit toggle in DayLogSheet
+      expect(find.byKey(const Key('day_log_toggle_h1')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('day_log_toggle_h1')));
       await tester.pumpAndSettle();
 
       // Completions should now be 1

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/theme.dart';
 import '../../models/subject.dart';
 import '../../providers/academics_providers.dart';
-import '../../widgets/responsive_container.dart';
+import '../../widgets/responsive/page_container.dart';
 import 'widgets/add_assignment_sheet.dart';
 import 'widgets/add_exam_sheet.dart';
 import 'widgets/add_module_dialog.dart';
@@ -13,10 +13,8 @@ import 'widgets/assignments_tab.dart';
 import 'widgets/exams_tab.dart';
 import 'widgets/syllabus_tab.dart';
 
-enum AcademicsSegment { syllabus, assignments, exams }
-
 /// Academics screen containing Syllabus tree, Assignments, and Exams tabs.
-/// Features horizontal subject selector chips and context-aware add controls.
+/// Features horizontal subject selector chips with pending assignment badges and context-aware add controls.
 class AcademicsScreen extends ConsumerStatefulWidget {
   const AcademicsScreen({super.key});
 
@@ -84,11 +82,12 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
   }
 
   void _showSubjectActions(Subject subject) {
+    final palette = context.palette;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.background,
+      backgroundColor: palette.cardRaised,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.maxRadius)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (ctx) => SafeArea(
         child: Column(
@@ -103,8 +102,8 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('Delete Subject', style: TextStyle(color: Colors.red)),
+              leading: Icon(Icons.delete_outline, color: palette.danger),
+              title: Text('Delete Subject', style: TextStyle(color: palette.danger)),
               onTap: () {
                 Navigator.of(ctx).pop();
                 _confirmDeleteSubject(subject);
@@ -117,12 +116,20 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
   }
 
   Widget _buildContextualAddButton(String? selectedSubjectId) {
+    final palette = context.palette;
     switch (_selectedSegment) {
       case AcademicsSegment.syllabus:
         return TextButton.icon(
           key: const Key('academics_add_module_button'),
-          icon: const Icon(Icons.add, size: 16),
-          label: const Text('Add Module', style: TextStyle(fontSize: 12)),
+          icon: Icon(Icons.add, size: 16, color: palette.accent),
+          label: Text(
+            'Add Module',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.accent),
+          ),
+          style: TextButton.styleFrom(
+            foregroundColor: palette.accent,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          ),
           onPressed: selectedSubjectId != null
               ? () => AddModuleDialog.show(context, selectedSubjectId)
               : null,
@@ -130,15 +137,29 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
       case AcademicsSegment.assignments:
         return TextButton.icon(
           key: const Key('academics_add_assignment_button'),
-          icon: const Icon(Icons.add, size: 16),
-          label: const Text('Add Assignment', style: TextStyle(fontSize: 12)),
+          icon: Icon(Icons.add, size: 16, color: palette.accent),
+          label: Text(
+            'Add Assignment',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.accent),
+          ),
+          style: TextButton.styleFrom(
+            foregroundColor: palette.accent,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          ),
           onPressed: () => AddAssignmentSheet.show(context, initialSubjectId: selectedSubjectId),
         );
       case AcademicsSegment.exams:
         return TextButton.icon(
           key: const Key('academics_add_exam_button'),
-          icon: const Icon(Icons.add, size: 16),
-          label: const Text('Add Exam', style: TextStyle(fontSize: 12)),
+          icon: Icon(Icons.add, size: 16, color: palette.accent),
+          label: Text(
+            'Add Exam',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.accent),
+          ),
+          style: TextButton.styleFrom(
+            foregroundColor: palette.accent,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          ),
           onPressed: () => AddExamSheet.show(context, initialSubjectId: selectedSubjectId),
         );
     }
@@ -157,7 +178,11 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
       } catch (_) {
         selectedSubject = subjects.first;
       }
+    } else if (subjects.isNotEmpty) {
+      selectedSubject = subjects.first;
     }
+
+    final palette = context.palette;
 
     return Scaffold(
       appBar: AppBar(
@@ -177,11 +202,12 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: ResponsiveContainer(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          child: PageContainer(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const SizedBox(height: 12),
+
                 // 1. Segmented Toggle at the very top: Syllabus | Assignments | Exams
                 SizedBox(
                   width: double.infinity,
@@ -206,142 +232,178 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
                       setState(() {
                         _selectedSegment = newSelection.first;
                       });
+                      ref
+                          .read(academicsActiveSegmentProvider.notifier)
+                          .setSegment(newSelection.first);
                     },
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // 2. Horizontal Subject Selector Chips
+                SizedBox(
+                  height: 38,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      ActionChip(
+                        key: const Key('academics_add_subject_chip'),
+                        avatar: Icon(Icons.add, size: 16, color: palette.textPrimary),
+                        label: Text(
+                          'Subject',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: palette.textPrimary,
+                          ),
+                        ),
+                        onPressed: () => AddSubjectDialog.show(context),
+                      ),
+                      const SizedBox(width: 8),
+                      ...subjects.map((subject) {
+                        final isSelected = subject.id == selectedSubject?.id;
+                        final pendingCount = ref.watch(subjectPendingAssignmentsCountProvider(subject.id));
+
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: GestureDetector(
+                            onLongPress: () => _showSubjectActions(subject),
+                            child: ChoiceChip(
+                              key: ValueKey('subject_chip_${subject.id}'),
+                              label: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    subject.name,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                      color: isSelected ? palette.onSelected : palette.textPrimary,
+                                    ),
+                                  ),
+                                  if (pendingCount > 0) ...[
+                                    const SizedBox(width: 5),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? palette.onSelected.withValues(alpha: 0.2)
+                                            : palette.accentSoft,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        '$pendingCount',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: isSelected ? palette.onSelected : palette.accent,
+                                          fontFeatures: AppTypography.tabularFigures,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              selected: isSelected,
+                              selectedColor: palette.selectedFill,
+                              checkmarkColor: palette.onSelected,
+                              onSelected: (val) {
+                                if (val) {
+                                  ref
+                                      .read(selectedSubjectIdProvider.notifier)
+                                      .select(subject.id);
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // 2. Tab Contents
-                switch (_selectedSegment) {
-                  AcademicsSegment.syllabus => Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Subject selector chips ONLY in the Syllabus section
-                        SizedBox(
-                          height: 38,
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
+                // 3. Tab Contents with 200ms Fade-Through
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: switch (_selectedSegment) {
+                    AcademicsSegment.syllabus => Column(
+                        key: const ValueKey('syllabus_segment'),
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              ActionChip(
-                                key: const Key('academics_add_subject_chip'),
-                                avatar: const Icon(Icons.add, size: 16, color: AppColors.primaryText),
-                                label: const Text(
-                                  'Subject',
+                              Expanded(
+                                child: Text(
+                                  selectedSubject != null
+                                      ? '${selectedSubject.name} Modules'
+                                      : 'Syllabus Modules',
                                   style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.primaryText,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: palette.textPrimary,
+                                    letterSpacing: -0.2,
                                   ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                onPressed: () => AddSubjectDialog.show(context),
                               ),
-                              const SizedBox(width: 8),
-                              ...subjects.map((subject) {
-                                final isSelected = subject.id == selectedSubject?.id;
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: GestureDetector(
-                                    onLongPress: () => _showSubjectActions(subject),
-                                    child: ChoiceChip(
-                                      key: ValueKey('subject_chip_${subject.id}'),
-                                      label: Text(
-                                        subject.name,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                          color: isSelected ? AppColors.background : AppColors.primaryText,
-                                        ),
-                                      ),
-                                      selected: isSelected,
-                                      selectedColor: AppColors.primaryText,
-                                      checkmarkColor: AppColors.background,
-                                      onSelected: (val) {
-                                        if (val) {
-                                          ref
-                                              .read(selectedSubjectIdProvider.notifier)
-                                              .select(subject.id);
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                );
-                              }),
+                              _buildContextualAddButton(selectedSubject?.id),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Section header: Subject Modules & + Add Module
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                selectedSubject != null
-                                    ? '${selectedSubject.name} Modules'
-                                    : 'Syllabus Modules',
-                                style: const TextStyle(
-                                  fontSize: 15,
+                          const SizedBox(height: 12),
+                          SyllabusTab(selectedSubject: selectedSubject),
+                        ],
+                      ),
+                    AcademicsSegment.assignments => Column(
+                        key: const ValueKey('assignments_segment'),
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Assignments',
+                                style: TextStyle(
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.primaryText,
+                                  color: palette.textPrimary,
                                   letterSpacing: -0.2,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            _buildContextualAddButton(selectedSubject?.id),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-
-                        SyllabusTab(selectedSubject: selectedSubject),
-                      ],
-                    ),
-                  AcademicsSegment.assignments => Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Assignments',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryText,
-                                letterSpacing: -0.2,
+                              _buildContextualAddButton(selectedSubject?.id),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          const AssignmentsTab(),
+                        ],
+                      ),
+                    AcademicsSegment.exams => Column(
+                        key: const ValueKey('exams_segment'),
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Upcoming Exams',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: palette.textPrimary,
+                                  letterSpacing: -0.2,
+                                ),
                               ),
-                            ),
-                            _buildContextualAddButton(selectedSubject?.id),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        const AssignmentsTab(),
-                      ],
-                    ),
-                  AcademicsSegment.exams => Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Upcoming Exams',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryText,
-                                letterSpacing: -0.2,
-                              ),
-                            ),
-                            _buildContextualAddButton(selectedSubject?.id),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        const ExamsTab(),
-                      ],
-                    ),
-                },
+                              _buildContextualAddButton(selectedSubject?.id),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          const ExamsTab(),
+                        ],
+                      ),
+                  },
+                ),
+                const SizedBox(height: 24),
               ],
             ),
           ),

@@ -49,8 +49,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: ResponsiveContainer(
           maxWidth: 440,
@@ -65,16 +66,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryText,
+                    color: palette.accent,
                     borderRadius: AppTheme.borderRadius8,
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'A',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.background,
+                        color: palette.onAccent,
                         letterSpacing: -1,
                       ),
                     ),
@@ -84,25 +85,25 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               const SizedBox(height: 24),
 
               // Title
-              const Text(
+              Text(
                 'Anchor',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.5,
-                  color: AppColors.primaryText,
+                  color: palette.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
 
               // Subtitle
-              const Text(
+              Text(
                 'Personal anti-procrastination, academics, expenses, habits & workout.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.secondaryText,
+                  color: palette.textSecondary,
                   height: 1.4,
                 ),
               ),
@@ -113,18 +114,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: palette.dangerSoft,
                     borderRadius: AppTheme.borderRadius8,
-                    border: Border.all(color: AppColors.border, width: 1),
+                    border: Border.all(color: palette.danger, width: 1),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.info_outline, size: 18, color: AppColors.primaryText),
+                      Icon(Icons.info_outline, size: 18, color: palette.danger),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           _errorMessage!,
-                          style: const TextStyle(fontSize: 13, color: AppColors.primaryText),
+                          style: TextStyle(fontSize: 13, color: palette.danger),
                         ),
                       ),
                     ],
@@ -139,12 +140,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleGoogleSignIn,
                   child: _isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.background),
+                            valueColor: AlwaysStoppedAnimation<Color>(palette.onAccent),
                           ),
                         )
                       : const Row(

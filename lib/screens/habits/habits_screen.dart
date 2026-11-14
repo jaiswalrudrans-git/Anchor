@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/theme.dart';
 import '../../providers/habits_providers.dart';
-import '../../widgets/responsive_container.dart';
+import '../../widgets/responsive/page_container.dart';
 import 'widgets/add_habit_sheet.dart';
 import 'widgets/habits_overview_tab.dart';
 import 'widgets/weekly_report_tab.dart';
@@ -25,8 +25,9 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           'Habits',
@@ -44,7 +45,8 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
               icon: const Icon(Icons.add, size: 16),
               label: const Text('New Habit', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryText,
+                foregroundColor: palette.textPrimary,
+                side: BorderSide(color: palette.border),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 shape: RoundedRectangleBorder(borderRadius: AppTheme.borderRadius8),
               ),
@@ -63,8 +65,8 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
         ],
       ),
       body: SafeArea(
-        child: ResponsiveContainer(
-          maxWidth: 900,
+        child: PageContainer(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -73,9 +75,9 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
                 padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 4.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: palette.card,
                     borderRadius: AppTheme.borderRadius8,
-                    border: Border.all(color: AppColors.border, width: 1),
+                    border: Border.all(color: palette.border, width: 1),
                   ),
                   child: Row(
                     children: [
@@ -85,15 +87,17 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
                           icon: Icons.calendar_view_month_outlined,
                           isSelected: _selectedSegment == 0,
                           onTap: () => setState(() => _selectedSegment = 0),
+                          palette: palette,
                         ),
                       ),
-                      Container(width: 1, height: 32, color: AppColors.border),
+                      Container(width: 1, height: 32, color: palette.border),
                       Expanded(
                         child: _buildSegmentButton(
                           title: 'Weekly Report',
                           icon: Icons.bar_chart_outlined,
                           isSelected: _selectedSegment == 1,
                           onTap: () => setState(() => _selectedSegment = 1),
+                          palette: palette,
                         ),
                       ),
                     ],
@@ -119,6 +123,7 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
     required IconData icon,
     required bool isSelected,
     required VoidCallback onTap,
+    required AppPalette palette,
   }) {
     return InkWell(
       onTap: onTap,
@@ -126,7 +131,7 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10.0),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryText : Colors.transparent,
+          color: isSelected ? palette.selectedFill : Colors.transparent,
           borderRadius: AppTheme.borderRadius8,
         ),
         child: Row(
@@ -135,15 +140,19 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? AppColors.background : AppColors.secondaryText,
+              color: isSelected ? palette.onSelected : palette.textSecondary,
             ),
             const SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? AppColors.background : AppColors.secondaryText,
+            Flexible(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: isSelected ? palette.onSelected : palette.textSecondary,
+                ),
               ),
             ),
           ],

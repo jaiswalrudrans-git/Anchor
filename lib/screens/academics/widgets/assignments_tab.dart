@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/dimens.dart';
 import '../../../core/constants/theme.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../models/academic_item.dart';
 import '../../../models/subject.dart';
 import '../../../providers/academics_providers.dart';
+import '../../../widgets/academics/assignment_tile.dart';
 import '../../../widgets/empty_state.dart';
 
-/// Assignments tab listing active and completed assignments.
+/// Assignments tab grouping coursework into Overdue, Due today, This week,
+/// Later, and Completed sections with animated tiles and 2-column wide layout.
 class AssignmentsTab extends ConsumerStatefulWidget {
   const AssignmentsTab({super.key});
 
@@ -17,135 +21,30 @@ class AssignmentsTab extends ConsumerStatefulWidget {
 }
 
 class _AssignmentsTabState extends ConsumerState<AssignmentsTab> {
-  bool _isCompletedExpanded = false;
+  // Completed is collapsed by default; all others expanded
+  final Set<AssignmentGroup> _collapsedGroups = {AssignmentGroup.completed};
 
-  String _relativeDueLabel(DateTime dueDate, DateTime today) {
-    final cleanDue = AppDateUtils.dateOnly(dueDate);
-    final cleanToday = AppDateUtils.dateOnly(today);
-    final diff = AppDateUtils.daysBetween(cleanToday, cleanDue);
-
-    if (diff < 0) {
-      final days = diff.abs();
-      return 'Overdue by $days day${days == 1 ? '' : 's'}';
-    } else if (diff == 0) {
-      return 'Due today';
-    } else if (diff == 1) {
-      return 'Due tomorrow';
-    } else {
-      return 'Due in $diff days';
-    }
+  void _toggleGroup(AssignmentGroup group) {
+    setState(() {
+      if (_collapsedGroups.contains(group)) {
+        _collapsedGroups.remove(group);
+      } else {
+        _collapsedGroups.add(group);
+      }
+    });
   }
 
-  Future<void> _confirmDelete(BuildContext context, AcademicItem item) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Assignment'),
-        content: Text('Are you sure you want to delete "${item.title}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      await ref.read(academicItemsProvider.notifier).deleteItem(item.id);
-    }
-  }
-
-  Widget _buildAssignmentRow({
-    required AcademicItem item,
-    required Subject? subject,
-    required DateTime today,
+  Widget _buildGroupSection({
+    required AssignmentGroup group,
+    required List<AcademicItem> items,
+    required List<Subject> subjects,
+    required bool isExpandedWidth,
+    required AppPalette palette,
   }) {
-    final isOverdue = !item.isCompleted &&
-        AppDateUtils.dateOnly(item.dueDate).isBefore(AppDateUtils.dateOnly(today));
+    if (items.isEmpty) return const SizedBox.shrink();
 
-    return Container(
-      key: ValueKey('assignment_${item.id}'),
-      margin: const EdgeInsets.only(bottom: 8.0),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: AppTheme.borderRadius8,
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
-        leading: Checkbox(
-          value: item.isCompleted,
-          onChanged: (_) async {
-            await ref
-                .read(academicItemsProvider.notifier)
-                .toggleAssignmentComplete(item.id);
-          },
-        ),
-        title: Text(
-          item.title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            decoration: item.isCompleted ? TextDecoration.lineThrough : null,
-            color: item.isCompleted
-                ? AppColors.disabled
-                : (isOverdue ? AppColors.primaryText : AppColors.primaryText),
-          ),
-        ),
-        subtitle: Row(
-          children: [
-            if (subject != null) ...[
-              Container(
-                margin: const EdgeInsets.only(right: 8.0),
-                padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 1.0),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppColors.border, width: 1),
-                ),
-                child: Text(
-                  subject.name,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.secondaryText,
-                  ),
-                ),
-              ),
-            ],
-            Text(
-              item.isCompleted
-                  ? 'Completed'
-                  : _relativeDueLabel(item.dueDate, today),
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isOverdue ? FontWeight.w600 : FontWeight.normal,
-                color: isOverdue ? AppColors.primaryText : AppColors.secondaryText,
-              ),
-            ),
-          ],
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete_outline, size: 18),
-          color: AppColors.secondaryText,
-          onPressed: () => _confirmDelete(context, item),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final active = ref.watch(activeAssignmentsProvider);
-    final completed = ref.watch(completedAssignmentsProvider);
-    final subjectsAsync = ref.watch(subjectsProvider);
-    final subjects = subjectsAsync.value ?? [];
-    final today = AppDateUtils.today();
+    final isCollapsed = _collapsedGroups.contains(group);
+    final isOverdue = group == AssignmentGroup.overdue;
 
     Subject? findSubject(String? id) {
       if (id == null) return null;
@@ -156,89 +55,153 @@ class _AssignmentsTabState extends ConsumerState<AssignmentsTab> {
       }
     }
 
-    if (active.isEmpty && completed.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 40.0),
-        child: EmptyState(
-          icon: Icons.assignment_outlined,
-          title: 'No assignments scheduled',
-          message: 'Tap "+ Add Assignment" above to plan upcoming coursework.',
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Active Incomplete Assignments
-        if (active.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: Text(
-              'No active assignments due.',
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.secondaryText,
-              ),
-            ),
-          )
-        else
-          ...active.map((item) {
-            return _buildAssignmentRow(
+    final tiles = items
+        .map((item) => AssignmentTile(
+              key: ValueKey('assignment_${item.id}'),
               item: item,
               subject: findSubject(item.subjectId),
-              today: today,
-            );
-          }),
+            ))
+        .toList();
 
-        // Collapsible Completed Section
-        if (completed.isNotEmpty) ...[
-          const SizedBox(height: 16),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Section Header Row
           InkWell(
-            onTap: () {
-              setState(() => _isCompletedExpanded = !_isCompletedExpanded);
-            },
-            borderRadius: AppTheme.borderRadius8,
+            onTap: () => _toggleGroup(group),
+            borderRadius: AppDimens.borderRadiusSm,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: AppTheme.borderRadius8,
-                border: Border.all(color: AppColors.border, width: 1),
+                color: isOverdue ? palette.dangerSoft : palette.card,
+                borderRadius: AppDimens.borderRadiusSm,
+                border: Border.all(
+                  color: isOverdue ? palette.danger.withValues(alpha: 0.3) : palette.border,
+                  width: AppDimens.hairline,
+                ),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  if (isOverdue) ...[
+                    Icon(Icons.warning_amber_rounded, size: 16, color: palette.danger),
+                    const SizedBox(width: 6),
+                  ],
                   Text(
-                    'Completed (${completed.length})',
-                    style: const TextStyle(
+                    group.label,
+                    style: TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.secondaryText,
+                      fontWeight: FontWeight.w700,
+                      color: isOverdue ? palette.danger : palette.textPrimary,
+                      letterSpacing: -0.1,
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: isOverdue
+                          ? palette.danger.withValues(alpha: 0.2)
+                          : palette.cardRaised,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isOverdue
+                            ? palette.danger.withValues(alpha: 0.4)
+                            : palette.border,
+                        width: AppDimens.hairline,
+                      ),
+                    ),
+                    child: Text(
+                      '${items.length}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: isOverdue ? palette.danger : palette.textSecondary,
+                        fontFeatures: AppTypography.tabularFigures,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
                   Icon(
-                    _isCompletedExpanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
+                    isCollapsed ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
                     size: 18,
-                    color: AppColors.secondaryText,
+                    color: isOverdue ? palette.danger : palette.textSecondary,
                   ),
                 ],
               ),
             ),
           ),
-          if (_isCompletedExpanded) ...[
-            const SizedBox(height: 8),
-            ...completed.map((item) {
-              return _buildAssignmentRow(
-                item: item,
-                subject: findSubject(item.subjectId),
-                today: today,
-              );
-            }),
-          ],
+          const SizedBox(height: 8),
+
+          // Section Tiles (2 columns on expanded >= 900 dp)
+          if (!isCollapsed)
+            _buildResponsiveTileList(tiles, isExpandedWidth),
         ],
+      ),
+    );
+  }
+
+  Widget _buildResponsiveTileList(List<Widget> tiles, bool isExpandedWidth) {
+    if (!isExpandedWidth || tiles.length <= 1) {
+      return Column(children: tiles);
+    }
+
+    final left = <Widget>[];
+    final right = <Widget>[];
+    for (int i = 0; i < tiles.length; i++) {
+      if (i % 2 == 0) {
+        left.add(tiles[i]);
+      } else {
+        right.add(tiles[i]);
+      }
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: Column(children: left)),
+        const SizedBox(width: 12),
+        Expanded(child: Column(children: right)),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final allItems = ref.watch(academicItemsProvider).value ?? [];
+    final subjects = ref.watch(subjectsProvider).value ?? [];
+    final today = AppDateUtils.today();
+
+    final grouped = groupAssignments(allItems, today);
+    final totalAssignments = grouped.values.fold<int>(0, (sum, l) => sum + l.length);
+
+    if (totalAssignments == 0) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 40.0),
+        child: EmptyState(
+          key: Key('assignments_empty_state'),
+          icon: Icons.assignment_outlined,
+          title: 'No assignments',
+          message: 'Add one and Anchor will remind you the night before.',
+        ),
+      );
+    }
+
+    final isExpanded = Breakpoints.isExpanded(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final group in AssignmentGroup.values)
+          _buildGroupSection(
+            group: group,
+            items: grouped[group] ?? [],
+            subjects: subjects,
+            isExpandedWidth: isExpanded,
+            palette: palette,
+          ),
       ],
     );
   }

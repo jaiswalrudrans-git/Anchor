@@ -74,19 +74,16 @@ class _EditAllowanceDialogState extends ConsumerState<EditAllowanceDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return AlertDialog(
       key: const Key('edit_allowance_dialog'),
-      backgroundColor: AppColors.background,
-      shape: RoundedRectangleBorder(
-        side: AppTheme.borderSide1,
-        borderRadius: AppTheme.borderRadius8,
-      ),
-      title: const Text(
+      title: Text(
         'Set Monthly Allowance',
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w700,
-          color: AppColors.primaryText,
+          color: palette.textPrimary,
           letterSpacing: -0.3,
         ),
       ),
@@ -98,11 +95,11 @@ class _EditAllowanceDialogState extends ConsumerState<EditAllowanceDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Enter your monthly budget/allowance. This is the baseline from which expenses are deducted each month.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.secondaryText,
+                  color: palette.textSecondary,
                   height: 1.4,
                 ),
               ),
@@ -141,12 +138,12 @@ class _EditAllowanceDialogState extends ConsumerState<EditAllowanceDialog> {
           key: const Key('save_allowance_button'),
           onPressed: _isSaving ? null : _handleSave,
           child: _isSaving
-              ? const SizedBox(
+              ? SizedBox(
                   width: 14,
                   height: 14,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: AppColors.background,
+                    color: palette.onAccent,
                   ),
                 )
               : const Text('Save'),

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../models/habit.dart';
 import 'date_utils.dart';
 
 /// Pure data structure representing weekly habit statistics.
@@ -329,5 +330,156 @@ class StreakUtils {
       return HabitDayStatus.future;
     }
     return isLogged ? HabitDayStatus.completed : HabitDayStatus.incomplete;
+  }
+
+  /// Computes weekly completion percentage series for the [weeks] (default 6) ending with [weekStart].
+  /// Weeks before [createdDate] where eligibleDays == 0 are skipped.
+  static List<double> weeklyCompletionSeries({
+    required Set<DateTime> logged,
+    required DateTime weekStart,
+    int weeks = 6,
+    required DateTime today,
+    required DateTime createdDate,
+  }) {
+    final result = <double>[];
+    final dWeekStart = AppDateUtils.dateOnly(weekStart);
+
+    for (int i = weeks - 1; i >= 0; i--) {
+      final wStart = dWeekStart.subtract(Duration(days: i * 7));
+      final stats = weekStats(
+        logged: logged,
+        weekStart: wStart,
+        today: today,
+        createdDate: createdDate,
+      );
+      if (stats.eligibleDays > 0) {
+        result.add(stats.percentage);
+      }
+    }
+    return result;
+  }
+
+  /// Computes the completion fraction (0.0 to 1.0) for each of the 7 days (Mon-Sun) of [weekStart].
+  /// - For each day D: completed habits / eligible habits on day D.
+  /// - Days after [today] or days with 0 eligible habits return 0.0.
+  static List<double> dailyCompletionFractions({
+    required List<Habit> habits,
+    required Map<String, Set<DateTime>> habitLogsMap,
+    required DateTime weekStart,
+    required DateTime today,
+  }) {
+    final dWeekStart = AppDateUtils.dateOnly(weekStart);
+    final dToday = AppDateUtils.dateOnly(today);
+    final fractions = <double>[];
+
+    for (int i = 0; i < 7; i++) {
+      final day = dWeekStart.add(Duration(days: i));
+      if (day.isAfter(dToday)) {
+        fractions.add(0.0);
+        continue;
+      }
+
+      int eligibleCount = 0;
+      int completedCount = 0;
+
+      for (final habit in habits) {
+        final dCreated = AppDateUtils.dateOnly(habit.createdAt);
+        if (!day.isBefore(dCreated)) {
+          eligibleCount++;
+          final logs = habitLogsMap[habit.id] ?? {};
+          if (logs.any((l) => AppDateUtils.dateOnly(l) == day)) {
+            completedCount++;
+          }
+        }
+      }
+
+      fractions.add(eligibleCount > 0 ? (completedCount / eligibleCount) : 0.0);
+    }
+    return fractions;
+  }
+
+  /// Counts how many days in the week [weekStart, min(weekEnd, today)] had all eligible habits completed.
+  /// Requires eligible habits > 0 on that day.
+  static int perfectDays({
+    required List<Habit> habits,
+    required Map<String, Set<DateTime>> habitLogsMap,
+    required DateTime weekStart,
+    required DateTime today,
+  }) {
+    final dWeekStart = AppDateUtils.dateOnly(weekStart);
+    final dToday = AppDateUtils.dateOnly(today);
+    int count = 0;
+
+    for (int i = 0; i < 7; i++) {
+      final day = dWeekStart.add(Duration(days: i));
+      if (day.isAfter(dToday)) break;
+
+      int eligibleCount = 0;
+      int completedCount = 0;
+
+      for (final habit in habits) {
+        final dCreated = AppDateUtils.dateOnly(habit.createdAt);
+        if (!day.isBefore(dCreated)) {
+          eligibleCount++;
+          final logs = habitLogsMap[habit.id] ?? {};
+          if (logs.any((l) => AppDateUtils.dateOnly(l) == day)) {
+            completedCount++;
+          }
+        }
+      }
+
+      if (eligibleCount > 0 && completedCount == eligibleCount) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /// Finds the best and weakest day of the week based on completion fraction.
+  /// Returns `(bestDay: int?, weakestDay: int?)` (1=Mon .. 7=Sun) or null if fewer than 3 eligible days.
+  /// Ties show the earliest day.
+  static ({int? bestDay, int? weakestDay})? bestAndWeakestDay({
+    required List<Habit> habits,
+    required Map<String, Set<DateTime>> habitLogsMap,
+    required DateTime weekStart,
+    required DateTime today,
+  }) {
+    final fractions = dailyCompletionFractions(
+      habits: habits,
+      habitLogsMap: habitLogsMap,
+      weekStart: weekStart,
+      today: today,
+    );
+
+    final dWeekStart = AppDateUtils.dateOnly(weekStart);
+    final dToday = AppDateUtils.dateOnly(today);
+
+    // Count eligible days in the week
+    final eligibleDayIndices = <int>[];
+    for (int i = 0; i < 7; i++) {
+      final day = dWeekStart.add(Duration(days: i));
+      if (day.isAfter(dToday)) continue;
+
+      final hasEligibleHabits = habits.any((h) => !day.isBefore(AppDateUtils.dateOnly(h.createdAt)));
+      if (hasEligibleHabits) {
+        eligibleDayIndices.add(i);
+      }
+    }
+
+    if (eligibleDayIndices.length < 3) return null;
+
+    int bestIdx = eligibleDayIndices.first;
+    int weakestIdx = eligibleDayIndices.first;
+
+    for (final idx in eligibleDayIndices) {
+      if (fractions[idx] > fractions[bestIdx]) {
+        bestIdx = idx;
+      }
+      if (fractions[idx] < fractions[weakestIdx]) {
+        weakestIdx = idx;
+      }
+    }
+
+    return (bestDay: bestIdx + 1, weakestDay: weakestIdx + 1);
   }
 }

@@ -18,13 +18,17 @@ This guide documents the complete setup instructions for the **Anchor** applicat
 1. In your Supabase dashboard, navigate to **SQL Editor**.
 2. Click **New query** and paste the entire contents of [`supabase/migrations/001_init.sql`](supabase/migrations/001_init.sql).
 3. Click **Run**.
-4. The script is idempotent and safe to run multiple times (`if not exists` and `drop policy if exists`).
+4. Run [`supabase/migrations/005_drop_workout.sql`](supabase/migrations/005_drop_workout.sql):
+   - **Fresh project:** Run `001_init.sql` followed by `005_drop_workout.sql` (both idempotent).
+   - **Existing project:** Run `005_drop_workout.sql` once in the Supabase SQL editor.
+   - ⚠️ **WARNING:** `005_drop_workout.sql` drops `workout_exercises` and `workout_days` tables and **permanently deletes all workout data**.
+5. The remaining 12 tables and RLS policies are fully configured.
 
 ### Verification & RLS Security Check Script
-Run the following SQL snippet in the Supabase SQL editor to verify that all 14 tables, RLS policies, and the storage bucket are properly configured:
+Run the following SQL snippet in the Supabase SQL editor to verify that all 12 tables, RLS policies, and the storage bucket are properly configured:
 
 ```sql
--- 1. Verify all 14 tables exist
+-- 1. Verify all 12 tables exist (Workout tables dropped)
 select table_name 
 from information_schema.tables 
 where table_schema = 'public' 

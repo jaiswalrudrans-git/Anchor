@@ -8,7 +8,6 @@ import 'package:anchor/models/todo.dart';
 import 'package:anchor/providers/home_providers.dart';
 import 'package:anchor/screens/home/home_screen.dart';
 import 'package:anchor/screens/home/widgets/academic_radar_slot.dart';
-import 'package:anchor/screens/home/widgets/workout_strip_slot.dart';
 
 class TestTodosNotifier extends TodosNotifier {
   final List<Todo> _initial;
@@ -18,7 +17,7 @@ class TestTodosNotifier extends TodosNotifier {
   Future<List<Todo>> build() async => _initial;
 
   @override
-  Future<void> addTodo(String title, DateTime date) async {
+  Future<Todo?> addTodo(String title, DateTime date) async {
     final item = Todo(
       id: 'test-${DateTime.now().millisecondsSinceEpoch}',
       userId: 'test-user',
@@ -30,6 +29,7 @@ class TestTodosNotifier extends TodosNotifier {
     );
     final prev = state.value ?? [];
     state = AsyncData([...prev, item]);
+    return item;
   }
 
   @override
@@ -95,9 +95,9 @@ void main() {
       // Task row must be visible
       expect(find.text('Complete Stage 2'), findsOneWidget);
 
-      // Slot widgets exist
+      // Academic radar slot exists and workout strip does not
       expect(find.byType(AcademicRadarSlot), findsOneWidget);
-      expect(find.byType(WorkoutStripSlot), findsOneWidget);
+      expect(find.text('Workout'), findsNothing);
     });
 
     testWidgets('Checking the last pending task unlocks Kill Idle Time button instantly', (tester) async {
@@ -138,7 +138,7 @@ void main() {
       expect(find.byKey(const Key('kill_idle_locked_status')), findsNothing);
     });
 
-    testWidgets('To-do add control opens AddTodoSheet with ONLY to-do fields (assert by key)', (tester) async {
+    testWidgets('Home has exactly one inline task input and no duplicate Add Task button', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -154,33 +154,20 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Tap header Add Task button
-      await tester.tap(find.byKey(const Key('home_add_todo_action_button')));
+      // Duplicate add controls are removed
+      expect(find.byKey(const Key('home_add_todo_action_button')), findsNothing);
+      expect(find.byType(FloatingActionButton), findsNothing);
+
+      // Exactly one inline task input on Today's Tasks card
+      expect(find.byKey(const Key('home_quick_add_input')), findsOneWidget);
+      expect(find.byKey(const Key('home_quick_add_button')), findsOneWidget);
+
+      // Add a task via the inline input
+      await tester.enterText(find.byKey(const Key('home_quick_add_input')), 'New Task from Inline');
+      await tester.tap(find.byKey(const Key('home_quick_add_button')));
       await tester.pumpAndSettle();
 
-      // AddTodoSheet is open (assert by key)
-      expect(find.byKey(const Key('add_todo_sheet')), findsOneWidget);
-      expect(find.byKey(const Key('add_todo_title_field')), findsOneWidget);
-      expect(find.byKey(const Key('add_todo_sheet_submit_button')), findsOneWidget);
-
-      final sheetFinder = find.byKey(const Key('add_todo_sheet'));
-      expect(find.descendant(of: sheetFinder, matching: find.text('Today')), findsOneWidget);
-      expect(find.descendant(of: sheetFinder, matching: find.text('Tomorrow')), findsOneWidget);
-
-      // Assert NO foreign fields exist (no exam, assignment, expense, split fields)
-      expect(find.descendant(of: sheetFinder, matching: find.text('Exam')), findsNothing);
-      expect(find.descendant(of: sheetFinder, matching: find.text('Assignment')), findsNothing);
-      expect(find.descendant(of: sheetFinder, matching: find.text('Expense')), findsNothing);
-      expect(find.descendant(of: sheetFinder, matching: find.text('Workout')), findsNothing);
-
-      // Add a task
-      await tester.enterText(find.byKey(const Key('add_todo_title_field')), 'New Task from Sheet');
-      await tester.tap(find.byKey(const Key('add_todo_sheet_submit_button')));
-      await tester.pumpAndSettle();
-
-      // Sheet is dismissed and task appears in today's list
-      expect(find.byKey(const Key('add_todo_sheet')), findsNothing);
-      expect(find.text('New Task from Sheet'), findsOneWidget);
+      expect(find.text('New Task from Inline'), findsOneWidget);
     });
   });
 }

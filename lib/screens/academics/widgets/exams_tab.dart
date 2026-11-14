@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
-import '../../../core/constants/theme.dart';
-import '../../../core/utils/date_utils.dart';
-import '../../../models/academic_item.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../models/subject.dart';
 import '../../../providers/academics_providers.dart';
+import '../../../widgets/academics/exam_countdown_tile.dart';
 import '../../../widgets/empty_state.dart';
 
 /// Exams tab listing upcoming exams sorted strictly by due_date ASC.
@@ -14,45 +12,29 @@ import '../../../widgets/empty_state.dart';
 class ExamsTab extends ConsumerWidget {
   const ExamsTab({super.key});
 
-  String _relativeExamLabel(DateTime examDate, DateTime today) {
-    final cleanExam = AppDateUtils.dateOnly(examDate);
-    final cleanToday = AppDateUtils.dateOnly(today);
-    final diff = AppDateUtils.daysBetween(cleanToday, cleanExam);
-
-    if (diff < 0) {
-      return 'Today'; // Ending today or pending cleanup
-    } else if (diff == 0) {
-      return 'Today';
-    } else if (diff == 1) {
-      return 'Tomorrow';
-    } else {
-      return 'In $diff days';
+  Widget _buildResponsiveTileList(List<Widget> tiles, bool isExpandedWidth) {
+    if (!isExpandedWidth || tiles.length <= 1) {
+      return Column(children: tiles);
     }
-  }
 
-  Future<void> _confirmDelete(
-      BuildContext context, WidgetRef ref, AcademicItem exam) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Exam'),
-        content: Text('Are you sure you want to delete "${exam.title}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    final left = <Widget>[];
+    final right = <Widget>[];
+    for (int i = 0; i < tiles.length; i++) {
+      if (i % 2 == 0) {
+        left.add(tiles[i]);
+      } else {
+        right.add(tiles[i]);
+      }
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: Column(children: left)),
+        const SizedBox(width: 12),
+        Expanded(child: Column(children: right)),
+      ],
     );
-
-    if (confirm == true) {
-      await ref.read(academicItemsProvider.notifier).deleteItem(exam.id);
-    }
   }
 
   @override
@@ -60,7 +42,6 @@ class ExamsTab extends ConsumerWidget {
     final exams = ref.watch(examsListProvider);
     final subjectsAsync = ref.watch(subjectsProvider);
     final subjects = subjectsAsync.value ?? [];
-    final today = AppDateUtils.today();
 
     Subject? findSubject(String? id) {
       if (id == null) return null;
@@ -75,116 +56,23 @@ class ExamsTab extends ConsumerWidget {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 40.0),
         child: EmptyState(
+          key: Key('exams_empty_state'),
           icon: Icons.event_note_outlined,
-          title: 'No upcoming exams scheduled',
-          message: 'Tap "+ Add Exam" above to schedule midterms or finals.',
+          title: 'No exams coming up',
+          message: 'Add one to get a reminder 3 days before.',
         ),
       );
     }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: exams.length,
-      itemBuilder: (context, index) {
-        final exam = exams[index];
-        final subject = findSubject(exam.subjectId);
-        final formattedDate = DateFormat('EEE, MMM d, yyyy').format(exam.dueDate);
-        final relLabel = _relativeExamLabel(exam.dueDate, today);
+    final isExpanded = Breakpoints.isExpanded(context);
+    final tiles = exams
+        .map((exam) => ExamCountdownTile(
+              key: ValueKey('exam_${exam.id}'),
+              exam: exam,
+              subject: findSubject(exam.subjectId),
+            ))
+        .toList();
 
-        return Container(
-          key: ValueKey('exam_${exam.id}'),
-          margin: const EdgeInsets.only(bottom: 8.0),
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: AppTheme.borderRadius8,
-            border: Border.all(color: AppColors.border, width: 1),
-          ),
-          child: ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-            leading: const Icon(
-              Icons.quiz_outlined,
-              size: 24,
-              color: AppColors.primaryText,
-            ),
-            title: Text(
-              exam.title,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primaryText,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    if (subject != null) ...[
-                      Container(
-                        margin: const EdgeInsets.only(right: 8.0),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6.0, vertical: 1.0),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(4),
-                          border:
-                              Border.all(color: AppColors.border, width: 1),
-                        ),
-                        child: Text(
-                          subject.name,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.secondaryText,
-                          ),
-                        ),
-                      ),
-                    ],
-                    Text(
-                      formattedDate,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.secondaryText,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border, width: 1),
-                  ),
-                  child: Text(
-                    relLabel,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryText,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 18),
-                  color: AppColors.secondaryText,
-                  onPressed: () => _confirmDelete(context, ref, exam),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    return _buildResponsiveTileList(tiles, isExpanded);
   }
 }

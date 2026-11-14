@@ -265,7 +265,7 @@ void main() {
 
       // Verify AddTransactionSheet opens
       expect(find.byKey(const Key('add_transaction_sheet')), findsOneWidget);
-      expect(find.text('LOG TRANSACTION'), findsOneWidget);
+      expect(find.text('Log Transaction'), findsWidgets);
 
       // Verify ONLY transaction fields exist
       expect(find.byKey(const Key('transaction_type_toggle')), findsOneWidget);

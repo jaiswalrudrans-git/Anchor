@@ -28,11 +28,21 @@ This document provides a numbered, end-to-end verification checklist to test Anc
 
 ## 2. Main Shell & Navigation
 
-- [ ] **2.1 Mobile Bottom Navigation (< 700px)**
-  - On a mobile viewport, verify 5 navigation tabs in exact order: **Home | Academics | Expenses | Habits | Workout**.
-  - Verify ZERO FloatingActionButton exists anywhere in the shell.
-- [ ] **2.2 Desktop Navigation Rail (>= 700px)**
-  - On Windows or wide desktop screen, verify left NavigationRail with 5 destinations.
+- [ ] **2.1 Mobile Floating Dock Navigation (< 600 dp)**
+  - On a mobile viewport, verify the floating pill-shaped dock pinned at the bottom (`12 dp + safe-area bottom offset`) with 4 destinations in exact order: **Home | Academics | Expenses | Habits**.
+  - Verify the **selected destination** pops out into a 56 dp bubble centered 14 dp above the dock's top edge, sitting in a smooth concave notch with Bezier shoulders, displaying an accent ring, soft accent fill, and filled icon.
+  - Verify a 4 dp gap of the scaffold background between the bubble and notch edge.
+  - Tap another destination: verify the bubble and notch **glide smoothly across** (320 ms) with midpoint icon cross-fade and an arrival pop (tiny lift & settle).
+  - Verify the **Quick Add "+" button** is a separate 60 dp circular button floating beside the dock (`12 dp gap`), with key `quick_add_button`. It never moves when tabs change, and its icon rotates 45° while the Quick Add sheet is open.
+  - Verify zero `BottomAppBar` and zero `FloatingActionButton` exist in the shell.
+  - Focus an input (open on-screen keyboard): verify the dock and plus button slide down out of view (200 ms) and return when closed.
+  - On short screens / landscape phones (height < 480 dp): verify dock shrinks to 56 dp, bubble to 48 dp, and inactive labels are hidden.
+- [ ] **2.2 Desktop & Tablet Floating Navigation Rail (>= 600 dp)**
+  - On medium (600–899 dp) and expanded (>= 900 dp) viewports, verify left floating rail panel (radius 28, card raised surface, 1 px border, inset 12 dp from window edge, vertically centered).
+  - Verify 4 destinations stacked vertically with a vertically sliding round bubble.
+  - Leading item holds the Quick Add button (key `quick_add_button`): 60 dp circle on medium, extended 'Add' pill on expanded.
+  - Verify Windows keyboard navigation: Up/Down arrows move focus, Enter/Space activates destination, visible focus ring.
+  - Verify `Ctrl+N` opens the Quick Add modal; `Esc` dismisses it.
   - Verify state preservation across tab switching (`IndexedStack`).
 
 ---
@@ -177,46 +187,56 @@ This document provides a numbered, end-to-end verification checklist to test Anc
 
 ---
 
-## 8. Workout: 7-Day Splits, Checklists & Home Strip
+## 8. Global Quick Add & Fast Actions
 
-- [ ] **8.1 7-Day Weekday Tabs**
-  - Switch to Workout tab.
-  - Verify 7 tabs: `Mon`, `Tue`, `Wed`, `Thu`, `Fri`, `Sat`, `Sun`.
-  - Selected tab defaults to today's weekday with indicator dot.
-- [ ] **8.2 Set Split Title**
-  - Tap the split header ("Tap to set split...").
-  - `EditSplitDialog` opens. Enter "Push (Chest, Shoulders, Triceps)". Save.
-  - Header updates to display the split title.
-- [ ] **8.3 Add Exercise Template**
-  - Tap `+ Add Exercise`.
-  - Sheet opens with **only** Exercise Name and Sets/Reps fields.
-  - Enter "Bench Press", "4 x 10". Save.
-  - Add second exercise: "Overhead Dumbbell Press", "3 x 12". Save.
-  - Verify exercises appear in checklist.
-- [ ] **8.4 Today-Only Checklist Rule**
-  - On today's weekday tab: tap checkbox next to "Bench Press".
-  - Checkbox checks, text gets strikethrough.
-  - Switch to a different weekday tab (e.g. tomorrow).
-  - Notice status bar: "Viewing tomorrow's schedule...".
-  - Tap an exercise checkbox on tomorrow's tab: checkbox is disabled and does NOT toggle (wrong day can never be marked).
-- [ ] **8.5 Home Screen Workout Strip Sync**
-  - Switch to Home tab.
-  - Scroll to bottom: `WorkoutStripSlot` displays `Today: Push (Chest, Shoulders, Triceps)` and the exercise checklist.
-  - Verify completion count matches (e.g. `1 / 2 done`).
-  - Tap "Overhead Dumbbell Press" checkbox directly on the Home strip.
-  - Switch back to Workout tab: verify it is also checked. State is 100% synchronized!
-- [ ] **8.6 Natural Daily Reset**
-  - The completion is derived from `last_completed_date == today`.
-  - Tomorrow morning, when `today` advances, all checkboxes reset to unchecked automatically without requiring any background task or deletion of exercise templates.
+- [ ] **8.1 Quick Add Sheet & Type Selector**
+  - Tap the global Quick Add FAB (or press `Ctrl+N` on desktop).
+  - Verify FAB plus icon rotates 90° smoothly (150 ms) while sheet opens.
+  - Verify adaptive presentation: bottom sheet on compact (< 600 dp), centered dialog (max width 480 dp) on medium/expanded (>= 600 dp).
+  - Header displays "Quick add" and close icon button.
+  - Verify 5 type chips: `To-do`, `Assignment`, `Exam`, `Expense`, `Habit`.
+- [ ] **8.2 Smart Default Type**
+  - Verify default selected chip reflects active context:
+    - On Home tab: defaults to `To-do`.
+    - On Academics tab (Syllabus or Assignments segment): defaults to `Assignment`.
+    - On Academics tab (Exams segment): defaults to `Exam`.
+    - On Expenses tab: defaults to `Expense`.
+    - On Habits tab: defaults to `Habit`.
+- [ ] **8.3 Title Preservation Across Types**
+  - Select `To-do` chip, type "Physics Lab Report".
+  - Switch chip to `Assignment`: title remains "Physics Lab Report".
+  - Switch chip to `Exam`: title remains "Physics Lab Report".
+  - Switch chip to `Expense`: title clears appropriately.
+- [ ] **8.4 Add Entry, Tab Preservation & Undo**
+  - From Quick Add, enter a task "Buy Notebooks" and tap `Done`.
+  - Sheet closes; current tab does NOT navigate away.
+  - Bottom 4-second Undo SnackBar appears: `Added to to-do` with `Undo` button.
+  - Tapping `Undo` immediately deletes the created task and refreshes state.
+  - Test similarly for Assignment, Exam, and Expense.
+- [ ] **8.5 Habit Checkoff in Quick Add**
+  - Select `Habit` type chip.
+  - Verify today's active habits list with circular checkboxes and streak count.
+  - Verify NO text input field and NO habit creation button exists in Quick Add.
+  - Toggle a habit checkbox: checkmark toggles and streak increments live.
+  - If no habits exist: empty state displays "No habits yet" with an "Open Habits" button that closes the sheet and switches to the Habits tab.
+- [ ] **8.6 Dirty Discard Confirmation Dialog**
+  - Type some text into the title field without submitting.
+  - Tap the close button (or press `Esc` / Android back button).
+  - Confirmation dialog appears: "Discard this entry?".
+  - Tap "Keep editing": stays in sheet with input preserved.
+  - Tap "Discard": sheet closes and input is discarded.
+- [ ] **8.7 Desktop Keyboard Shortcuts**
+  - On desktop (Windows), press `Ctrl+N`: Quick Add modal opens immediately.
+  - Press `Esc`: Quick Add modal closes (or triggers discard confirmation if dirty).
 
 ---
 
 ## 9. Final Isolation & Add-Button Audit
 
-- [ ] **9.1 Page-Specific Add Controls Verification**
-  - Home: Only `AddTodoSheet`.
-  - Academics: Only `AddSubjectDialog`, `AddModuleDialog`, `AddChapterDialog`, `AddAssignmentSheet`, `AddExamSheet`.
-  - Expenses: Only `AddTransactionSheet`.
-  - Habits: Only `AddHabitSheet`.
-  - Workout: Only `AddExerciseSheet`.
-  - Shell: Zero global FloatingActionButton.
+- [ ] **9.1 Shell & Page Add Controls Verification**
+  - Shell: Exactly ONE global FloatingActionButton (`heroTag: 'quick_add'`) docked at `endDocked` on compact, or as leading item on `NavigationRail`.
+  - Home: Inline quick-add bar + header button `+ Add Task` (`AddTodoSheet`). Zero FABs.
+  - Academics: Only `AddSubjectDialog`, `AddModuleDialog`, `AddChapterDialog`, `AddAssignmentSheet`, `AddExamSheet`. Zero FABs.
+  - Expenses: Metric card setup + itemized ledger button `+ Log Transaction` (`AddTransactionSheet`). Zero FABs.
+  - Habits: Header button `+ New Habit` (`AddHabitSheet`). Zero FABs.
+  - Workout: Feature completely removed; zero workout routes or controls exist.

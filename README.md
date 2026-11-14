@@ -1,6 +1,6 @@
 # Anchor
 
-**Anchor** is a personal anti-procrastination, academics, expenses, habits, and workout tracking application built with **Flutter** (targeting Android and Windows Desktop, with Web preview) and backed by **Supabase** (Postgres, Row Level Security, Storage, and Google OAuth).
+**Anchor** is a personal anti-procrastination, academics, expenses, and habits tracking application built with **Flutter** (targeting Android and Windows Desktop, with Web preview) and backed by **Supabase** (Postgres, Row Level Security, Storage, and Google OAuth).
 
 ---
 
@@ -9,18 +9,18 @@
 - **Framework**: Flutter (Dart null-safe)
 - **State Management**: `flutter_riverpod`
 - **Backend**: Supabase (Postgres 15+, RLS, GoTrue Auth, Storage)
-- **Visual Design**: Strict monochrome wireframe (`#FFFFFF`, `#F4F4F5`, `#E4E4E7`, `#111111`, `#71717A`)
+- **Visual Design**: Strict monochrome wireframe with dynamic accents and dark mode
 - **Platforms**: Android, Windows Desktop, Web Preview
 
 ---
 
-## 5 Core Modules
+## 4 Core Modules & Global Quick Add
 
 1. **Home**: Daily anti-procrastination tasks, idle prompts, and rollover tracking.
 2. **Academics**: Academic vault, subjects, modules, chapters, files, and exam schedules.
 3. **Expenses**: Monthly allowance, category budgets, transaction logs, and savings overflow.
 4. **Habits**: Consistency tracking, daily completions, and streak grids.
-5. **Workout**: Weekly training split manager and exercise logs.
+- **Global Quick Add**: Adaptive quick-add sheet/dialog for to-dos, assignments, exams, expenses, and today's habits checkoff accessible from any tab (or `Ctrl+N` on desktop).
 
 ---
 

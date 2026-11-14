@@ -10,12 +10,10 @@ import 'package:anchor/models/expense_settings.dart';
 import 'package:anchor/models/expense_transaction.dart';
 import 'package:anchor/models/habit.dart';
 import 'package:anchor/models/habit_log.dart';
-import 'package:anchor/models/workout_day.dart';
-import 'package:anchor/models/workout_exercise.dart';
 import 'package:anchor/models/expense_month_summary.dart';
 
 void main() {
-  group('14 Models JSON Round-Trip and copyWith tests', () {
+  group('12 Models JSON Round-Trip and copyWith tests', () {
     test('1. Todo', () {
       final json = {
         'id': 'todo-1',
@@ -233,49 +231,7 @@ void main() {
       expect(copy.logDate.day, 15);
     });
 
-    test('12. WorkoutDay', () {
-      final json = {
-        'id': 'wday-1',
-        'user_id': 'user-1',
-        'weekday': 1,
-        'split_title': 'Push (Chest/Shoulders/Triceps)',
-      };
-      final model = WorkoutDay.fromJson(json);
-      expect(model.weekday, 1);
-      expect(model.splitTitle, 'Push (Chest/Shoulders/Triceps)');
-
-      final outJson = model.toJson();
-      expect(outJson['weekday'], 1);
-
-      final copy = model.copyWith(splitTitle: 'Chest Day');
-      expect(copy.splitTitle, 'Chest Day');
-    });
-
-    test('13. WorkoutExercise', () {
-      final json = {
-        'id': 'ex-1',
-        'user_id': 'user-1',
-        'workout_day_id': 'wday-1',
-        'exercise_name': 'Bench Press',
-        'sets_reps': '3x8-12',
-        'last_completed_date': '2026-11-10',
-      };
-      final model = WorkoutExercise.fromJson(json);
-      expect(model.exerciseName, 'Bench Press');
-      expect(model.setsReps, '3x8-12');
-      expect(model.lastCompletedDate?.day, 10);
-
-      final outJson = model.toJson();
-      expect(outJson['last_completed_date'], '2026-11-10');
-
-      final copy = model.copyWith(lastCompletedDate: DateTime(2026, 11, 14));
-      expect(copy.lastCompletedDate?.day, 14);
-
-      final cleared = model.copyWith(clearLastCompletedDate: true);
-      expect(cleared.lastCompletedDate, isNull);
-    });
-
-    test('14. ExpenseMonthSummary', () {
+    test('12. ExpenseMonthSummary', () {
       final json = {
         'id': 'sum-1',
         'user_id': 'user-1',

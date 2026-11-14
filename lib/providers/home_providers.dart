@@ -117,7 +117,7 @@ class TodosNotifier extends AsyncNotifier<List<Todo>> {
   }
 
   /// Adds a new to-do with optimistic UI update.
-  Future<void> addTodo(String title, DateTime date) async {
+  Future<Todo?> addTodo(String title, DateTime date) async {
     final client = _supabase;
     final user = client?.auth.currentUser;
     if (client == null || user == null) {
@@ -125,7 +125,7 @@ class TodosNotifier extends AsyncNotifier<List<Todo>> {
     }
 
     final trimmed = title.trim();
-    if (trimmed.isEmpty) return;
+    if (trimmed.isEmpty) return null;
 
     final sanitizedDate = AppDateUtils.dateOnly(date);
     final newTodo = Todo(
@@ -144,6 +144,7 @@ class TodosNotifier extends AsyncNotifier<List<Todo>> {
 
     try {
       await client.from('todos').insert(newTodo.toJson());
+      return newTodo;
     } catch (e) {
       // Rollback on failure
       state = AsyncData(previous);
@@ -233,6 +234,24 @@ class TodosNotifier extends AsyncNotifier<List<Todo>> {
       rethrow;
     }
   }
+
+  /// Restores a deleted to-do item (for Undo snackbar action).
+  Future<void> restoreTodo(Todo todo) async {
+    final client = _supabase;
+    final previous = state.value ?? [];
+    final updatedList = sortTodos([...previous, todo]);
+    state = AsyncData(updatedList);
+
+    if (client != null) {
+      try {
+        await client.from('todos').insert(todo.toJson());
+      } catch (e) {
+        state = AsyncData(previous);
+        debugPrint('restoreTodo failed: $e');
+        rethrow;
+      }
+    }
+  }
 }
 
 /// Main to-dos provider.
@@ -278,7 +297,7 @@ final killIdleUnlockedProvider = Provider<bool>((ref) {
 
 class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
   final _uuid = const Uuid();
-  bool _isSeeding = false;
+  Future<void>? _seedingFuture;
 
   SupabaseClient? get _supabase {
     try {
@@ -293,7 +312,7 @@ class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
   Future<List<IdlePrompt>> build() async {
     final list = await _fetchPrompts();
     if (list.isEmpty) {
-      // Auto-seed default prompts if the user has none
+      // Auto-seed default prompts reliably on first load
       await seedIfEmpty();
       return _fetchPrompts();
     }
@@ -322,17 +341,27 @@ class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
   }
 
   /// Seeds the 4 default prompts if the pool is empty.
-  /// Guarded against concurrent runs.
+  /// Guarded against concurrent runs via a single in-flight future.
   Future<void> seedIfEmpty() async {
-    if (_isSeeding) return;
-    _isSeeding = true;
+    if (_seedingFuture != null) {
+      await _seedingFuture;
+      return;
+    }
+    _seedingFuture = _performSeed();
+    try {
+      await _seedingFuture;
+    } finally {
+      _seedingFuture = null;
+    }
+  }
+
+  Future<void> _performSeed() async {
+    final client = _supabase;
+    final user = client?.auth.currentUser;
+    if (client == null || user == null) return;
 
     try {
-      final client = _supabase;
-      final user = client?.auth.currentUser;
-      if (client == null || user == null) return;
-
-      final existing = await client.from('idle_prompts').select('id').limit(1);
+      final existing = await client.from('idle_prompts').select('id');
       if ((existing as List<dynamic>).isNotEmpty) {
         return;
       }
@@ -347,12 +376,15 @@ class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
         };
       }).toList();
 
-      await client.from('idle_prompts').insert(inserts);
+      await client.from('idle_prompts').upsert(
+        inserts,
+        onConflict: 'user_id,prompt_text',
+        ignoreDuplicates: true,
+      );
       state = AsyncData(await _fetchPrompts());
     } catch (e) {
       debugPrint('seedIfEmpty error: $e');
-    } finally {
-      _isSeeding = false;
+      rethrow;
     }
   }
 
@@ -399,6 +431,23 @@ class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
       state = AsyncData(previous);
       debugPrint('deletePrompt error: $e');
       rethrow;
+    }
+  }
+
+  /// Restores a deleted prompt to the pool (for undo).
+  Future<void> restorePrompt(IdlePrompt prompt) async {
+    final client = _supabase;
+    final previous = state.value ?? [];
+    state = AsyncData([...previous, prompt]);
+
+    if (client != null) {
+      try {
+        await client.from('idle_prompts').insert(prompt.toJson());
+      } catch (e) {
+        state = AsyncData(previous);
+        debugPrint('restorePrompt error: $e');
+        rethrow;
+      }
     }
   }
 }

@@ -14,6 +14,22 @@ import '../models/subject.dart';
 
 const _uuid = Uuid();
 
+enum AcademicsSegment { syllabus, assignments, exams }
+
+class AcademicsActiveSegmentNotifier extends Notifier<AcademicsSegment> {
+  @override
+  AcademicsSegment build() => AcademicsSegment.syllabus;
+
+  void setSegment(AcademicsSegment segment) {
+    state = segment;
+  }
+}
+
+final academicsActiveSegmentProvider =
+    NotifierProvider<AcademicsActiveSegmentNotifier, AcademicsSegment>(() {
+  return AcademicsActiveSegmentNotifier();
+});
+
 // ==========================================
 // PURE FILTERING AND SORTING FUNCTIONS
 // ==========================================
@@ -73,9 +89,9 @@ List<AcademicItem> sortAssignments(List<AcademicItem> items) {
   return [...incomplete, ...completed];
 }
 
-/// Strictly sorts exams by due_date ASC, then created_at ASC.
+/// Strictly sorts incomplete exams by due_date ASC, then created_at ASC.
 List<AcademicItem> sortExams(List<AcademicItem> items) {
-  final exams = items.where((i) => i.itemType == 'exam').toList();
+  final exams = items.where((i) => i.itemType == 'exam' && !i.isCompleted).toList();
   exams.sort((a, b) {
     final dateCmp = a.dueDate.compareTo(b.dueDate);
     if (dateCmp != 0) return dateCmp;
@@ -106,13 +122,13 @@ List<AcademicItem> filterUrgentAssignments(List<AcademicItem> items, DateTime to
 }
 
 /// Filters urgent exams for Home Radar (next 14 days window: today <= due_date <= today+14).
-/// Sorted strictly due_date ASC.
+/// Sorted strictly due_date ASC. Incomplete exams only.
 List<AcademicItem> filterUrgentExams(List<AcademicItem> items, DateTime today) {
   final cleanToday = AppDateUtils.dateOnly(today);
   final endWindow = cleanToday.add(const Duration(days: 14));
 
   final filtered = items.where((i) {
-    if (i.itemType != 'exam') return false;
+    if (i.itemType != 'exam' || i.isCompleted) return false;
     final due = AppDateUtils.dateOnly(i.dueDate);
     return !due.isBefore(cleanToday) && !due.isAfter(endWindow);
   }).toList();
@@ -124,6 +140,103 @@ List<AcademicItem> filterUrgentExams(List<AcademicItem> items, DateTime today) {
   });
 
   return filtered;
+}
+
+/// Logical grouping for assignments.
+enum AssignmentGroup {
+  overdue,
+  today,
+  thisWeek,
+  later,
+  completed;
+
+  String get label => switch (this) {
+        AssignmentGroup.overdue => 'Overdue',
+        AssignmentGroup.today => 'Due today',
+        AssignmentGroup.thisWeek => 'This week',
+        AssignmentGroup.later => 'Later',
+        AssignmentGroup.completed => 'Completed',
+      };
+}
+
+/// Groups assignments into Overdue, Due today, This week, Later, and Completed.
+/// Within each group, sorts incomplete by due_date ASC and completed by due_date DESC.
+Map<AssignmentGroup, List<AcademicItem>> groupAssignments(
+  List<AcademicItem> items,
+  DateTime today,
+) {
+  final cleanToday = AppDateUtils.dateOnly(today);
+  final weekEnd = cleanToday.add(const Duration(days: 7));
+
+  final groups = <AssignmentGroup, List<AcademicItem>>{
+    AssignmentGroup.overdue: [],
+    AssignmentGroup.today: [],
+    AssignmentGroup.thisWeek: [],
+    AssignmentGroup.later: [],
+    AssignmentGroup.completed: [],
+  };
+
+  for (final item in items) {
+    if (item.itemType != 'assignment') continue;
+    if (item.isCompleted) {
+      groups[AssignmentGroup.completed]!.add(item);
+    } else {
+      final due = AppDateUtils.dateOnly(item.dueDate);
+      if (due.isBefore(cleanToday)) {
+        groups[AssignmentGroup.overdue]!.add(item);
+      } else if (due.isAtSameMomentAs(cleanToday)) {
+        groups[AssignmentGroup.today]!.add(item);
+      } else if (!due.isAfter(weekEnd)) {
+        groups[AssignmentGroup.thisWeek]!.add(item);
+      } else {
+        groups[AssignmentGroup.later]!.add(item);
+      }
+    }
+  }
+
+  for (final entry in groups.entries) {
+    if (entry.key == AssignmentGroup.completed) {
+      entry.value.sort((a, b) {
+        final dateCmp = b.dueDate.compareTo(a.dueDate);
+        if (dateCmp != 0) return dateCmp;
+        return b.createdAt.compareTo(a.createdAt);
+      });
+    } else {
+      entry.value.sort((a, b) {
+        final dateCmp = a.dueDate.compareTo(b.dueDate);
+        if (dateCmp != 0) return dateCmp;
+        return a.createdAt.compareTo(b.createdAt);
+      });
+    }
+  }
+
+  return groups;
+}
+
+class SubjectSyllabusStats {
+  final int totalModules;
+  final int totalChapters;
+  final int studiedChapters;
+  final double progress; // 0.0 to 1.0
+
+  const SubjectSyllabusStats({
+    required this.totalModules,
+    required this.totalChapters,
+    required this.studiedChapters,
+    required this.progress,
+  });
+}
+
+class ModuleSyllabusStats {
+  final int totalChapters;
+  final int studiedChapters;
+  final double progress; // 0.0 to 1.0
+
+  const ModuleSyllabusStats({
+    required this.totalChapters,
+    required this.studiedChapters,
+    required this.progress,
+  });
 }
 
 // ==========================================
@@ -515,6 +628,30 @@ class ChaptersNotifier extends AsyncNotifier<List<Chapter>> {
     }
   }
 
+  Future<void> toggleStudied(String id) async {
+    final client = _supabase;
+    if (client == null) throw StateError('Supabase uninitialized');
+
+    final current = state.value ?? [];
+    final index = current.indexWhere((c) => c.id == id);
+    if (index == -1) return;
+
+    final target = current[index];
+    final updated = target.copyWith(isStudied: !target.isStudied);
+    final updatedList = List<Chapter>.from(current);
+    updatedList[index] = updated;
+
+    state = AsyncData(sortChapters(updatedList));
+
+    try {
+      await client.from('chapters').update({'is_studied': updated.isStudied}).eq('id', id);
+    } catch (e) {
+      state = AsyncData(current);
+      debugPrint('toggleStudied failed: $e');
+      rethrow;
+    }
+  }
+
   /// Hook for cleanup when a chapter is removed: deletes storage objects and local cached files.
   Future<void> onChapterRemoved(String chapterId) async {
     await ref.read(fileVaultServiceProvider).onChapterRemoved(chapterId);
@@ -675,6 +812,110 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
     }
   }
 
+  Future<void> markExamCompleted(String id) async {
+    final client = _supabase;
+    if (client == null) throw StateError('Supabase uninitialized');
+
+    final current = state.value ?? [];
+    final index = current.indexWhere((i) => i.id == id);
+    if (index == -1) return;
+
+    final target = current[index];
+    final updated = target.copyWith(isCompleted: true);
+
+    final updatedList = List<AcademicItem>.from(current);
+    updatedList[index] = updated;
+
+    state = AsyncData(updatedList);
+
+    try {
+      await client.from('academic_items').update({
+        'is_completed': true,
+      }).eq('id', id);
+
+      await ref.read(notificationServiceProvider).cancelReminder(id);
+    } catch (e) {
+      state = AsyncData(current);
+      debugPrint('markExamCompleted failed: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> editItem({
+    required String id,
+    required String title,
+    required DateTime dueDate,
+    String? subjectId,
+  }) async {
+    final client = _supabase;
+    if (client == null) throw StateError('Supabase uninitialized');
+
+    final current = state.value ?? [];
+    final index = current.indexWhere((i) => i.id == id);
+    if (index == -1) return;
+
+    final target = current[index];
+    final sanitizedDate = AppDateUtils.dateOnly(dueDate);
+    final updated = target.copyWith(
+      title: title.trim(),
+      dueDate: sanitizedDate,
+      subjectId: subjectId?.isEmpty == true ? null : subjectId,
+    );
+
+    final updatedList = List<AcademicItem>.from(current);
+    updatedList[index] = updated;
+
+    state = AsyncData(updatedList);
+
+    try {
+      await client.from('academic_items').update({
+        'title': updated.title,
+        'due_date': AppDateUtils.formatDbDate(updated.dueDate),
+        'subject_id': updated.subjectId,
+      }).eq('id', id);
+
+      if (!updated.isCompleted) {
+        final notificationService = ref.read(notificationServiceProvider);
+        await notificationService.cancelReminder(id);
+        if (updated.itemType == 'assignment') {
+          await notificationService.scheduleAssignment(updated);
+        } else if (updated.itemType == 'exam') {
+          await notificationService.scheduleExam(updated);
+        }
+      }
+    } catch (e) {
+      state = AsyncData(current);
+      debugPrint('editItem failed: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> restoreItem(AcademicItem item) async {
+    final client = _supabase;
+    if (client == null) throw StateError('Supabase uninitialized');
+
+    final current = state.value ?? [];
+    if (current.any((i) => i.id == item.id)) return;
+
+    state = AsyncData([...current, item]);
+
+    try {
+      await client.from('academic_items').upsert(item.toJson());
+      if (!item.isCompleted) {
+        final notificationService = ref.read(notificationServiceProvider);
+        if (item.itemType == 'assignment') {
+          await notificationService.scheduleAssignment(item);
+        } else if (item.itemType == 'exam') {
+          await notificationService.scheduleExam(item);
+        }
+      }
+    } catch (e) {
+      state = AsyncData(current);
+      debugPrint('restoreItem failed: $e');
+      rethrow;
+    }
+  }
+
   Future<void> deleteItem(String id) async {
     final client = _supabase;
     if (client == null) throw StateError('Supabase uninitialized');
@@ -749,6 +990,60 @@ final urgentExamsRadarProvider = Provider<List<AcademicItem>>((ref) {
   final itemsAsync = ref.watch(academicItemsProvider);
   final allItems = itemsAsync.value ?? [];
   return filterUrgentExams(allItems, AppDateUtils.today());
+});
+
+/// Overall studied stats and progress for a subject.
+final subjectSyllabusStatsProvider =
+    Provider.family<SubjectSyllabusStats, String>((ref, subjectId) {
+  final allModules = ref.watch(modulesProvider).value ?? [];
+  final subjectModules = allModules.where((m) => m.subjectId == subjectId).toList();
+  final moduleIds = subjectModules.map((m) => m.id).toSet();
+
+  final allChapters = ref.watch(chaptersProvider).value ?? [];
+  final subjectChapters = allChapters.where((c) => moduleIds.contains(c.moduleId)).toList();
+
+  final totalModules = subjectModules.length;
+  final totalChapters = subjectChapters.length;
+  final studiedChapters = subjectChapters.where((c) => c.isStudied).length;
+  final progress = totalChapters == 0 ? 0.0 : (studiedChapters / totalChapters);
+
+  return SubjectSyllabusStats(
+    totalModules: totalModules,
+    totalChapters: totalChapters,
+    studiedChapters: studiedChapters,
+    progress: progress,
+  );
+});
+
+/// Studied stats and progress for a single module.
+final moduleSyllabusStatsProvider =
+    Provider.family<ModuleSyllabusStats, String>((ref, moduleId) {
+  final allChapters = ref.watch(chaptersProvider).value ?? [];
+  final moduleChapters = allChapters.where((c) => c.moduleId == moduleId).toList();
+
+  final totalChapters = moduleChapters.length;
+  final studiedChapters = moduleChapters.where((c) => c.isStudied).length;
+  final progress = totalChapters == 0 ? 0.0 : (studiedChapters / totalChapters);
+
+  return ModuleSyllabusStats(
+    totalChapters: totalChapters,
+    studiedChapters: studiedChapters,
+    progress: progress,
+  );
+});
+
+/// Count of active (incomplete) assignments for a subject.
+final subjectPendingAssignmentsCountProvider =
+    Provider.family<int, String>((ref, subjectId) {
+  final assignments = ref.watch(activeAssignmentsProvider);
+  return assignments.where((a) => a.subjectId == subjectId).length;
+});
+
+/// Fast lookup for file count of a chapter.
+final chapterFileCountProvider =
+    Provider.family<int, String>((ref, chapterId) {
+  final files = ref.watch(chapterFilesForChapterProvider(chapterId));
+  return files.length;
 });
 
 // ==========================================

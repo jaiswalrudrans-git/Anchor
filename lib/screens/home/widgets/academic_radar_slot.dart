@@ -1,71 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/dimens.dart';
 import '../../../core/constants/theme.dart';
-import '../../../core/utils/date_utils.dart';
 import '../../../models/subject.dart';
 import '../../../providers/academics_providers.dart';
+import '../../../widgets/academics/assignment_tile.dart';
+import '../../../widgets/academics/exam_countdown_tile.dart';
 
-/// Academic Radar widget displayed on Home.
-/// Replaces the placeholder slot from Stage 2.
-/// Displays urgent assignments (next 7 days, incomplete) and upcoming exams (next 14 days).
+/// Academic Radar Slot on Home Screen.
+/// Displays urgent incomplete assignments (next 7 days) and upcoming exams (next 14 days)
+/// using compact, urgency-aware tiles.
 class AcademicRadarSlot extends ConsumerWidget {
   const AcademicRadarSlot({super.key});
 
-  String _relativeDueLabel(DateTime dueDate, DateTime today) {
-    final cleanDue = AppDateUtils.dateOnly(dueDate);
-    final cleanToday = AppDateUtils.dateOnly(today);
-    final diff = AppDateUtils.daysBetween(cleanToday, cleanDue);
-
-    if (diff == 0) {
-      return 'Due today';
-    } else if (diff == 1) {
-      return 'Due tomorrow';
-    } else {
-      return 'In $diff days';
-    }
-  }
-
-  String _relativeExamLabel(DateTime examDate, DateTime today) {
-    final cleanExam = AppDateUtils.dateOnly(examDate);
-    final cleanToday = AppDateUtils.dateOnly(today);
-    final diff = AppDateUtils.daysBetween(cleanToday, cleanExam);
-
-    if (diff <= 0) {
-      return 'Today';
-    } else if (diff == 1) {
-      return 'Tomorrow';
-    } else {
-      return 'In $diff days';
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
     final urgentAssignments = ref.watch(urgentAssignmentsRadarProvider);
     final urgentExams = ref.watch(urgentExamsRadarProvider);
-    final subjectsAsync = ref.watch(subjectsProvider);
-    final subjects = subjectsAsync.value ?? [];
-    final today = AppDateUtils.today();
+    final allSubjects = ref.watch(subjectsProvider).value ?? [];
 
     Subject? findSubject(String? id) {
       if (id == null) return null;
       try {
-        return subjects.firstWhere((s) => s.id == id);
+        return allSubjects.firstWhere((s) => s.id == id);
       } catch (_) {
         return null;
       }
     }
 
-    final hasContent = urgentAssignments.isNotEmpty || urgentExams.isNotEmpty;
+    final totalUpcoming = urgentAssignments.length + urgentExams.length;
+    final hasContent = totalUpcoming > 0;
 
     return Container(
       key: const Key('academic_radar_slot'),
       margin: const EdgeInsets.only(bottom: 24.0),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppTheme.borderRadius8,
-        border: Border.all(color: AppColors.border, width: 1),
+        color: palette.card,
+        borderRadius: AppDimens.borderRadiusSm,
+        border: Border.all(color: palette.border, width: AppDimens.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -75,19 +49,23 @@ class AcademicRadarSlot extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.radar,
                   size: 18,
-                  color: AppColors.primaryText,
+                  color: palette.textPrimary,
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  'Academic Radar',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
-                    color: AppColors.primaryText,
+                Flexible(
+                  child: Text(
+                    'Academic Radar',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                      color: palette.textPrimary,
+                    ),
                   ),
                 ),
                 const Spacer(),
@@ -95,27 +73,28 @@ class AcademicRadarSlot extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.background,
+                      color: palette.background,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border, width: 1),
+                      border: Border.all(color: palette.border, width: AppDimens.hairline),
                     ),
                     child: Text(
-                      '${urgentAssignments.length + urgentExams.length} upcoming',
-                      style: const TextStyle(
+                      '$totalUpcoming upcoming',
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.secondaryText,
+                        color: palette.textSecondary,
+                        fontFeatures: AppTypography.tabularFigures,
                       ),
                     ),
                   ),
               ],
             ),
           ),
-          const Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: palette.border),
 
           if (!hasContent)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Center(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -123,14 +102,14 @@ class AcademicRadarSlot extends ConsumerWidget {
                     Icon(
                       Icons.check_circle_outline,
                       size: 16,
-                      color: AppColors.secondaryText,
+                      color: palette.textSecondary,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'All clear.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.secondaryText,
+                        color: palette.textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -142,160 +121,62 @@ class AcademicRadarSlot extends ConsumerWidget {
             // 1. Upcoming Assignments Section (Next 7 days)
             if (urgentAssignments.isNotEmpty) ...[
               Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0, bottom: 6.0),
+                padding: const EdgeInsets.only(left: 14.0, right: 14.0, top: 10.0, bottom: 4.0),
                 child: Text(
                   'ASSIGNMENTS (NEXT 7 DAYS)',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.6,
-                    color: AppColors.secondaryText,
+                    color: palette.textSecondary,
                   ),
                 ),
               ),
-              ...urgentAssignments.map((assignment) {
-                final subject = findSubject(assignment.subjectId);
-                return Container(
-                  key: ValueKey('radar_assignment_${assignment.id}'),
-                  margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 3.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.background,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppColors.border, width: 1),
-                  ),
-                  child: ListTile(
-                    dense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-                    leading: Checkbox(
-                      key: ValueKey('radar_checkbox_${assignment.id}'),
-                      value: assignment.isCompleted,
-                      onChanged: (_) async {
-                        await ref
-                            .read(academicItemsProvider.notifier)
-                            .toggleAssignmentComplete(assignment.id);
-                      },
-                    ),
-                    title: Text(
-                      assignment.title,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.primaryText,
-                      ),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (subject != null) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: AppColors.border, width: 1),
-                            ),
-                            child: Text(
-                              subject.name,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.secondaryText,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                        ],
-                        Text(
-                          _relativeDueLabel(assignment.dueDate, today),
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primaryText,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  children: urgentAssignments.map((assignment) {
+                    return AssignmentTile(
+                      key: ValueKey('radar_assignment_${assignment.id}'),
+                      item: assignment,
+                      subject: findSubject(assignment.subjectId),
+                      isCompact: true,
+                      checkboxKey: ValueKey('radar_checkbox_${assignment.id}'),
+                    );
+                  }).toList(),
+                ),
+              ),
             ],
 
             // 2. Upcoming Exams Section (Next 14 days)
             if (urgentExams.isNotEmpty) ...[
               Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0, bottom: 6.0),
+                padding: const EdgeInsets.only(left: 14.0, right: 14.0, top: 10.0, bottom: 4.0),
                 child: Text(
                   'EXAMS (NEXT 14 DAYS)',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.6,
-                    color: AppColors.secondaryText,
+                    color: palette.textSecondary,
                   ),
                 ),
               ),
-              ...urgentExams.map((exam) {
-                final subject = findSubject(exam.subjectId);
-                return Container(
-                  key: ValueKey('radar_exam_${exam.id}'),
-                  margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 3.0),
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.background,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppColors.border, width: 1),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.quiz_outlined,
-                        size: 16,
-                        color: AppColors.primaryText,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          exam.title,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.primaryText,
-                          ),
-                        ),
-                      ),
-                      if (subject != null) ...[
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: AppColors.border, width: 1),
-                          ),
-                          child: Text(
-                            subject.name,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.secondaryText,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                      ],
-                      Text(
-                        _relativeExamLabel(exam.dueDate, today),
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primaryText,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  children: urgentExams.map((exam) {
+                    return ExamCountdownTile(
+                      key: ValueKey('radar_exam_${exam.id}'),
+                      exam: exam,
+                      subject: findSubject(exam.subjectId),
+                      isCompact: true,
+                    );
+                  }).toList(),
+                ),
+              ),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
           ],
         ],
       ),

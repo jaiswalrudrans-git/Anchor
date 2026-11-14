@@ -30,11 +30,6 @@ class ChapterVaultSheet extends ConsumerStatefulWidget {
       return showDialog(
         context: context,
         builder: (ctx) => Dialog(
-          backgroundColor: AppColors.background,
-          shape: RoundedRectangleBorder(
-            side: AppTheme.borderSide1,
-            borderRadius: AppTheme.borderRadius8,
-          ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600, maxHeight: 680),
             child: ChapterVaultSheet(chapter: chapter),
@@ -46,10 +41,6 @@ class ChapterVaultSheet extends ConsumerStatefulWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.maxRadius)),
-      ),
       builder: (ctx) => SizedBox(
         height: MediaQuery.of(context).size.height * 0.75,
         child: ChapterVaultSheet(chapter: chapter),
@@ -165,6 +156,7 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
   }
 
   Widget _buildFileRow(ChapterFile file) {
+    final palette = context.palette;
     final isOpening = _openingFileId == file.id;
     final statusAsync = ref.watch(fileCacheStatusProvider(file));
 
@@ -173,10 +165,10 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
       margin: const EdgeInsets.only(bottom: 8.0),
       decoration: BoxDecoration(
         borderRadius: AppTheme.borderRadius8,
-        border: Border.all(color: AppColors.border, width: 1),
+        border: Border.all(color: palette.border, width: 1),
       ),
       child: Material(
-        color: AppColors.background,
+        color: palette.card,
         borderRadius: AppTheme.borderRadius8,
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
@@ -185,17 +177,17 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: palette.cardRaised,
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: AppColors.border, width: 1),
+            border: Border.all(color: palette.border, width: 1),
           ),
           child: Center(
             child: Text(
               file.fileType.toUpperCase(),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
-                color: AppColors.primaryText,
+                color: palette.textPrimary,
                 letterSpacing: 0.5,
               ),
               maxLines: 1,
@@ -205,10 +197,10 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
         ),
         title: Text(
           file.fileName,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: AppColors.primaryText,
+            color: palette.textPrimary,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -217,13 +209,13 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
           children: [
             Text(
               FileVaultService.formatFileSize(file.fileSize),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: AppColors.secondaryText,
+                color: palette.textSecondary,
               ),
             ),
             const SizedBox(width: 8),
-            const Text('•', style: TextStyle(color: AppColors.secondaryText)),
+            Text('•', style: TextStyle(color: palette.textSecondary)),
             const SizedBox(width: 8),
             statusAsync.when(
               data: (status) {
@@ -234,7 +226,7 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
                     Icon(
                       isCached ? Icons.offline_pin_outlined : Icons.cloud_outlined,
                       size: 13,
-                      color: isCached ? AppColors.primaryText : AppColors.secondaryText,
+                      color: isCached ? palette.accent : palette.textSecondary,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -242,19 +234,19 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: isCached ? FontWeight.w600 : FontWeight.normal,
-                        color: isCached ? AppColors.primaryText : AppColors.secondaryText,
+                        color: isCached ? palette.accent : palette.textSecondary,
                       ),
                     ),
                   ],
                 );
               },
-              loading: () => const Text(
+              loading: () => Text(
                 'Checking...',
-                style: TextStyle(fontSize: 11, color: AppColors.secondaryText),
+                style: TextStyle(fontSize: 11, color: palette.textSecondary),
               ),
-              error: (err, stack) => const Text(
+              error: (err, stack) => Text(
                 'Unknown',
-                style: TextStyle(fontSize: 11, color: AppColors.secondaryText),
+                style: TextStyle(fontSize: 11, color: palette.textSecondary),
               ),
             ),
           ],
@@ -272,7 +264,7 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
               IconButton(
                 key: ValueKey('vault_delete_${file.id}'),
                 icon: const Icon(Icons.delete_outline, size: 18),
-                color: AppColors.secondaryText,
+                color: palette.textSecondary,
                 onPressed: () => _confirmDelete(file),
               ),
           ],
@@ -283,6 +275,7 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final filesAsync = ref.watch(chapterFilesProvider);
     final files = ref.watch(chapterFilesForChapterProvider(widget.chapter.id));
 
@@ -300,22 +293,22 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'CHAPTER VAULT',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.secondaryText,
+                        color: palette.textSecondary,
                         letterSpacing: 0.8,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       widget.chapter.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.primaryText,
+                        color: palette.textPrimary,
                         letterSpacing: -0.3,
                       ),
                       maxLines: 1,
@@ -345,12 +338,12 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
           ElevatedButton.icon(
             key: const Key('chapter_vault_upload_button'),
             icon: _isUploading
-                ? const SizedBox(
+                ? SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.background,
+                      color: palette.onAccent,
                     ),
                   )
                 : const Icon(Icons.upload_file_outlined, size: 18),
@@ -387,7 +380,7 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
               error: (err, _) => Center(
                 child: Text(
                   'Failed to load files: $err',
-                  style: const TextStyle(color: Colors.red, fontSize: 13),
+                  style: TextStyle(color: palette.danger, fontSize: 13),
                 ),
               ),
             ),

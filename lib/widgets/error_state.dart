@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../core/constants/dimens.dart';
 import '../core/constants/theme.dart';
 
-/// Monochrome error state widget.
+/// Polished error state widget.
 class ErrorState extends StatelessWidget {
   final String title;
   final String message;
@@ -18,9 +19,11 @@ class ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: const EdgeInsets.all(AppDimens.space32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
@@ -29,37 +32,39 @@ class ErrorState extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: AppTheme.borderRadius8,
-                border: Border.all(color: AppColors.border, width: 1),
+                color: palette.dangerSoft,
+                shape: BoxShape.circle,
+                border: Border.all(color: palette.border, width: AppDimens.hairline),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.error_outline,
                 size: 28,
-                color: AppColors.primaryText,
+                color: palette.danger,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppDimens.space16),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primaryText,
+                color: palette.textPrimary,
+                letterSpacing: -0.2,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppDimens.space8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.secondaryText,
+                color: palette.textSecondary,
+                height: 1.4,
               ),
             ),
             if (onRetry != null) ...[
-              const SizedBox(height: 20),
+              const SizedBox(height: AppDimens.space20),
               OutlinedButton(
                 onPressed: onRetry,
                 child: Text(retryLabel),

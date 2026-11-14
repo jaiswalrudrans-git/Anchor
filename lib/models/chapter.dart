@@ -8,6 +8,7 @@ class Chapter {
   final String moduleId;
   final String title;
   final int sortOrder;
+  final bool isStudied;
 
   const Chapter({
     required this.id,
@@ -15,6 +16,7 @@ class Chapter {
     required this.moduleId,
     required this.title,
     this.sortOrder = 0,
+    this.isStudied = false,
   });
 
   Chapter copyWith({
@@ -23,6 +25,7 @@ class Chapter {
     String? moduleId,
     String? title,
     int? sortOrder,
+    bool? isStudied,
   }) {
     return Chapter(
       id: id ?? this.id,
@@ -30,6 +33,7 @@ class Chapter {
       moduleId: moduleId ?? this.moduleId,
       title: title ?? this.title,
       sortOrder: sortOrder ?? this.sortOrder,
+      isStudied: isStudied ?? this.isStudied,
     );
   }
 
@@ -40,6 +44,7 @@ class Chapter {
       moduleId: json['module_id'] as String,
       title: json['title'] as String,
       sortOrder: parseInt(json['sort_order'], 0),
+      isStudied: json['is_studied'] as bool? ?? false,
     );
   }
 
@@ -50,6 +55,7 @@ class Chapter {
       'module_id': moduleId,
       'title': title,
       'sort_order': sortOrder,
+      'is_studied': isStudied,
     };
   }
 
@@ -62,7 +68,8 @@ class Chapter {
           userId == other.userId &&
           moduleId == other.moduleId &&
           title == other.title &&
-          sortOrder == other.sortOrder;
+          sortOrder == other.sortOrder &&
+          isStudied == other.isStudied;
 
   @override
   int get hashCode =>
@@ -70,5 +77,6 @@ class Chapter {
       userId.hashCode ^
       moduleId.hashCode ^
       title.hashCode ^
-      sortOrder.hashCode;
+      sortOrder.hashCode ^
+      isStudied.hashCode;
 }
