@@ -86,7 +86,7 @@ void main() {
       // Tap Academics tab
       await tester.tap(find.text('Academics'));
       await tester.pumpAndSettle();
-      expect(find.text('Academics & Vault'), findsOneWidget);
+      expect(find.text('+ Subject'), findsOneWidget);
 
       // Tap Expenses tab
       await tester.tap(find.text('Expenses'));

@@ -261,7 +261,9 @@ class AppTheme {
       // Chip
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surface,
+        selectedColor: AppColors.primaryText,
         disabledColor: AppColors.surface,
+        checkmarkColor: AppColors.background,
         elevation: 0,
         pressElevation: 0,
         shape: RoundedRectangleBorder(
@@ -272,6 +274,11 @@ class AppTheme {
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.primaryText,
+        ),
+        secondaryLabelStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.background,
         ),
       ),
 

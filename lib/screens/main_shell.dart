@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/theme.dart';
+import '../core/services/exam_cleanup_service.dart';
 import '../core/services/rollover_service.dart';
+import '../providers/academics_providers.dart';
 import '../providers/home_providers.dart';
 import 'home/home_screen.dart';
 import 'academics/academics_screen.dart';
@@ -36,9 +38,9 @@ class _MainShellState extends ConsumerState<MainShell> with WidgetsBindingObserv
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Run rollover engine on initial authenticated launch
+    // Run rollover engine and past exam cleanup on initial authenticated launch
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _triggerRollover();
+      _triggerBackgroundSync();
     });
   }
 
@@ -51,18 +53,20 @@ class _MainShellState extends ConsumerState<MainShell> with WidgetsBindingObserv
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _triggerRollover();
+      _triggerBackgroundSync();
     }
   }
 
-  Future<void> _triggerRollover() async {
+  Future<void> _triggerBackgroundSync() async {
     try {
       await ref.read(rolloverServiceProvider).runRollover();
+      await ref.read(examCleanupServiceProvider).runCleanup();
       if (mounted) {
         await ref.read(todosProvider.notifier).refreshTodos();
+        await ref.read(academicItemsProvider.notifier).refresh();
       }
     } catch (e) {
-      debugPrint('MainShell: error running rollover: $e');
+      debugPrint('MainShell: error running background sync: $e');
     }
   }
 

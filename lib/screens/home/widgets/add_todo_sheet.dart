@@ -149,6 +149,12 @@ class _AddTodoSheetState extends ConsumerState<AddTodoSheet> {
             autofocus: true,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _submit(),
+            autocorrect: false,
+            enableSuggestions: false,
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.primaryText,
+            ),
             decoration: const InputDecoration(
               hintText: 'What needs to be done?',
             ),
