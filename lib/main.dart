@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,9 +24,7 @@ Future<void> main() async {
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     try {
       await windowManager.ensureInitialized();
-      const windowOptions = WindowOptions(
-        minimumSize: Size(360, 600),
-      );
+      const windowOptions = WindowOptions(minimumSize: Size(360, 600));
       await windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.setMinimumSize(const Size(360, 600));
         await windowManager.show();
@@ -61,11 +60,7 @@ Future<void> main() async {
     anonKey: SupabaseConfig.anonKey, // ignore: deprecated_member_use
   );
 
-  runApp(
-    const ProviderScope(
-      child: AnchorApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: AnchorApp()));
 }
 
 /// Fallback app displayed when build-time configuration is missing.
@@ -108,7 +103,7 @@ class MissingConfigApp extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Anchor requires Supabase credentials to connect to the backend. Please launch the app with the required --dart-define flags:',
+                      'Anchor requires Supabase credentials to connect to the backend. Launch the app with the required --dart-define flags:',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,

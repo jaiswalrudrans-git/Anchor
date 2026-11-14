@@ -116,11 +116,11 @@ class _EditAllowanceDialogState extends ConsumerState<EditAllowanceDialog> {
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
-                    return 'Please enter an allowance amount';
+                    return 'Enter an allowance amount';
                   }
                   final parsed = double.tryParse(val.trim());
                   if (parsed == null || parsed < 0) {
-                    return 'Please enter a valid amount (>= 0)';
+                    return 'Enter a valid amount (>= 0)';
                   }
                   return null;
                 },

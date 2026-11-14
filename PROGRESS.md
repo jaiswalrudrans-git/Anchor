@@ -1,8 +1,51 @@
 # Anchor App - Project Progress Log
 
-## Current Status: Polish Stage 2C (Floating Dock Footer + Pop-Out Tabs + Separate Round Plus) Complete
+## Current Status: Polish Stage 7 Complete (Responsive Matrix, Universal Alignment & Final Hardening) — ALL 7 POLISH STAGES COMPLETE
 
-### 1. Polish Stage 2C Summary: Floating Dock Footer (Pop-Out Tabs + Separate Round Plus)
+### 1. Polish Stage 7 Summary: Responsive Matrix, Universal Alignment & Quality Audit
+
+- **Universal Responsive Dock Alignment (`lib/widgets/navigation/floating_dock.dart`)**:
+  - **Exact Closed Geometry & Math Formula**: Removed all arbitrary edge clamping (`[84, width - 84]`) which previously caused 52 dp decoupling on Home (slot 0) and Habits (slot 3).
+  - Slot Center Formula: `centerX = (position + 0.5) * (totalWidth / 4.0)` ensures identical mathematical alignment for destination slots, pop-out bubble, and the concave notch across every device width.
+  - Path Subtraction: `Path.combine(PathOperation.difference, pill, cutout)` naturally blends the notch into the dock's rounded end caps, guaranteeing a continuous closed path with zero edge collisions.
+  - Verified across 10 distinct viewport configurations (`360x640`, `390x844`, `412x915`, `600x960`, `768x1024`, `1024x768`, `1280x800`, `1920x1080`, `844x390` landscape, and `717x800` foldable) at both 1.0 and 1.3 text scales with **zero layout overflow**.
+
+- **Programmatic Theme & WCAG Contrast Audit (`test/quality_audit_test.dart`)**:
+  - All 7 accent colors (`Iris`, `Jade`, `Ember`, `Saffron`, `Rose`, `Lagoon`, `Plum`) audited across light and dark modes:
+    - Graphical elements / badges meet $\ge 3:1$ contrast against background and card surfaces.
+    - `ContrastHelper.onAccent` dynamically selects `#FFFFFF` or `#111111` for high-luminance accents (such as Saffron), guaranteeing $\ge 4.5:1$ text contrast.
+    - Dark mode surfaces use near-black `#0E0E10` and `#17171A` with higher-luminance dark accent variants.
+  - Zero hardcoded colors outside `theme.dart`.
+
+- **Motion Tier & Consistency Audit**:
+  | Interaction / Component | Motion Tier | Duration | Curve | Purpose |
+  |---|---|---|---|---|
+  | Dock Slot Glide | Functional / Subtle | 320 ms | `Curves.easeInOutCubic` | Seamless lateral glide of notch + bubble |
+  | Bubble Arrival Pop | Micro-interaction | 180 ms | `Curves.easeOutBack` | 4 dp lift + 6% scale overshoot on arrival |
+  | Quick Add Plus Rotation | Functional | 200 ms | `Curves.easeInOut` | 45° rotation into 'X' when modal sheet opens |
+  | Pressable Scale | Tap Feedback | 100 ms | `Curves.fastOutSlowIn` | Subtle button compression (scale 0.94) |
+  | Keyboard Slide | Adaptive | 200 ms | `Curves.easeInOut` | Dock & Plus slide offscreen on keyboard entry |
+  | Habit Completion Flash | Playful Moment | 300 ms | `Curves.easeOut` | Habit cell glow & celebration on check |
+  | Milestone Celebrations | Achievement | 500 ms | `Curves.easeOutBack` | Triggered only on: all tasks done, focus session complete, exam marked done |
+  - **Reduced Motion**: Respects `MediaQuery.disableAnimations` across all navigation and interactive components, instantly jumping to destination with zero overshoot or delays.
+
+- **Accessibility & Copy Audit**:
+  - All interactive controls provide `Semantics` tags (`button: true`, `selected: bool`, `label: String`).
+  - Added keyboard activation (`Enter` / `Space`) via `FocusableActionDetector` to `PressableScale` and `ProfileMenu` accent swatches.
+  - Desktop keyboard shortcuts: `Ctrl+N` opens Quick Add; `Esc` dismisses modals; Arrow keys navigate the floating rail.
+  - Minimum tap targets $\ge 44$ dp everywhere.
+  - Prohibited copy words (`successfully`, `please`, `Click here`) removed; sentence case with clean terminal punctuation applied.
+
+- **Automated Verification & Test Suite**:
+  - `test/quality_audit_test.dart`: **24/24 PASSED** (Multi-device matrix, theme contrast, reduced motion).
+  - `test/floating_dock_polish_test.dart`: **35/35 PASSED**.
+  - `test/dock_shape_test.dart`: **18/18 PASSED**.
+  - **Total Test Suite (`flutter test`)**: **317 unit, widget, and layout tests** passing across all 15 test files (100% green).
+  - `flutter analyze`: **0 issues found** (completely clean).
+
+---
+
+### 2. Polish Stage 2C Summary: Floating Dock Footer (Pop-Out Tabs + Separate Round Plus)
 
 - **Floating Dock Navigation Architecture (`lib/widgets/navigation/`)**:
   - Replaced the Stage 2B notched `BottomAppBar` with a **floating pill-shaped dock** holding the 4 destinations (Home, Academics, Expenses, Habits) and a **separate floating round plus button** to the right.

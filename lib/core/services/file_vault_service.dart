@@ -293,7 +293,7 @@ class FileVaultService {
           await tempFile.delete();
           return OpenResult(
             type: ResultType.error,
-            message: 'Download incomplete. Please try again.',
+            message: 'Download incomplete. Try again.',
           );
         }
       } catch (e) {

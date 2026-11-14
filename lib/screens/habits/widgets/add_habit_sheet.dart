@@ -135,7 +135,7 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
-                    return 'Please enter a habit title';
+                    return 'Enter a habit title';
                   }
                   return null;
                 },

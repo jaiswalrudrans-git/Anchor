@@ -119,7 +119,7 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
             ? 'Income logged'
             : 'Expense logged';
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$label successfully.')));
+            .showSnackBar(SnackBar(content: Text('$label.')));
       }
     } catch (e) {
       if (mounted) {

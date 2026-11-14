@@ -312,44 +312,49 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
               final swatchColor = accent.colorFor(Theme.of(context).brightness);
               final onColor = ContrastHelper.onAccent(swatchColor);
 
-              return PressableScale(
-                key: Key('accent_swatch_${accent.id}'),
-                onTap: () {
-                  ref.read(themeControllerProvider.notifier).setAccent(accent);
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: swatchColor,
-                        shape: BoxShape.circle,
-                        border: isSelected
-                            ? Border.all(
-                                color: palette.textPrimary.withValues(alpha: 0.9),
-                                width: 2.5,
-                              )
-                            : Border.all(
-                                color: palette.border,
-                                width: AppDimens.hairline,
-                              ),
+              return Semantics(
+                label: 'Accent color ${accent.displayName}${isSelected ? ", selected" : ""}',
+                button: true,
+                selected: isSelected,
+                child: PressableScale(
+                  key: Key('accent_swatch_${accent.id}'),
+                  onTap: () {
+                    ref.read(themeControllerProvider.notifier).setAccent(accent);
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: swatchColor,
+                          shape: BoxShape.circle,
+                          border: isSelected
+                              ? Border.all(
+                                  color: palette.textPrimary.withValues(alpha: 0.9),
+                                  width: 2.5,
+                                )
+                              : Border.all(
+                                  color: palette.border,
+                                  width: AppDimens.hairline,
+                                ),
+                        ),
+                        child: isSelected
+                            ? Icon(Icons.check, size: 20, color: onColor)
+                            : null,
                       ),
-                      child: isSelected
-                          ? Icon(Icons.check, size: 20, color: onColor)
-                          : null,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      accent.displayName,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                        color: isSelected ? palette.textPrimary : palette.textSecondary,
+                      const SizedBox(height: 4),
+                      Text(
+                        accent.displayName,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          color: isSelected ? palette.textPrimary : palette.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             }).toList(),

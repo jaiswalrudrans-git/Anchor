@@ -187,6 +187,6 @@ Output: `build/windows/x64/runner/Release/`
 
 1. **Scheduled Notifications**: Scheduled reminders for assignments (21:00 on `due_date - 1`) and exams (08:00 on `due_date - 3`) use `flutter_local_notifications` and exact alarm APIs which are **Android-only** in v1. On Windows and Web, notification scheduling calls are safe no-ops and will never throw errors or crash.
 2. **File Vault In-App Viewer**: Anchor intentionally avoids bloated custom PDF/Office rendering libraries. Tap-to-open delegates directly to the native operating system's default viewer via `open_filex` for maximum fidelity and zero memory overhead.
-3. **Workout Checklist Reset**: The workout checklist completion state is derived dynamically from `last_completed_date == today`. It resets naturally each calendar day without requiring background services or cron jobs. Exercise templates are persistent and never deleted automatically.
+3. **Workout Module Deprecation**: Per Polish Stage 6, workout tracking was deprecated and removed in favor of habits and academic focus. Tables `workout_exercises` and `workout_days` are dropped via migration `005_drop_workout.sql`.
 4. **Single Currency**: Expense tracking is configured for Indian Rupee (`₹`) formatting in v1. Multi-currency conversion or receipt scanning is outside v1 scope.
 5. **Windows Visual Studio Build Requirement**: Building native Windows C++ binaries requires Visual Studio 2022 with the "Desktop development with C++" workload installed (`flutter doctor`).
