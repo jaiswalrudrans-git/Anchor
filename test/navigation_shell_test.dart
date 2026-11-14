@@ -78,9 +78,10 @@ void main() {
           home: const ProviderScope(child: MainShell()),
         ),
       );
+      await tester.pumpAndSettle();
 
       // Initially on Home tab
-      expect(find.text('No tasks scheduled'), findsOneWidget);
+      expect(find.text('Nothing planned for today.'), findsOneWidget);
 
       // Tap Academics tab
       await tester.tap(find.text('Academics'));
@@ -105,7 +106,7 @@ void main() {
       // Tap back to Home
       await tester.tap(find.text('Home'));
       await tester.pumpAndSettle();
-      expect(find.text('No tasks scheduled'), findsOneWidget);
+      expect(find.text('Nothing planned for today.'), findsOneWidget);
     });
   });
 

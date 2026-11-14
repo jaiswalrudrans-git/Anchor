@@ -1,102 +1,82 @@
-# Execute App - Project Progress Log
+# Anchor App - Project Progress Log
 
-## Current Status: Stage 1 Complete (Foundation, Backend & Auth)
+## Current Status: Stage 2 Complete (Home, Rollover Engine & Kill Idle Time)
 
 ### 1. What Exists Now
-- **Flutter Multi-platform Project Skeleton**: Configured for Android (`io.execute.app`, singleTask launchMode, deep link intent filters) and Windows Desktop ("Execute" window and binary name, `io.execute.app` custom protocol handler, single-instance forwarding).
+- **Flutter Multi-platform Project Skeleton**: Configured for Android (`io.anchor.app`, singleTask launchMode, deep link intent filters), Windows Desktop ("Anchor" window and binary name, `io.anchor.app` custom protocol handler, single-instance forwarding), and Web preview.
 - **Strict Monochrome Wireframe System**: Complete theme tokens and `ThemeData` adhering to `#FFFFFF` background, `#F4F4F5` surface, `#E4E4E7` 1px border, `#111111` primary text/action fill, `#71717A` secondary text, `#A1A1AA` disabled, elevation 0, and max 8px border radius.
 - **Supabase Backend Schema**: Full migration script (`supabase/migrations/001_init.sql`) defining all 14 tables, UUID PKs, RLS policies, cascading foreign keys, performance indexes, and the private `academic_vault` storage bucket with folder security policies.
 - **Data Models**: All 14 typed immutable Dart data models with `fromJson`, `toJson`, `copyWith`, date-only parsing, and robust num handling (`int` and `double`).
-- **Date Utilities**: Date-only sanitization (`dateOnly`, `today`), ISO parsing and formatting (`formatDbDate`, `parseDbDate`), month keys (`monthKey`), week start calculation (`startOfWeek`), and DST-immune day difference (`daysBetween`).
+- **Date Utilities**: Date-only sanitization (`dateOnly`, `today`, `tomorrow`), ISO parsing and formatting (`formatDbDate`, `parseDbDate`), month keys (`monthKey`), week start calculation (`startOfWeek`), and DST-immune day difference (`daysBetween`).
 - **OAuth Authentication Service**: `AuthService` using Supabase OAuth with Google (`OAuthProvider.google`), deep-link callback integration (`app_links`), session state stream (`authStateProvider`), and current user provider (`currentUserProvider`).
-- **Adaptive Main Shell**: Responsive root navigation switching between bottom `NavigationBar` (< 700px) and left `NavigationRail` (>= 700px) with 5 tabs in exact order: **Home | Academics | Expenses | Habits | Workout**. State preserved via `IndexedStack`. Zero global FAB in shell.
-- **Missing Configuration Fallback**: Informative, non-crashing diagnostic screen when `--dart-define` keys are missing.
-- **Test Suite**: 26 unit and widget tests covering date utilities, all 14 models round-trip JSON serialization, shell layout responsiveness, and auth/missing config screens.
+- **Adaptive Main Shell**: Responsive root navigation switching between bottom `NavigationBar` (< 700px) and left `NavigationRail` (>= 700px) with 5 tabs in exact order: **Home | Academics | Expenses | Habits | Workout**. State preserved via `IndexedStack`. Zero global FAB in shell. Lifecycle observer running rollover checks on `resumed`.
+- **Rollover Engine (`lib/core/services/rollover_service.dart`)**:
+  - Pure helper `computeRollover(scheduledDate, today) -> int` returning exact days missed for overdue incomplete tasks and 0 for same-day or future tasks.
+  - Idempotent `runRollover()` guarded against concurrent execution (`_isRunning`). Queries `is_completed = false AND scheduled_date < today`, updates `scheduled_date = today` and `rollover_count += daysMissed`. Runs on app launch, auth login, and app resume.
+- **Home To-Do Data Layer & Providers (`lib/providers/home_providers.dart`)**:
+  - `todosProvider`: `AsyncNotifier` supporting `addTodo`, `toggleComplete`, `reschedule`, `delete`, and `refreshTodos` with optimistic UI updates and error rollback.
+  - `todaysTodosProvider`: Derived provider for today's tasks sorted by: rollover > 0 descending, then created_at ascending, completed tasks sink to bottom.
+  - `tomorrowsTodosProvider`: Derived provider for pre-scheduled tasks for tomorrow.
+  - `idlePromptsProvider`: `AsyncNotifier` managing idle challenge pool, auto-seeding 4 defaults once, supporting custom additions and deletions.
+  - `killIdleUnlockedProvider`: Returns `true` ONLY if today has tasks and all are completed (`is_completed = true`).
+- **Home UI (`lib/screens/home/`)**:
+  - `KillIdleWidget`: Top status banner. Renders muted status line when locked ("Plan today's tasks first" or "N task(s) left today. Finish them to unlock Kill Idle Time.") and prominent button when unlocked.
+  - `KillIdleDialog`: Challenge modal with random prompt display, "Shuffle Another", 15:00 countdown focus timer (properly cancelled in `dispose`), and "Manage Pool" bottom sheet.
+  - Quick-add inline input (`home_quick_add_input`) and local header actions (no FAB in shell).
+  - `AddTodoSheet`: Modal bottom sheet containing ONLY to-do fields (title, Today / Tomorrow / Pick date selector) without foreign inputs.
+  - `TodoItemRow`: Monochrome task row with checkbox, strikethrough, `Rolled over Nx` badge, reschedule calendar button (preserving rollover count), and delete button with confirmation dialog.
+  - Collapsible "Tomorrow" section for pre-scheduled tasks.
+  - Placeholder slot widgets: `AcademicRadarSlot` (Stage 3) and `WorkoutStripSlot` (Stage 7).
+- **Test Suite**: 41 unit and widget tests covering date utils, all 14 models, rollover engine logic, sorting rules, unlock conditions, to-do sheet assertions, shell adaptability, and auth states. Clean `flutter analyze` (0 issues).
 
 ---
 
 ### 2. Files Added & Changed
 
-#### Root & Platform Config
-- `pubspec.yaml` - Added `supabase_flutter`, `flutter_riverpod`, `app_links`, `url_launcher`, `intl`, `path`.
-- `android/app/build.gradle.kts` - Updated namespace and applicationId to `io.execute.app`.
-- `android/app/src/main/AndroidManifest.xml` - Added INTERNET permission, singleTask launchMode, display name "Execute", and `io.execute.app://login-callback` intent filter.
-- `android/app/src/main/kotlin/io/execute/app/MainActivity.kt` - Kotlin package aligned with `io.execute.app`.
-- `windows/runner/main.cpp` - Integrated `app_links` C API (`SendAppLinkToInstance`), set window title to "Execute".
-- `windows/runner/Runner.rc` - Set ProductName and FileDescription to "Execute".
+#### Stage 2 Files Added
+- `lib/core/services/rollover_service.dart` - Rollover calculation and idempotent background database sync.
+- `lib/screens/home/widgets/academic_radar_slot.dart` - Slot widget for Stage 3.
+- `lib/screens/home/widgets/workout_strip_slot.dart` - Slot widget for Stage 7.
+- `lib/screens/home/widgets/add_todo_sheet.dart` - Modal sheet with strict to-do fields.
+- `lib/screens/home/widgets/todo_item_row.dart` - Row widget with checkbox, badges, reschedule picker, delete dialog.
+- `lib/screens/home/widgets/kill_idle_widget.dart` - Top status / unlocked action banner.
+- `lib/screens/home/widgets/kill_idle_dialog.dart` - 15:00 timer, shuffle, pool management.
+- `test/home_unit_test.dart` - 12 unit tests for rollover calculation, sorting, and unlock logic.
+- `test/home_widget_test.dart` - 3 widget tests for to-do sheet field validation and unlock UI behavior.
 
-#### Database & Documentation
-- `supabase/migrations/001_init.sql` - Complete idempotent database schema, RLS, indexes, and storage policies.
-- `SETUP.md` - Complete setup guide for Supabase, GCP OAuth, redirect whitelists, Windows protocol, and CLI run commands.
-- `PROGRESS.md` - Stage progress documentation.
-
-#### Core
-- `lib/core/constants/supabase_config.dart` - Supabase URL, anon key, redirect URL, and Windows protocol registration.
-- `lib/core/constants/theme.dart` - Monochrome tokens and complete Material 3 `ThemeData`.
-- `lib/core/constants/categories.dart` - Standard expense categories.
-- `lib/core/utils/date_utils.dart` - Date-only handling, formatting, parsing, differences.
-- `lib/core/utils/streak_utils.dart` - Placeholder for Stage 4.
-- `lib/core/services/auth_service.dart` - OAuth Google auth service, session stream, and Riverpod providers.
-- `lib/core/services/file_vault_service.dart` - Placeholder for Stage 3.
-- `lib/core/services/notification_service.dart` - Placeholder for Stage 2.
-- `lib/core/services/rollover_service.dart` - Placeholder for Stage 2.
-- `lib/core/services/exam_cleanup_service.dart` - Placeholder for Stage 3.
-- `lib/core/services/expense_reset_service.dart` - Placeholder for Stage 5.
-
-#### Models
-- `lib/models/model_helpers.dart` - Num parsing helpers.
-- `lib/models/todo.dart` - Todo model.
-- `lib/models/idle_prompt.dart` - Idle prompt model.
-- `lib/models/subject.dart` - Academic subject model.
-- `lib/models/module.dart` - Academic module model.
-- `lib/models/chapter.dart` - Academic chapter model.
-- `lib/models/chapter_file.dart` - Chapter file attachment model.
-- `lib/models/academic_item.dart` - Assignment / exam item model.
-- `lib/models/expense_settings.dart` - Expense settings model.
-- `lib/models/expense_transaction.dart` - Expense transaction model.
-- `lib/models/habit.dart` - Habit model.
-- `lib/models/habit_log.dart` - Habit completion log model.
-- `lib/models/workout_day.dart` - Workout day model.
-- `lib/models/workout_exercise.dart` - Workout exercise model.
-- `lib/models/expense_month_summary.dart` - Monthly expense summary model.
-
-#### Providers
-- `lib/providers/home_providers.dart` - Placeholder for Stage 2.
-- `lib/providers/academics_providers.dart` - Placeholder for Stage 3.
-- `lib/providers/expenses_providers.dart` - Placeholder for Stage 5.
-- `lib/providers/habits_providers.dart` - Placeholder for Stage 4.
-- `lib/providers/workout_providers.dart` - Placeholder for Stage 6.
-
-#### UI & Screens
-- `lib/main.dart` - Application entrypoint, auth gate, missing config fallback screen.
-- `lib/screens/auth_screen.dart` - Unauthenticated Google sign-in screen.
-- `lib/screens/main_shell.dart` - Adaptive 5-destination navigation shell.
-- `lib/screens/home/home_screen.dart` - Home tab placeholder with Sign Out menu.
-- `lib/screens/academics/academics_screen.dart` - Academics tab placeholder.
-- `lib/screens/expenses/expenses_screen.dart` - Expenses tab placeholder.
-- `lib/screens/habits/habits_screen.dart` - Habits tab placeholder.
-- `lib/screens/workout/workout_screen.dart` - Workout tab placeholder.
-- `lib/widgets/empty_state.dart` - Reusable monochrome empty state.
-- `lib/widgets/loading_state.dart` - Reusable monochrome loading state.
-- `lib/widgets/error_state.dart` - Reusable monochrome error state.
-- `lib/widgets/responsive_container.dart` - Desktop max 900px centering container.
-
-#### Tests
-- `test/date_utils_test.dart` - 7 tests for `AppDateUtils`.
-- `test/models_test.dart` - 14 tests for all models round-trip serialization and copyWith.
-- `test/navigation_shell_test.dart` - 5 widget tests for adaptive shell, tabs, auth, and config fallback.
+#### Stage 2 Files Modified
+- `lib/core/utils/date_utils.dart` - Added `tomorrow()`.
+- `lib/providers/home_providers.dart` - Complete implementation of `todosProvider`, `idlePromptsProvider`, derived providers, and pure sorting functions.
+- `lib/screens/home/home_screen.dart` - Integrated Kill Idle Time, to-do list, tomorrow collapsible section, and slots.
+- `lib/screens/main_shell.dart` - Integrated `WidgetsBindingObserver` to run rollover checks on `resumed`.
+- `test/navigation_shell_test.dart` - Updated to ensure zero FAB in shell and async list settling.
 
 ---
 
 ### 3. Public Service & Provider Names
+- `rolloverServiceProvider`: Provider of `RolloverService`.
+- `todosProvider`: `AsyncNotifierProvider` for to-dos.
+- `todaysTodosProvider`: Derived provider for today's sorted to-dos.
+- `tomorrowsTodosProvider`: Derived provider for tomorrow's pre-scheduled to-dos.
+- `idlePromptsProvider`: `AsyncNotifierProvider` for idle challenge prompts.
+- `killIdleUnlockedProvider`: Derived provider returning `bool` unlock status.
+- `AcademicRadarSlot`: Placeholder slot widget for Stage 3 (`lib/screens/home/widgets/academic_radar_slot.dart`).
+- `WorkoutStripSlot`: Placeholder slot widget for Stage 7 (`lib/screens/home/widgets/workout_strip_slot.dart`).
 - `authServiceProvider`: Provider of `AuthService`.
 - `authStateProvider`: StreamProvider of `AuthState` from Supabase.
 - `currentUserProvider`: Provider of current Supabase `User?`.
-- `AppDateUtils`: Static utility class for dates (`dateOnly`, `today`, `formatDbDate`, `parseDbDate`, `monthKey`, `startOfWeek`, `daysBetween`).
+- `AppDateUtils`: Static utility class for dates (`dateOnly`, `today`, `tomorrow`, `formatDbDate`, `parseDbDate`, `monthKey`, `startOfWeek`, `daysBetween`).
 - `SupabaseConfig`: Configuration helper reading `--dart-define` parameters.
 - `AppColors`, `AppTheme`: Global styling tokens and light ThemeData.
 
 ---
+
+### 4. What Stage 3 Needs to Know
+- Slot widget `AcademicRadarSlot` is already located at `lib/screens/home/widgets/academic_radar_slot.dart` and mounted in `HomeScreen` directly below the collapsible "Tomorrow" section and above `WorkoutStripSlot`.
+- In Stage 3, replace the internal contents of `AcademicRadarSlot` with the actual Academic Radar widget (showing urgent assignments, exam countdowns, and quick access to subjects/vault).
+- Date utilities in `AppDateUtils` should be used for all exam/assignment due dates.
+- All 14 data models are in `lib/models/`, including `Subject`, `Module`, `Chapter`, `ChapterFile`, and `AcademicItem`.
+- `academic_vault` storage bucket is already defined in migration `001_init.sql`.
 
 ### 4. Known Limitations
 - Native compilation on Windows requires developer machines to have the "Desktop development with C++" workload installed via Visual Studio Installer.

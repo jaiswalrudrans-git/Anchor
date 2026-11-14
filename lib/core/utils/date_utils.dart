@@ -17,6 +17,12 @@ class AppDateUtils {
     return dateOnly(DateTime.now());
   }
 
+  /// Returns tomorrow's date with time set to midnight local.
+  static DateTime tomorrow() {
+    final t = today();
+    return DateTime(t.year, t.month, t.day + 1);
+  }
+
   /// Formats a [DateTime] to 'yyyy-MM-dd' for database storage.
   static String formatDbDate(DateTime dt) {
     return _dbDateFormat.format(dt);

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/theme.dart';
+import '../core/services/rollover_service.dart';
+import '../providers/home_providers.dart';
 import 'home/home_screen.dart';
 import 'academics/academics_screen.dart';
 import 'expenses/expenses_screen.dart';
@@ -10,14 +13,14 @@ import 'workout/workout_screen.dart';
 /// Adapts between bottom NavigationBar (< 700px) and left NavigationRail (>= 700px).
 /// Uses IndexedStack to preserve state between tabs.
 /// Contains NO FloatingActionButton and NO global add actions.
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
+class _MainShellState extends ConsumerState<MainShell> with WidgetsBindingObserver {
   int _currentIndex = 0;
 
   static const List<Widget> _screens = [
@@ -27,6 +30,41 @@ class _MainShellState extends State<MainShell> {
     HabitsScreen(),
     WorkoutScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // Run rollover engine on initial authenticated launch
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _triggerRollover();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _triggerRollover();
+    }
+  }
+
+  Future<void> _triggerRollover() async {
+    try {
+      await ref.read(rolloverServiceProvider).runRollover();
+      if (mounted) {
+        await ref.read(todosProvider.notifier).refreshTodos();
+      }
+    } catch (e) {
+      debugPrint('MainShell: error running rollover: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
