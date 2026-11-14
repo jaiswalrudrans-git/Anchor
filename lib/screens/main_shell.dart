@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/theme.dart';
 import '../core/services/exam_cleanup_service.dart';
+import '../core/services/expense_reset_service.dart';
 import '../core/services/rollover_service.dart';
 import '../providers/academics_providers.dart';
+import '../providers/expenses_providers.dart';
+import '../providers/habits_providers.dart';
 import '../providers/home_providers.dart';
+import '../providers/workout_providers.dart';
 import 'home/home_screen.dart';
 import 'academics/academics_screen.dart';
 import 'expenses/expenses_screen.dart';
@@ -61,9 +65,17 @@ class _MainShellState extends ConsumerState<MainShell> with WidgetsBindingObserv
     try {
       await ref.read(rolloverServiceProvider).runRollover();
       await ref.read(examCleanupServiceProvider).runCleanup();
+      await ref.read(expenseResetServiceProvider).runMonthlyReset();
       if (mounted) {
         await ref.read(todosProvider.notifier).refreshTodos();
         await ref.read(academicItemsProvider.notifier).refresh();
+        await ref.read(expenseSettingsProvider.notifier).refreshSettings();
+        await ref.read(allTransactionsProvider.notifier).refresh();
+        await ref.read(monthSummariesProvider.notifier).refresh();
+        await ref.read(habitsProvider.notifier).refresh();
+        await ref.read(habitLogsProvider.notifier).refresh();
+        await ref.read(workoutDaysProvider.notifier).refresh();
+        await ref.read(workoutExercisesProvider.notifier).refresh();
       }
     } catch (e) {
       debugPrint('MainShell: error running background sync: $e');

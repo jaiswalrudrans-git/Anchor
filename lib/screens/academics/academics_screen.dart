@@ -226,7 +226,7 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
                                 key: const Key('academics_add_subject_chip'),
                                 avatar: const Icon(Icons.add, size: 16, color: AppColors.primaryText),
                                 label: const Text(
-                                  '+ Subject',
+                                  'Subject',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,

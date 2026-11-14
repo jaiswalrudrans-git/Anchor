@@ -86,22 +86,22 @@ void main() {
       // Tap Academics tab
       await tester.tap(find.text('Academics'));
       await tester.pumpAndSettle();
-      expect(find.text('+ Subject'), findsOneWidget);
+      expect(find.byKey(const Key('academics_add_subject_chip')), findsOneWidget);
 
       // Tap Expenses tab
       await tester.tap(find.text('Expenses'));
       await tester.pumpAndSettle();
-      expect(find.text('Expenses & Budget'), findsOneWidget);
+      expect(find.text('MONTHLY ALLOWANCE'), findsOneWidget);
 
       // Tap Habits tab
       await tester.tap(find.text('Habits'));
       await tester.pumpAndSettle();
-      expect(find.text('Habits & Streaks'), findsOneWidget);
+      expect(find.text('Overview'), findsOneWidget);
 
       // Tap Workout tab
       await tester.tap(find.text('Workout'));
       await tester.pumpAndSettle();
-      expect(find.text('Workout Splits'), findsOneWidget);
+      expect(find.byKey(const Key('add_exercise_button')), findsOneWidget);
 
       // Tap back to Home
       await tester.tap(find.text('Home'));

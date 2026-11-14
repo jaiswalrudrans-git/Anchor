@@ -6,6 +6,18 @@ class AppDateUtils {
 
   static final DateFormat _dbDateFormat = DateFormat('yyyy-MM-dd');
   static final DateFormat _monthKeyFormat = DateFormat('yyyy-MM');
+  static final DateFormat _monthTitleFormat = DateFormat('MMMM yyyy');
+
+  static final NumberFormat _inCurrency = NumberFormat.currency(
+    locale: 'en_IN',
+    symbol: '₹',
+    decimalDigits: 2,
+  );
+
+  /// Formats an amount with Indian Rupee grouping and symbol (e.g. ₹1,23,456.00).
+  static String formatCurrency(num amount) {
+    return _inCurrency.format(amount);
+  }
 
   /// Returns a [DateTime] with only the year, month, and day (midnight local).
   static DateTime dateOnly(DateTime dt) {
@@ -43,6 +55,56 @@ class AppDateUtils {
   /// Returns the 'YYYY-MM' month key for a given [DateTime].
   static String monthKey(DateTime dt) {
     return _monthKeyFormat.format(dt);
+  }
+
+  /// Parses a 'YYYY-MM' string into a [DateTime] for the 1st of that month.
+  static DateTime parseMonthKey(String monthKey) {
+    final parts = monthKey.trim().split('-');
+    if (parts.length != 2) {
+      throw FormatException('Invalid month key (expected yyyy-MM): $monthKey');
+    }
+    final year = int.parse(parts[0]);
+    final month = int.parse(parts[1]);
+    return DateTime(year, month, 1);
+  }
+
+  /// Formats 'YYYY-MM' to a friendly title like 'November 2026'.
+  static String formatMonthTitle(String monthKey) {
+    final dt = parseMonthKey(monthKey);
+    return _monthTitleFormat.format(dt);
+  }
+
+  /// Computes the subsequent month key 'YYYY-MM'.
+  static String nextMonthKey(String monthKey) {
+    final parts = monthKey.trim().split('-');
+    int year = int.parse(parts[0]);
+    int month = int.parse(parts[1]);
+    if (month == 12) {
+      year += 1;
+      month = 1;
+    } else {
+      month += 1;
+    }
+    return '$year-${month.toString().padLeft(2, '0')}';
+  }
+
+  /// Computes the previous month key 'YYYY-MM'.
+  static String prevMonthKey(String monthKey) {
+    final parts = monthKey.trim().split('-');
+    int year = int.parse(parts[0]);
+    int month = int.parse(parts[1]);
+    if (month == 1) {
+      year -= 1;
+      month = 12;
+    } else {
+      month -= 1;
+    }
+    return '$year-${month.toString().padLeft(2, '0')}';
+  }
+
+  /// Returns true if monthKey [a] is strictly before monthKey [b] ('YYYY-MM').
+  static bool isMonthBefore(String a, String b) {
+    return a.compareTo(b) < 0;
   }
 
   /// Returns the Monday of the week for the given [DateTime] as a date-only [DateTime].

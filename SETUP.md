@@ -69,10 +69,10 @@ delete from public.todos where id = '11111111-1111-1111-1111-111111111111';
 
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
 2. Create or select a project, then navigate to **APIs & Services -> Credentials**.
-3. Configure the **OAuth Consent Screen** (User type: External, add your email and app name "Execute").
+3. Configure the **OAuth Consent Screen** (User type: External, add your email and app name "Anchor").
 4. Click **Create Credentials -> OAuth client ID**:
    - Application type: **Web application**
-   - Name: `Execute Auth`
+   - Name: `Anchor Auth`
    - **Authorized JavaScript origins**:
      - `https://<project-ref>.supabase.co`
    - **Authorized redirect URIs**:
@@ -134,29 +134,55 @@ Supabase must be instructed to permit redirects back to our application custom s
 
 ---
 
-## 6. Running the Application
+## 6. Running & Building the Application
 
 Never hardcode Supabase keys into source code. Always pass them via `--dart-define`:
 
-### Android
+### Running in Debug / Development
+
+#### Android
 ```bash
 flutter run -d android \
   --dart-define=SUPABASE_URL=https://<project-ref>.supabase.co \
   --dart-define=SUPABASE_ANON_KEY=<your-anon-key>
 ```
 
-### Windows Desktop
-```bash
-flutter run -d windows \
-  --dart-define=SUPABASE_URL=https://<project-ref>.supabase.co \
+#### Windows Desktop
+```powershell
+flutter run -d windows `
+  --dart-define=SUPABASE_URL=https://<project-ref>.supabase.co `
   --dart-define=SUPABASE_ANON_KEY=<your-anon-key>
 ```
 
-### Missing Config Graceful Fallback
+#### Missing Config Graceful Fallback
 If you run without flags (`flutter run`), the app displays a clear monochrome diagnostic screen with copyable command line flags rather than crashing.
 
 ---
 
-## 7. Known Issues & Platform Notes
-- **Windows Visual Studio Build Requirement**: Building native Windows C++ binaries requires Visual Studio with the "Desktop development with C++" workload installed (`flutter doctor`).
-- **Android Notifications**: Notifications scheduled in Stage 2 use `flutter_local_notifications` which is Android-specific; platform checks ensure safe no-ops on Windows.
+### Building for Release
+
+#### Android APK
+```bash
+flutter build apk --release \
+  --dart-define=SUPABASE_URL=https://<project-ref>.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=<your-anon-key>
+```
+Output: `build/app/outputs/flutter-apk/app-release.apk`
+
+#### Windows Desktop Release Binary
+```powershell
+flutter build windows --release `
+  --dart-define=SUPABASE_URL=https://<project-ref>.supabase.co `
+  --dart-define=SUPABASE_ANON_KEY=<your-anon-key>
+```
+Output: `build/windows/x64/runner/Release/`
+
+---
+
+## 7. Known v1 Limitations & Platform Notes
+
+1. **Scheduled Notifications**: Scheduled reminders for assignments (21:00 on `due_date - 1`) and exams (08:00 on `due_date - 3`) use `flutter_local_notifications` and exact alarm APIs which are **Android-only** in v1. On Windows and Web, notification scheduling calls are safe no-ops and will never throw errors or crash.
+2. **File Vault In-App Viewer**: Anchor intentionally avoids bloated custom PDF/Office rendering libraries. Tap-to-open delegates directly to the native operating system's default viewer via `open_filex` for maximum fidelity and zero memory overhead.
+3. **Workout Checklist Reset**: The workout checklist completion state is derived dynamically from `last_completed_date == today`. It resets naturally each calendar day without requiring background services or cron jobs. Exercise templates are persistent and never deleted automatically.
+4. **Single Currency**: Expense tracking is configured for Indian Rupee (`₹`) formatting in v1. Multi-currency conversion or receipt scanning is outside v1 scope.
+5. **Windows Visual Studio Build Requirement**: Building native Windows C++ binaries requires Visual Studio 2022 with the "Desktop development with C++" workload installed (`flutter doctor`).
