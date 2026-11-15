@@ -58,4 +58,7 @@ key.properties
 
 # Performance trace dumps
 /perf/raw_traces/
+
+# Binary distributions
+/dist/
 perf/*.timeline.json
