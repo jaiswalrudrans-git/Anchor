@@ -49,7 +49,14 @@ class AuthService {
 
   /// Handles incoming redirect URIs containing auth tokens or PKCE codes.
   Future<void> handleAuthUri(Uri uri) async {
-    if (uri.scheme == 'io.anchor.app' || uri.scheme == 'io.execute.app') {
+    final isCustomScheme =
+        uri.scheme == 'io.anchor.app' || uri.scheme == 'io.execute.app';
+    final hasAuthParams =
+        uri.queryParameters.containsKey('code') ||
+        uri.fragment.contains('access_token') ||
+        uri.fragment.contains('error');
+
+    if (isCustomScheme || hasAuthParams) {
       try {
         await _supabase.auth.getSessionFromUrl(uri);
       } catch (e) {
@@ -64,6 +71,9 @@ class AuthService {
     return await _supabase.auth.signInWithOAuth(
       OAuthProvider.google,
       redirectTo: redirect,
+      queryParams: const {
+        'prompt': 'select_account',
+      },
     );
   }
 

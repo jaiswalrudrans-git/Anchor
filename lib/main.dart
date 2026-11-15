@@ -43,10 +43,7 @@ Future<void> main() async {
                 child: Text(
                   'Something went wrong. Please restart the app.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: palette?.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 14, color: palette?.textMuted),
                 ),
               ),
             ),
