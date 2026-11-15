@@ -24,4 +24,13 @@ class AppLog {
       }
     }
   }
+
+  /// Named argument variant for convenience: `AppLog.error('msg', error: e)`.
+  static void error(
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
+    e(message, error, stackTrace);
+  }
 }

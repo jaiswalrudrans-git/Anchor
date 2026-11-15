@@ -32,18 +32,26 @@ Future<void> main() async {
   };
   ErrorWidget.builder = (FlutterErrorDetails details) {
     if (kReleaseMode) {
-      return const Material(
-        color: Colors.transparent,
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(24.0),
-            child: Text(
-              'Something went wrong. Please restart the app.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Color(0xFF71717A)),
+      return Builder(
+        builder: (context) {
+          final palette = Theme.of(context).extension<AppPalette>();
+          return Material(
+            color: Colors.transparent,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Text(
+                  'Something went wrong. Please restart the app.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: palette?.textMuted,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       );
     }
     return ErrorWidget(details.exception);
