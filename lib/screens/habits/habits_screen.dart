@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/theme.dart';
 import '../../providers/habits_providers.dart';
 import '../../widgets/responsive/page_container.dart';
+import '../../widgets/responsive/page_top_bar.dart';
 import 'widgets/add_habit_sheet.dart';
 import 'widgets/habits_overview_tab.dart';
 import 'widgets/weekly_report_tab.dart';
@@ -28,15 +29,8 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
     final palette = context.palette;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Habits',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.5,
-          ),
-        ),
+      appBar: PageTopBar(
+        title: const Text('Habits'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12.0),

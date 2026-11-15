@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../core/utils/responsive.dart';
 
-/// Centers page content with max width 1100, adaptive horizontal padding (16 / 24 / 32),
-/// and bottom clearance on compact screens (>= 88 dp) so nothing is hidden behind
-/// the notched bottom bar and Quick Add button.
+/// Centers page content with max width 1200, adaptive horizontal padding (16 / 24 / 32),
+/// and bottom clearance on compact screens so nothing is hidden behind the bottom dock.
+/// On desktop and tablets (>= 600 dp), uses 24 dp bottom padding.
 class PageContainer extends StatelessWidget {
   final Widget child;
   final double maxWidth;
@@ -27,7 +27,7 @@ class PageContainer extends StatelessWidget {
         padding ??
         EdgeInsets.fromLTRB(
           hPadding,
-          0,
+          16.0,
           hPadding,
           isCompact ? ShellMetrics.contentBottomPadding(context) : 24.0,
         );

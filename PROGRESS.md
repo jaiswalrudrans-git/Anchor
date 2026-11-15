@@ -1,6 +1,48 @@
 # Anchor App - Project Progress Log
 
-## Current Status: Final Stage Complete (Smooth 120 Hz, Clean-Up, Release Builds for Windows & Android) — SHIP READY
+## Current Status: PC / Windows Docked Sidebar & Standalone Executable Packaging Complete — SHIP READY
+
+### Phase 7: PC / Windows Docked Sidebar & Standalone Installer Packaging
+
+- **Docked Left Sidebar Navigation (`lib/widgets/navigation/side_nav.dart`)**:
+  - Replaced legacy floating rail with a docked left sidebar (Notion / Linear style) adhering to responsive design rules.
+  - **Compact Rail (600–899 dp, width 80 dp)**:
+    - 32 dp centered `AnchorMark` brand mark.
+    - 48 dp circular Add button.
+    - 4 top-aligned destinations (each 64 dp tall, 4 dp gap) with a 56x32 dp pill positioned strictly behind the icon and an 11 sp label below (zero overlap guarantee verified by tests).
+  - **Full Sidebar (>= 900 dp, width 248 dp)**:
+    - 48 dp brand lockup row with 28 dp `AnchorMark` and 20 sp bold `anchor` wordmark.
+    - Full-width Add button (height 44 dp, radius 12 dp) featuring a `Ctrl N` hint chip and no glow/colored shadow.
+    - `Menu` section header.
+    - 4 full-width destination rows (height 44 dp, 4 dp gap) with a shared sliding `accentSoft` highlight container and a left 3x20 dp accent bar indicator.
+    - Footer with collapse toggle (`chevron_left`), 1 px hairline border, and `v1.0.0` version indicator.
+  - **Persistence & Keyboard Navigation**:
+    - Sidebar collapse preference persisted via `SharedPreferences` (`sidebar_collapsed`), active only at >= 900 dp.
+    - Expand toggle (`chevron_right`) at bottom of rail when collapsed.
+    - Global keyboard shortcuts: `Ctrl+N` (Quick Add), `Ctrl+1..4` (Destination tabs), `Ctrl+B` (Toggle sidebar collapse), `Esc` (Close sheets).
+    - Full keyboard navigation with 2 px accent focus ring and Arrow keys, Home, End, Enter, and Space support.
+
+- **Responsive Page Layouts**:
+  - **PageTopBar (`lib/widgets/responsive/page_top_bar.dart`)**: 64 dp top bar (56 dp on compact mobile) with hairline border, aligning title and actions with content margins.
+  - **PageContainer (`lib/widgets/responsive/page_container.dart`)**: Centered layout with `maxWidth = 1200.0` and adaptive horizontal padding (16 / 24 / 32 dp).
+  - Centered dialogs in `showAdaptiveSheet` offset by sidebar width so modals center perfectly over the content area.
+
+- **Standalone Windows Executable Packaging**:
+  - **Standalone Setup Executable (`dist\Anchor-Setup.exe`, 14.5 MB)**:
+    - Built via Windows native `IExpress` self-extracting packaging engine.
+    - Bundles `anchor.exe`, all plugin DLLs (`flutter_windows.dll`, `app_links_plugin.dll`, `url_launcher_windows_plugin.dll`, `flutter_timezone_plugin.dll`, `screen_retriever_windows_plugin.dll`, `window_manager_plugin.dll`, `flutter_local_notifications_windows.dll`), and the `data/` asset bundle into a single self-contained executable.
+    - Automatically installs to `%LOCALAPPDATA%\Programs\Anchor` and creates Windows Desktop (`Anchor.lnk`) and Start Menu shortcuts.
+    - Eliminates "DLL not found" errors when executed from any directory or downloaded standalone.
+  - **Portable Windows Distribution (`dist\Anchor-Windows-x64\`, `dist\Anchor-Windows-x64.zip`)**:
+    - Complete folder containing runtime binaries, assets, `Create-Desktop-Shortcut.bat`, and `Install-Anchor.bat`.
+  - **Updated Desktop Setup**:
+    - Deployed `Anchor-Setup.exe` and updated `Anchor-Windows-x64` directly onto user's Desktop with functioning Desktop shortcut.
+
+- **Automated Verification**:
+  - **344/344 tests passed** across all test suites (`flutter test`).
+  - **0 issues found** on `dart analyze`.
+
+---
 
 ### Final Stage Summary: Release Optimization, Performance & Production Packaging
 

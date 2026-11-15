@@ -5,6 +5,7 @@ import '../../core/constants/theme.dart';
 import '../../models/subject.dart';
 import '../../providers/academics_providers.dart';
 import '../../widgets/responsive/page_container.dart';
+import '../../widgets/responsive/page_top_bar.dart';
 import 'widgets/add_assignment_sheet.dart';
 import 'widgets/add_exam_sheet.dart';
 import 'widgets/add_module_dialog.dart';
@@ -206,7 +207,7 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
     final palette = context.palette;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: PageTopBar(
         title: const Text('Academics'),
         actions: [
           IconButton(

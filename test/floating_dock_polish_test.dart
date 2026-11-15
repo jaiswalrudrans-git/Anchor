@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:anchor/core/constants/theme.dart';
 import 'package:anchor/screens/main_shell.dart';
 import 'package:anchor/widgets/navigation/floating_dock.dart';
-import 'package:anchor/widgets/navigation/floating_rail.dart';
+import 'package:anchor/widgets/navigation/side_nav.dart';
 
 void main() {
   group('1. DockShape Path Geometry & Continuity Tests', () {
@@ -362,7 +362,7 @@ void main() {
             if (size.width < 600) {
               expect(find.byType(FloatingDock), findsOneWidget);
             } else {
-              expect(find.byType(FloatingRail), findsOneWidget);
+              expect(find.byType(SideNav), findsOneWidget);
             }
           },
         );

@@ -13,9 +13,10 @@ import '../providers/academics_providers.dart';
 import '../providers/expenses_providers.dart';
 import '../providers/habits_providers.dart';
 import '../providers/home_providers.dart';
+import '../providers/sidebar_provider.dart';
 import '../widgets/navigation/floating_dock.dart';
-import '../widgets/navigation/floating_rail.dart';
 import '../widgets/navigation/quick_add_button.dart';
+import '../widgets/navigation/side_nav.dart';
 import '../widgets/quick_add/quick_add_sheet.dart';
 import 'academics/academics_screen.dart';
 import 'expenses/expenses_screen.dart';
@@ -92,9 +93,10 @@ class _MainShellState extends ConsumerState<MainShell>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Run rollover engine and past exam cleanup on initial authenticated launch
+    // Run rollover engine, past exam cleanup, and load sidebar state on launch
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _triggerBackgroundSync();
+      ref.read(sidebarCollapsedProvider.notifier).init();
     });
   }
 
@@ -146,11 +148,26 @@ class _MainShellState extends ConsumerState<MainShell>
   Widget build(BuildContext context) {
     final palette = context.palette;
     final currentIndex = ref.watch(mainNavIndexProvider);
+    final isSidebarCollapsed = ref.watch(sidebarCollapsedProvider);
 
     return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.keyN, control: true):
             _openQuickAdd,
+        const SingleActivator(LogicalKeyboardKey.digit1, control: true): () =>
+            ref.read(mainNavIndexProvider.notifier).setIndex(0),
+        const SingleActivator(LogicalKeyboardKey.digit2, control: true): () =>
+            ref.read(mainNavIndexProvider.notifier).setIndex(1),
+        const SingleActivator(LogicalKeyboardKey.digit3, control: true): () =>
+            ref.read(mainNavIndexProvider.notifier).setIndex(2),
+        const SingleActivator(LogicalKeyboardKey.digit4, control: true): () =>
+            ref.read(mainNavIndexProvider.notifier).setIndex(3),
+        const SingleActivator(LogicalKeyboardKey.keyB, control: true): () {
+          final isExpanded = Breakpoints.isExpanded(context);
+          if (isExpanded) {
+            ref.read(sidebarCollapsedProvider.notifier).toggle();
+          }
+        },
       },
       child: Focus(
         autofocus: true,
@@ -164,8 +181,9 @@ class _MainShellState extends ConsumerState<MainShell>
               return Scaffold(
                 backgroundColor: palette.background,
                 body: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    FloatingRail(
+                    SideNav(
                       destinations: _navDestinations,
                       selectedIndex: currentIndex,
                       onSelected: (index) {
@@ -173,12 +191,11 @@ class _MainShellState extends ConsumerState<MainShell>
                       },
                       onQuickAdd: _openQuickAdd,
                       isQuickAddOpen: _isQuickAddOpen,
-                      isExpanded: isExpanded,
-                    ),
-                    VerticalDivider(
-                      thickness: 1,
-                      width: 1,
-                      color: palette.border,
+                      isCollapsed: isSidebarCollapsed,
+                      onToggleCollapse: () {
+                        ref.read(sidebarCollapsedProvider.notifier).toggle();
+                      },
+                      canCollapse: isExpanded,
                     ),
                     Expanded(
                       child: IndexedStack(

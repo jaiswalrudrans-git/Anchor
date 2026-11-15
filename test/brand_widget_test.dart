@@ -7,7 +7,7 @@ import 'package:anchor/screens/auth_screen.dart';
 import 'package:anchor/screens/boot_screen.dart';
 import 'package:anchor/widgets/brand/anchor_logo.dart';
 import 'package:anchor/widgets/navigation/floating_dock.dart';
-import 'package:anchor/widgets/navigation/floating_rail.dart';
+import 'package:anchor/widgets/navigation/side_nav.dart';
 
 Widget _buildThemedTestHarness({
   required Widget child,
@@ -195,7 +195,7 @@ void main() {
     });
   });
 
-  group('FloatingRail Branding Tests', () {
+  group('SideNav Branding Tests', () {
     final destinations = [
       const DockDestination(
         key: Key('dest_home'),
@@ -211,32 +211,36 @@ void main() {
       ),
     ];
 
-    testWidgets('renders AnchorWordmark on expanded rail', (tester) async {
+    testWidgets('renders AnchorMark and wordmark on expanded sidebar', (tester) async {
       await tester.pumpWidget(
         _buildThemedTestHarness(
-          child: FloatingRail(
+          child: SideNav(
             destinations: destinations,
             selectedIndex: 0,
             onSelected: (_) {},
             onQuickAdd: () {},
-            isExpanded: true,
+            canCollapse: true,
+            isCollapsed: false,
+            onToggleCollapse: () {},
           ),
         ),
       );
 
-      expect(find.byType(AnchorWordmark), findsOneWidget);
+      expect(find.byType(AnchorMark), findsOneWidget);
       expect(find.text('anchor'), findsOneWidget);
     });
 
-    testWidgets('renders AnchorMark (28dp) on medium rail', (tester) async {
+    testWidgets('renders AnchorMark (32dp) on compact rail without wordmark', (tester) async {
       await tester.pumpWidget(
         _buildThemedTestHarness(
-          child: FloatingRail(
+          child: SideNav(
             destinations: destinations,
             selectedIndex: 0,
             onSelected: (_) {},
             onQuickAdd: () {},
-            isExpanded: false,
+            canCollapse: false,
+            isCollapsed: false,
+            onToggleCollapse: () {},
           ),
         ),
       );

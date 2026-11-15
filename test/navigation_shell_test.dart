@@ -5,9 +5,8 @@ import 'package:anchor/core/constants/theme.dart';
 import 'package:anchor/main.dart';
 import 'package:anchor/screens/auth_screen.dart';
 import 'package:anchor/screens/main_shell.dart';
-import 'package:anchor/widgets/brand/anchor_logo.dart';
 import 'package:anchor/widgets/navigation/floating_dock.dart';
-import 'package:anchor/widgets/navigation/floating_rail.dart';
+import 'package:anchor/widgets/navigation/side_nav.dart';
 
 void main() {
   group('MainShell Navigation and Adaptive Layout Tests', () {
@@ -26,9 +25,9 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Verify FloatingDock exists and FloatingRail/BottomAppBar/FAB do not
+        // Verify FloatingDock exists and SideNav/BottomAppBar/FAB do not
         expect(find.byType(FloatingDock), findsOneWidget);
-        expect(find.byType(FloatingRail), findsNothing);
+        expect(find.byType(SideNav), findsNothing);
         expect(find.byType(BottomAppBar), findsNothing);
         expect(find.byType(FloatingActionButton), findsNothing);
 
@@ -44,7 +43,7 @@ void main() {
       },
     );
 
-    testWidgets('shows compact FloatingRail on medium width (600-899px)', (
+    testWidgets('shows compact rail on medium width (600-899px)', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(750, 800);
@@ -59,20 +58,23 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Verify compact FloatingRail exists and FloatingDock does not
-      expect(find.byType(FloatingRail), findsOneWidget);
+      // Verify compact rail exists and FloatingDock does not
+      expect(find.byType(SideNav), findsOneWidget);
       expect(find.byType(FloatingDock), findsNothing);
       expect(find.byType(FloatingActionButton), findsNothing);
 
-      final rail = tester.widget<FloatingRail>(find.byType(FloatingRail));
-      expect(rail.destinations.length, 4);
-      expect(rail.isExpanded, isFalse);
+      final nav = tester.widget<SideNav>(find.byType(SideNav));
+      expect(nav.destinations.length, 4);
+      expect(nav.canCollapse, isFalse);
 
-      // Verify Quick Add button in FloatingRail leading
+      final navSize = tester.getSize(find.byType(SideNav));
+      expect(navSize.width, 80.0);
+
+      // Verify Quick Add button in compact rail
       expect(find.byKey(const Key('quick_add_button')), findsOneWidget);
     });
 
-    testWidgets('shows extended FloatingRail on expanded width (>= 900px)', (
+    testWidgets('shows full sidebar on expanded width (>= 900px)', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(1024, 768);
@@ -87,20 +89,24 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Verify extended FloatingRail exists with 'Anchor' title
-      expect(find.byType(FloatingRail), findsOneWidget);
+      // Verify full sidebar exists with 'anchor' wordmark
+      expect(find.byType(SideNav), findsOneWidget);
       expect(find.byType(FloatingDock), findsNothing);
       expect(find.byType(FloatingActionButton), findsNothing);
 
-      final rail = tester.widget<FloatingRail>(find.byType(FloatingRail));
-      expect(rail.destinations.length, 4);
-      expect(rail.isExpanded, isTrue);
-      expect(find.byType(AnchorWordmark), findsOneWidget);
+      final nav = tester.widget<SideNav>(find.byType(SideNav));
+      expect(nav.destinations.length, 4);
+      expect(nav.canCollapse, isTrue);
+
+      final navSize = tester.getSize(find.byType(SideNav));
+      expect(navSize.width, 248.0);
       expect(find.text('anchor'), findsOneWidget);
 
-      // Verify Quick Add button in FloatingRail with 'Add' text
+      // Verify Quick Add button in full sidebar with 'Add' text and 'Ctrl N'
       expect(find.byKey(const Key('quick_add_button')), findsOneWidget);
       expect(find.text('Add'), findsOneWidget);
+      expect(find.text('Ctrl N'), findsOneWidget);
+      expect(find.byKey(const Key('sidebar_collapse_toggle')), findsOneWidget);
     });
 
     testWidgets(

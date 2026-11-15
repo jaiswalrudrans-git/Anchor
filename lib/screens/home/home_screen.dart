@@ -10,6 +10,7 @@ import '../../providers/home_providers.dart';
 import '../../widgets/profile/profile_avatar.dart';
 import '../../widgets/profile/profile_menu.dart';
 import '../../widgets/responsive/page_container.dart';
+import '../../widgets/responsive/page_top_bar.dart';
 import 'widgets/academic_radar_slot.dart';
 import 'widgets/kill_idle_widget.dart';
 import 'widgets/todays_tasks_card.dart';
@@ -95,7 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     const rightColumnWidgets = [AcademicRadarSlot()];
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: PageTopBar(
         title: const Text('Home'),
         actions: [
           IconButton(
@@ -105,7 +106,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(width: 4),
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+            padding: const EdgeInsets.only(right: 4.0),
             child: Center(
               child: ProfileAvatar(
                 key: const Key('home_profile_avatar_button'),
@@ -125,12 +126,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: PageContainer(
-              padding: EdgeInsets.symmetric(
-                horizontal: Breakpoints.horizontalPadding(
-                  Breakpoints.of(context),
-                ),
-                vertical: 20.0,
-              ),
               child: isExpanded
                   ? Row(
                       crossAxisAlignment: CrossAxisAlignment.start,

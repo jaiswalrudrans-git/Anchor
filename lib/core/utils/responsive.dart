@@ -16,7 +16,7 @@ class Breakpoints {
   static const double compactMax = 600.0;
   static const double mediumMax = 900.0;
 
-  static const double maxContentWidth = 1100.0;
+  static const double maxContentWidth = 1200.0;
   static const double maxSheetDialogWidth = 480.0;
 
   /// Returns the [SizeClass] for a given width.

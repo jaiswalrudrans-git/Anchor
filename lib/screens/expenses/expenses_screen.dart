@@ -7,6 +7,7 @@ import '../../core/services/expense_reset_service.dart';
 import '../../core/utils/app_log.dart';
 import '../../providers/expenses_providers.dart';
 import '../../widgets/responsive/page_container.dart';
+import '../../widgets/responsive/page_top_bar.dart';
 import 'widgets/expense_metrics_header.dart';
 import 'widgets/expenses_history_tab.dart';
 import 'widgets/monthly_ledger_tab.dart';
@@ -53,15 +54,8 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
     final palette = context.palette;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Expenses',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.5,
-          ),
-        ),
+      appBar: PageTopBar(
+        title: const Text('Expenses'),
         actions: [
           IconButton(
             key: const Key('expenses_refresh_button'),

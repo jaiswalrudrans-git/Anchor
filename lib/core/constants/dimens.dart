@@ -43,6 +43,23 @@ class AppDimens {
   static const double elevationFlat = 0.0;
   static const double elevationSheet = 4.0;
 
+  // Sidebar and Rail tokens (PC / Windows Layout)
+  static const double sidebarWidth = 248.0;
+  static const double railWidth = 80.0;
+  static const double sidebarItemHeight = 44.0;
+  static const double railItemHeight = 64.0;
+  static const double sidebarPaddingHorizontal = 12.0;
+  static const double sidebarPaddingTop = 16.0;
+  static const double sidebarPaddingBottom = 12.0;
+  static const double sidebarBrandHeight = 48.0;
+  static const double sidebarAddButtonHeight = 44.0;
+  static const double railAddButtonSize = 48.0;
+  static const double sidebarIndicatorWidth = 3.0;
+  static const double sidebarIndicatorHeight = 20.0;
+  static const double railPillWidth = 56.0;
+  static const double railPillHeight = 32.0;
+  static const double sidebarItemGap = 4.0;
+
   // Floating dock tokens (Stage 2C)
   static const double dockHeight = 68.0;
   static const double dockRadius = 34.0;

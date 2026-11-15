@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/constants/dimens.dart';
 import '../../core/utils/responsive.dart';
+import '../../providers/sidebar_provider.dart';
 
 /// Opens a bottom sheet on compact devices and a centered dialog (max width 480) on medium/expanded.
+/// On desktop and tablets with a docked sidebar/rail, the dialog is centered over the page area
+/// while the modal scrim covers the whole window.
 Future<T?> showAdaptiveSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -23,6 +28,20 @@ Future<T?> showAdaptiveSheet<T>({
       builder: builder,
     );
   } else {
+    final sizeClass = Breakpoints.of(context);
+    final double sidebarOffset;
+    if (sizeClass == SizeClass.medium) {
+      sidebarOffset = AppDimens.railWidth;
+    } else {
+      bool isCollapsed = false;
+      try {
+        isCollapsed = ProviderScope.containerOf(context, listen: false)
+            .read(sidebarCollapsedProvider);
+      } catch (_) {}
+      sidebarOffset =
+          isCollapsed ? AppDimens.railWidth : AppDimens.sidebarWidth;
+    }
+
     return showDialog<T>(
       context: context,
       builder: (ctx) {
@@ -30,7 +49,12 @@ Future<T?> showAdaptiveSheet<T>({
           backgroundColor: backgroundColor,
           shape: shape,
           clipBehavior: clipBehavior,
-          insetPadding: const EdgeInsets.all(24.0),
+          insetPadding: EdgeInsets.fromLTRB(
+            sidebarOffset + 24.0,
+            24.0,
+            24.0,
+            24.0,
+          ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(
               maxWidth: Breakpoints.maxSheetDialogWidth,
