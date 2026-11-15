@@ -7,6 +7,7 @@ import '../../core/constants/dimens.dart';
 import '../../core/constants/theme.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/utils/responsive.dart';
+import '../brand/anchor_logo.dart';
 import '../motion/animated_progress_bar.dart';
 import '../motion/pressable_scale.dart';
 import '../stat_chip.dart';
@@ -479,12 +480,23 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
           const SizedBox(height: 12),
           // 6. Version Footer
           Center(
-            child: Text(
-              'Anchor v$_version',
-              style: TextStyle(
-                fontSize: 11,
-                color: palette.textMuted,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                AnchorMark(
+                  size: 16.0,
+                  color: palette.textSecondary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'Anchor v$_version',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: palette.textMuted,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 8),

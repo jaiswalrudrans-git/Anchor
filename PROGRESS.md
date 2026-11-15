@@ -1,6 +1,63 @@
 # Anchor App - Project Progress Log
 
-## Current Status: Polish Stage 7 Complete (Responsive Matrix, Universal Alignment & Final Hardening) — ALL 7 POLISH STAGES COMPLETE
+## Current Status: Branding Stage Complete (Anchor Logo Applied Everywhere) — ALL POLISH STAGES & BRANDING COMPLETE
+
+### 0. Branding Stage Summary: Complete Brand Identity & Icon Integration
+
+- **Brand Asset Architecture & Generation Pipeline (`tool/generate_brand_assets.py`)**:
+  - Deterministic, Pillow-only script that creates all brand assets from source masters without external graphic editors.
+  - **Masters (`assets/branding/source/`)**:
+    - `anchor_symbol_transparent_1024.png`: transparent glyph master.
+    - `anchor_selected_black_on_white_1024.png`: legacy black on white master.
+    - `anchor_android_monochrome_1024.png`: Android 13 themed icon layer.
+  - **Programmatic Quality & Self-Check Assertions**:
+    - Adaptive icon foreground glyph fits strictly inside the 66% circle safe zone (maximum radius 130.10 px $\le 142.56$ px limit).
+    - Status bar notification icons (`ic_stat_anchor_*.png`) have pure white RGB `(255, 255, 255)` with variable alpha to prevent Android OS tinting artifacts.
+    - Windows ICO (`app_icon.ico`) contains all 9 required resolutions: `[16, 20, 24, 32, 40, 48, 64, 128, 256]`.
+    - Idempotent generation: running the script repeatedly yields 100% byte-for-byte identical assets.
+  - **Visual Verification Contact Sheet**:
+    - Generated `assets/branding/_preview.png` displaying adaptive masks (circle, squircle, rounded square), Android 13 themed preview, notification icon on dark bar, ICO resolutions, light/dark splash, and light/dark tab favicons.
+
+- **Platform-Level Branding Configurations**:
+  - **Android**:
+    - `android/app/src/main/AndroidManifest.xml`: Set `android:label="Anchor"` and `android:roundIcon="@mipmap/ic_launcher_round"`.
+    - Adaptive launcher icon: `res/mipmap-anydpi-v26/ic_launcher.xml` and `ic_launcher_round.xml` referencing `@drawable/ic_launcher_foreground` and `@color/ic_launcher_background` (`#FFFFFF`).
+    - Android 13 themed icons: `<monochrome android:drawable="@drawable/ic_launcher_monochrome"/>`.
+    - Notification icons: `res/drawable-*/ic_stat_anchor.png` (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) and configured in `NotificationService` as `@drawable/ic_stat_anchor`.
+    - Splash background colors: `#FFFFFF` (light) and `#0E0E10` (dark) matching Flutter canvas first-frame scaffolds.
+  - **Windows Desktop**:
+    - `windows/CMakeLists.txt`: Set `set(BINARY_NAME "anchor")` to generate `anchor.exe`.
+    - `windows/runner/Runner.rc`: Set `CompanyName` ("io.anchor"), `FileDescription` ("Anchor"), `InternalName` ("anchor"), `OriginalFilename` ("anchor.exe"), `ProductName` ("Anchor"), `LegalCopyright` ("Copyright (C) 2026 io.anchor. All rights reserved.").
+    - Window Title: `main.cpp` sets window title to `Anchor`.
+    - Application Icon: `windows/runner/resources/app_icon.ico` replaced with multi-resolution Anchor icon.
+    - Setup Installer: Created `windows/installer/anchor_setup.iss` and PowerShell automated build script `tool/build_windows_installer.ps1`.
+  - **Web & Static Landing Presence**:
+    - `web/index.html`: Set `<title>Anchor</title>`, `<meta name="theme-color">` for light (`#FFFFFF`) and dark (`#0E0E10`), Open Graph tags, apple-touch-icon, and favicons.
+    - `web/manifest.json`: Set name, short_name, theme colors, and icons (any & maskable).
+    - `site/`: Self-contained static landing website with responsive layout, light/dark mode support, download buttons, and complete PWA metadata.
+
+- **In-App Branding Widgets (`lib/widgets/brand/anchor_logo.dart`)**:
+  - `AnchorMark`: High-performance vector asset rendering `glyph_black.png` tinted via `ColorFilter.mode(palette.textPrimary, BlendMode.srcIn)` with semantic label `Anchor`.
+  - `AnchorTile`: Rounded square (radius $0.22 \times \text{size}$) in `cardRaised` with 1 px `border`, containing `AnchorMark` at 56% size.
+  - `AnchorWordmark`: Lockup containing `AnchorMark` and lowercase `anchor` in Inter SemiBold with $-0.5$ letter-spacing.
+  - `BootScreen` (`lib/screens/boot_screen.dart`): Splash continuation screen with 88 dp centered `AnchorMark`, 400 ms entry motion (`Motion.moment`), 600 ms delayed progress line, and 200 ms cross-fade handoff to auth/home. Respects reduced motion.
+  - `AuthScreen`: Replaced legacy "A" monogram with `AnchorTile(size: 72.0)`.
+  - `ProfileMenu`: Added `AnchorMark(size: 16.0, color: palette.textSecondary)` to version footer.
+  - `FloatingRail`: Displays `AnchorWordmark` on expanded desktop viewports ($\ge 900$ dp) and `AnchorMark(size: 28.0)` on medium viewports.
+
+- **Automated Verification**:
+  - `flutter analyze`: **0 issues found** (100% clean).
+  - `flutter test test/brand_widget_test.dart`: **16/16 PASSED** (AnchorMark light/dark tinting, AnchorTile 7 accents, BootScreen motion & reduced motion, AuthScreen tile audit, FloatingRail wordmark).
+  - `flutter test`: **333/333 PASSED** across all 16 test files.
+
+- **Manual Steps Checklist**:
+  1. Google Cloud Console: Set app name to "Anchor" and upload `assets/branding/android/playstore_512.png` on the OAuth consent screen.
+  2. Supabase Dashboard: In Auth > URL/branding and email templates, set display name to "Anchor" and configure brand logo URL.
+  3. Play Console: Upload `playstore_512.png` and `feature_graphic_1024x500.png` for store listing.
+  4. GitHub Repository: Set repository social preview / avatar to `assets/branding/web/og-image.png`.
+  5. Windows Installer: Install Inno Setup 6 on a Windows machine and execute `tool/build_windows_installer.ps1`.
+
+---
 
 ### 1. Polish Stage 7 Summary: Responsive Matrix, Universal Alignment & Quality Audit
 

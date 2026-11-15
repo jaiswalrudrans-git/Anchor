@@ -1,6 +1,9 @@
-# Anchor
-
-**Anchor** is a personal anti-procrastination, academics, expenses, and habits tracking application built with **Flutter** (targeting Android and Windows Desktop, with Web preview) and backed by **Supabase** (Postgres, Row Level Security, Storage, and Google OAuth).
+<div align="center">
+  <img src="assets/branding/glyph_black.png" alt="Anchor Logo" width="96" height="96" />
+  <h1>Anchor</h1>
+  <p><strong>Plan it. Do it. Anchor it.</strong></p>
+  <p>Personal anti-procrastination, academics, expenses, habits, and workouts tracking built with Flutter & Supabase.</p>
+</div>
 
 ---
 
@@ -11,6 +14,29 @@
 - **Backend**: Supabase (Postgres 15+, RLS, GoTrue Auth, Storage)
 - **Visual Design**: Strict monochrome wireframe with dynamic accents and dark mode
 - **Platforms**: Android, Windows Desktop, Web Preview
+
+---
+
+## Branding
+
+The Anchor brand mark is a solid black anchor glyph whose ring head contains a check mark.
+
+- **Asset Directory**: `assets/branding/`
+  - Masters: `assets/branding/source/`
+  - Core app assets: `glyph_black.png`, `glyph_white.png`, `tile_light_1024.png`, `tile_dark_1024.png`
+  - Platform assets: `assets/branding/android/`, `assets/branding/windows/`, `assets/branding/web/`
+  - In-app splash: `assets/branding/inapp/`
+  - Static landing site: `site/`
+  - Visual verification contact sheet: `assets/branding/_preview.png`
+- **Regenerate Assets**:
+  ```bash
+  python tool/generate_brand_assets.py
+  ```
+- **Brand Rules**:
+  1. The glyph is strictly monochrome: black (`#111111`) on light surfaces, white (`#FFFFFF`) on dark surfaces. Never apply accent colors to the brand mark.
+  2. The glyph is never stretched, rotated, outlined, or given drop shadows or decorative effects.
+  3. Minimum clear space around the glyph: 25% of its width.
+  4. Launcher / brand tile backgrounds: `#FFFFFF` for light mode, `#0E0E10` for dark mode.
 
 ---
 

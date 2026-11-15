@@ -5,6 +5,7 @@ import 'package:anchor/core/constants/theme.dart';
 import 'package:anchor/main.dart';
 import 'package:anchor/screens/auth_screen.dart';
 import 'package:anchor/screens/main_shell.dart';
+import 'package:anchor/widgets/brand/anchor_logo.dart';
 import 'package:anchor/widgets/navigation/floating_dock.dart';
 import 'package:anchor/widgets/navigation/floating_rail.dart';
 
@@ -92,7 +93,8 @@ void main() {
       final rail = tester.widget<FloatingRail>(find.byType(FloatingRail));
       expect(rail.destinations.length, 4);
       expect(rail.isExpanded, isTrue);
-      expect(find.text('Anchor'), findsOneWidget);
+      expect(find.byType(AnchorWordmark), findsOneWidget);
+      expect(find.text('anchor'), findsOneWidget);
 
       // Verify Quick Add button in FloatingRail with 'Add' text
       expect(find.byKey(const Key('quick_add_button')), findsOneWidget);

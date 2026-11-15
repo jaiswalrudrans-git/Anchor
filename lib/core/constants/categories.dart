@@ -1,4 +1,4 @@
-/// Standard expense categories across the Execute app.
+/// Standard expense categories across the Anchor app.
 class ExpenseCategories {
   ExpenseCategories._();
 

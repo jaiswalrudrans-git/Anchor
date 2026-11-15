@@ -12,9 +12,9 @@ import 'core/constants/supabase_config.dart';
 import 'core/constants/theme.dart';
 import 'core/services/auth_service.dart';
 import 'screens/auth_screen.dart';
+import 'screens/boot_screen.dart';
 import 'screens/main_shell.dart';
 import 'widgets/error_state.dart';
-import 'widgets/loading_state.dart';
 import 'widgets/responsive_container.dart';
 
 Future<void> main() async {
@@ -196,27 +196,25 @@ class AuthGate extends ConsumerWidget {
     final authStateAsync = ref.watch(authStateProvider);
     final palette = context.palette;
 
-    return authStateAsync.when(
+    final Widget child = authStateAsync.when(
       data: (authState) {
         final session = authState.session;
         if (session != null) {
-          return const MainShell();
+          return const MainShell(key: ValueKey('main_shell'));
         }
-        return const AuthScreen();
+        return const AuthScreen(key: ValueKey('auth_screen'));
       },
       loading: () {
         // Check if there is already a cached session before showing a loader
         final currentSession = ref.read(authServiceProvider).currentSession;
         if (currentSession != null) {
-          return const MainShell();
+          return const MainShell(key: ValueKey('main_shell'));
         }
-        return Scaffold(
-          backgroundColor: palette.background,
-          body: const LoadingState(message: 'Checking session...'),
-        );
+        return const BootScreen(key: ValueKey('boot_screen'));
       },
       error: (error, stack) {
         return Scaffold(
+          key: const ValueKey('error_screen'),
           backgroundColor: palette.background,
           body: ErrorState(
             title: 'Authentication Error',
@@ -225,6 +223,15 @@ class AuthGate extends ConsumerWidget {
           ),
         );
       },
+    );
+
+    final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+
+    return AnimatedSwitcher(
+      duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 200),
+      switchInCurve: Curves.easeIn,
+      switchOutCurve: Curves.easeOut,
+      child: child,
     );
   }
 }

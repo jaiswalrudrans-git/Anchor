@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/theme.dart';
 import '../core/services/auth_service.dart';
+import '../widgets/brand/anchor_logo.dart';
 import '../widgets/responsive_container.dart';
 
 /// Screen displayed when user is unauthenticated.
@@ -60,27 +61,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Minimal App Logo / Monogram
-              Center(
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: palette.accent,
-                    borderRadius: AppTheme.borderRadius8,
-                  ),
-                  child: Center(
-                    child: Text(
-                      'A',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: palette.onAccent,
-                        letterSpacing: -1,
-                      ),
-                    ),
-                  ),
-                ),
+              // Anchor Brand Tile
+              const Center(
+                child: AnchorTile(size: 72.0),
               ),
               const SizedBox(height: 24),
 

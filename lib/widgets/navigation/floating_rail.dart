@@ -2,9 +2,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../core/constants/dimens.dart';
 import '../../core/constants/theme.dart';
 import '../../core/utils/haptics.dart';
+import '../brand/anchor_logo.dart';
 import 'floating_dock.dart';
 import 'quick_add_button.dart';
 
@@ -157,72 +157,20 @@ class _FloatingRailState extends State<FloatingRail>
           crossAxisAlignment:
               widget.isExpanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
           children: [
-            // 1. App Title / Logo Header (Expanded mode)
+            // 1. App Title / Logo Header (AnchorWordmark on expanded, AnchorMark on medium)
             if (widget.isExpanded) ...[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 12, 8, 16),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: palette.accent,
-                        borderRadius: AppDimens.borderRadiusSm,
-                      ),
-                      child: Center(
-                        child: Text(
-                          'A',
-                          style: TextStyle(
-                            color: palette.onAccent,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Flexible(
-                      child: Text(
-                        'Anchor',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: palette.textPrimary,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(8, 12, 8, 16),
+                child: AnchorWordmark(markSize: 28.0),
               ),
             ] else ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: palette.accent,
-                  borderRadius: AppDimens.borderRadiusSm,
-                ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
-                  child: Text(
-                    'A',
-                    style: TextStyle(
-                      color: palette.onAccent,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
+                  child: AnchorMark(size: 28.0),
                 ),
               ),
-            ),
-          ],
+            ],
 
           // 2. Leading Quick Add Button above the panel
           Padding(

@@ -73,7 +73,7 @@ class NotificationService {
         debugPrint('NotificationService: local timezone detection fallback: $e');
       }
 
-      const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidInit = AndroidInitializationSettings('@drawable/ic_stat_anchor');
       const initSettings = InitializationSettings(android: androidInit);
 
       await _notificationsPlugin.initialize(settings: initSettings);
