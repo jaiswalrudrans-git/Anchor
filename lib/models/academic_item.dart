@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../core/utils/date_utils.dart';
 
 @immutable

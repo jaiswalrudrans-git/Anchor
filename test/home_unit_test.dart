@@ -31,46 +31,53 @@ void main() {
 
     test('month boundary overdue computes accurate days', () {
       final today = DateTime(2026, 11, 2);
-      final scheduled = DateTime(2026, 10, 30); // Oct has 31 days -> 3 days difference
+      final scheduled = DateTime(
+        2026,
+        10,
+        30,
+      ); // Oct has 31 days -> 3 days difference
       expect(RolloverService.computeRollover(scheduled, today), 3);
     });
   });
 
   group('To-Do Sorting - sortTodos', () {
-    test('tasks with rollover_count > 0 come first, descending by rollover_count', () {
-      final t1 = Todo(
-        id: '1',
-        userId: 'u',
-        title: 'Normal task 1',
-        scheduledDate: DateTime(2026, 11, 14),
-        isCompleted: false,
-        rolloverCount: 0,
-        createdAt: DateTime(2026, 11, 14, 8, 0),
-      );
-      final t2 = Todo(
-        id: '2',
-        userId: 'u',
-        title: 'Rolled over once',
-        scheduledDate: DateTime(2026, 11, 14),
-        isCompleted: false,
-        rolloverCount: 1,
-        createdAt: DateTime(2026, 11, 13, 8, 0),
-      );
-      final t3 = Todo(
-        id: '3',
-        userId: 'u',
-        title: 'Rolled over thrice',
-        scheduledDate: DateTime(2026, 11, 14),
-        isCompleted: false,
-        rolloverCount: 3,
-        createdAt: DateTime(2026, 11, 11, 8, 0),
-      );
+    test(
+      'tasks with rollover_count > 0 come first, descending by rollover_count',
+      () {
+        final t1 = Todo(
+          id: '1',
+          userId: 'u',
+          title: 'Normal task 1',
+          scheduledDate: DateTime(2026, 11, 14),
+          isCompleted: false,
+          rolloverCount: 0,
+          createdAt: DateTime(2026, 11, 14, 8, 0),
+        );
+        final t2 = Todo(
+          id: '2',
+          userId: 'u',
+          title: 'Rolled over once',
+          scheduledDate: DateTime(2026, 11, 14),
+          isCompleted: false,
+          rolloverCount: 1,
+          createdAt: DateTime(2026, 11, 13, 8, 0),
+        );
+        final t3 = Todo(
+          id: '3',
+          userId: 'u',
+          title: 'Rolled over thrice',
+          scheduledDate: DateTime(2026, 11, 14),
+          isCompleted: false,
+          rolloverCount: 3,
+          createdAt: DateTime(2026, 11, 11, 8, 0),
+        );
 
-      final sorted = sortTodos([t1, t2, t3]);
-      expect(sorted[0].id, '3'); // highest rollover (3)
-      expect(sorted[1].id, '2'); // rollover (1)
-      expect(sorted[2].id, '1'); // rollover (0)
-    });
+        final sorted = sortTodos([t1, t2, t3]);
+        expect(sorted[0].id, '3'); // highest rollover (3)
+        expect(sorted[1].id, '2'); // rollover (1)
+        expect(sorted[2].id, '1'); // rollover (0)
+      },
+    );
 
     test('non-rolled tasks sorted by created_at ascending', () {
       final earlier = Todo(
@@ -148,7 +155,10 @@ void main() {
       );
 
       expect(isKillIdleUnlocked([t1, t2]), isFalse);
-      expect(getKillIdleStatusMessage([t1, t2]), '1 task left today. Finish them to unlock Kill Idle Time.');
+      expect(
+        getKillIdleStatusMessage([t1, t2]),
+        '1 task left today. Finish them to unlock Kill Idle Time.',
+      );
     });
 
     test('returns false when rolled-over task is pending', () {
@@ -171,7 +181,10 @@ void main() {
       );
 
       expect(isKillIdleUnlocked([t1, t2]), isFalse);
-      expect(getKillIdleStatusMessage([t1, t2]), '1 task left today. Finish them to unlock Kill Idle Time.');
+      expect(
+        getKillIdleStatusMessage([t1, t2]),
+        '1 task left today. Finish them to unlock Kill Idle Time.',
+      );
     });
 
     test('returns true when all today tasks are completed', () {
@@ -194,7 +207,10 @@ void main() {
       );
 
       expect(isKillIdleUnlocked([t1, t2]), isTrue);
-      expect(getKillIdleStatusMessage([t1, t2]), 'All tasks done! Kill Idle Time unlocked.');
+      expect(
+        getKillIdleStatusMessage([t1, t2]),
+        'All tasks done! Kill Idle Time unlocked.',
+      );
     });
   });
 }

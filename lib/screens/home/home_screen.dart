@@ -21,7 +21,7 @@ import 'widgets/tomorrow_section.dart';
 /// - Kill Idle Time banner with animated progress bar & unlock transition
 /// - Today's Tasks card with clockwise progress stroke, inline task input, and achievement pulse
 /// - Collapsible Tomorrow section with its own inline pre-scheduler
-/// - Academic Radar and Workout Strip slots
+/// - Academic Radar and Tomorrow preview slots
 /// - Responsive two-column layout on expanded (>= 900 dp) and single column on compact/medium (< 900 dp).
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -92,9 +92,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ];
 
     // Right Column Content: Academic Radar
-    final rightColumnWidgets = const [
-      AcademicRadarSlot(),
-    ];
+    const rightColumnWidgets = [AcademicRadarSlot()];
 
     return Scaffold(
       appBar: AppBar(
@@ -128,7 +126,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             child: PageContainer(
               padding: EdgeInsets.symmetric(
-                horizontal: Breakpoints.horizontalPadding(Breakpoints.of(context)),
+                horizontal: Breakpoints.horizontalPadding(
+                  Breakpoints.of(context),
+                ),
                 vertical: 20.0,
               ),
               child: isExpanded
@@ -145,7 +145,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         const SizedBox(width: 24),
                         // Right column (flex 2)
-                        Expanded(
+                        const Expanded(
                           flex: 2,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,14 +10,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../models/chapter_file.dart';
+import '../utils/app_log.dart';
 
 const _uuid = Uuid();
 
 /// Status of a file in the Chapter Vault.
-enum VaultFileStatus {
-  cachedOffline,
-  cloudOnly,
-}
+enum VaultFileStatus { cachedOffline, cloudOnly }
 
 /// Service managing offline-first file vault operations:
 /// picking, uploading, caching, opening via default OS app, and cascading deletions.
@@ -55,7 +54,10 @@ class FileVaultService {
   }
 
   /// Resolves duplicate file names by appending " (1)", " (2)", etc. before the extension.
-  static String resolveDuplicateName(String originalName, List<String> existingNames) {
+  static String resolveDuplicateName(
+    String originalName,
+    List<String> existingNames,
+  ) {
     final lowerExisting = existingNames.map((n) => n.toLowerCase()).toSet();
     final sanitized = sanitizeFileName(originalName);
 
@@ -127,7 +129,10 @@ class FileVaultService {
   /// Computes the cache status for a [ChapterFile].
   Future<VaultFileStatus> getFileStatus(ChapterFile file) async {
     final localPath = await getLocalPath(file.chapterId, file.fileName);
-    final cached = isFileCachedOnDisk(localPath: localPath, expectedSize: file.fileSize);
+    final cached = isFileCachedOnDisk(
+      localPath: localPath,
+      expectedSize: file.fileSize,
+    );
     return cached ? VaultFileStatus.cachedOffline : VaultFileStatus.cloudOnly;
   }
 
@@ -152,7 +157,7 @@ class FileVaultService {
           .map((json) => ChapterFile.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      debugPrint('FileVaultService.fetchChapterFiles failed: $e');
+      AppLog.e('FileVaultService.fetchChapterFiles failed', e);
       return [];
     }
   }
@@ -173,7 +178,17 @@ class FileVaultService {
     final pickedFiles = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: [
-        'pdf', 'ppt', 'pptx', 'doc', 'docx', 'txt', 'xls', 'xlsx', 'png', 'jpg', 'jpeg'
+        'pdf',
+        'ppt',
+        'pptx',
+        'doc',
+        'docx',
+        'txt',
+        'xls',
+        'xlsx',
+        'png',
+        'jpg',
+        'jpeg',
       ],
     );
 
@@ -198,13 +213,18 @@ class FileVaultService {
 
       // 1. Upload to Supabase Storage
       try {
-        await client.storage.from(bucketName).uploadBinary(
+        await client.storage
+            .from(bucketName)
+            .uploadBinary(
               storagePath,
               bytes,
               fileOptions: const FileOptions(upsert: true),
             );
       } catch (storageError) {
-        debugPrint('FileVaultService: storage upload error for $finalName: $storageError');
+        AppLog.e(
+          'FileVaultService: storage upload error for $finalName',
+          storageError,
+        );
         rethrow;
       }
 
@@ -224,7 +244,10 @@ class FileVaultService {
         await client.from('chapter_files').insert(newFile.toJson());
       } catch (dbError) {
         // Rollback: delete storage object on database insert failure (no orphans)
-        debugPrint('FileVaultService: DB insert failed. Deleting uploaded storage object: $dbError');
+        AppLog.e(
+          'FileVaultService: DB insert failed. Deleting uploaded storage object',
+          dbError,
+        );
         try {
           await client.storage.from(bucketName).remove([storagePath]);
         } catch (_) {}
@@ -237,7 +260,10 @@ class FileVaultService {
         final localFile = File(localPath);
         await localFile.writeAsBytes(bytes, flush: true);
       } catch (cacheError) {
-        debugPrint('FileVaultService: local caching failed for $finalName: $cacheError');
+        AppLog.e(
+          'FileVaultService: local caching failed for $finalName',
+          cacheError,
+        );
       }
 
       uploadedFiles.add(newFile);
@@ -256,7 +282,10 @@ class FileVaultService {
     final localPath = await getLocalPath(file.chapterId, file.fileName);
 
     // If not cached, download from Supabase Storage
-    if (!isFileCachedOnDisk(localPath: localPath, expectedSize: file.fileSize)) {
+    if (!isFileCachedOnDisk(
+      localPath: localPath,
+      expectedSize: file.fileSize,
+    )) {
       final client = _supabase;
       if (client == null) {
         return OpenResult(
@@ -268,9 +297,11 @@ class FileVaultService {
       // Download bytes from Storage
       Uint8List bytes;
       try {
-        bytes = await client.storage.from(bucketName).download(file.storagePath);
+        bytes = await client.storage
+            .from(bucketName)
+            .download(file.storagePath);
       } catch (e) {
-        debugPrint('FileVaultService.openFile download error: $e');
+        AppLog.e('FileVaultService.openFile download error', e);
         return OpenResult(
           type: ResultType.error,
           message: 'Not downloaded yet and no connection.',
@@ -311,7 +342,7 @@ class FileVaultService {
     try {
       return await OpenFilex.open(localPath);
     } catch (e) {
-      debugPrint('FileVaultService: OpenFilex error: $e');
+      AppLog.e('FileVaultService: OpenFilex error', e);
       return OpenResult(
         type: ResultType.error,
         message: 'No application available to open ${file.fileType} files.',
@@ -329,7 +360,7 @@ class FileVaultService {
     try {
       await client.storage.from(bucketName).remove([file.storagePath]);
     } catch (e) {
-      debugPrint('FileVaultService.deleteFile Storage error: $e');
+      AppLog.e('FileVaultService.deleteFile Storage error', e);
       rethrow;
     }
 
@@ -341,14 +372,14 @@ class FileVaultService {
         await localFile.delete();
       }
     } catch (e) {
-      debugPrint('FileVaultService.deleteFile local cache delete error: $e');
+      AppLog.e('FileVaultService.deleteFile local cache delete error', e);
     }
 
     // 3. Delete database row
     try {
       await client.from('chapter_files').delete().eq('id', file.id);
     } catch (e) {
-      debugPrint('FileVaultService.deleteFile DB delete error: $e');
+      AppLog.e('FileVaultService.deleteFile DB delete error', e);
       rethrow;
     }
   }
@@ -388,7 +419,7 @@ class FileVaultService {
         await dir.delete(recursive: true);
       }
     } catch (e) {
-      debugPrint('FileVaultService.onChapterRemoved error: $e');
+      AppLog.e('FileVaultService.onChapterRemoved error', e);
     }
   }
 
@@ -410,7 +441,7 @@ class FileVaultService {
         await onChapterRemoved(chapterId);
       }
     } catch (e) {
-      debugPrint('FileVaultService.onModuleRemoved error: $e');
+      AppLog.e('FileVaultService.onModuleRemoved error', e);
     }
   }
 
@@ -432,7 +463,7 @@ class FileVaultService {
         await onModuleRemoved(moduleId);
       }
     } catch (e) {
-      debugPrint('FileVaultService.onSubjectRemoved error: $e');
+      AppLog.e('FileVaultService.onSubjectRemoved error', e);
     }
   }
 }

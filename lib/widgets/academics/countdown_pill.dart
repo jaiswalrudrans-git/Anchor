@@ -15,11 +15,7 @@ class CountdownPill extends StatelessWidget {
   final int daysLeft;
   final UrgencyTone? toneOverride;
 
-  const CountdownPill({
-    super.key,
-    required this.daysLeft,
-    this.toneOverride,
-  });
+  const CountdownPill({super.key, required this.daysLeft, this.toneOverride});
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +28,7 @@ class CountdownPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: tone.background(palette),
         borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(
-          color: tone.border(palette),
-          width: 1.0,
-        ),
+        border: Border.all(color: tone.border(palette), width: 1.0),
       ),
       child: Text(
         label,

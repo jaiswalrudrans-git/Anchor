@@ -58,8 +58,5 @@ class IdlePrompt {
 
   @override
   int get hashCode =>
-      id.hashCode ^
-      userId.hashCode ^
-      promptText.hashCode ^
-      createdAt.hashCode;
+      id.hashCode ^ userId.hashCode ^ promptText.hashCode ^ createdAt.hashCode;
 }

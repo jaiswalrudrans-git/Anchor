@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../models/expense_month_summary.dart';
 import '../../models/expense_settings.dart';
+import '../utils/app_log.dart';
 import '../utils/date_utils.dart';
 
 const _uuid = Uuid();
@@ -211,10 +212,9 @@ class ExpenseResetService {
           closedAt: DateTime.now(),
         );
 
-        await client.from('expense_month_summaries').upsert(
-              summary.toJson(),
-              onConflict: 'user_id,month',
-            );
+        await client
+            .from('expense_month_summaries')
+            .upsert(summary.toJson(), onConflict: 'user_id,month');
 
         accumulatedSavings += close.carriedToSavings;
         iteratingMonth = nextMonthKey;
@@ -222,12 +222,15 @@ class ExpenseResetService {
 
       // 4. Update last_reset_month and total_savings in a SINGLE atomic operation
       final newTotalSavings = settings.totalSavings + accumulatedSavings;
-      await client.from('expense_settings').update({
-        'total_savings': newTotalSavings,
-        'last_reset_month': currentMonth,
-      }).eq('user_id', user.id);
+      await client
+          .from('expense_settings')
+          .update({
+            'total_savings': newTotalSavings,
+            'last_reset_month': currentMonth,
+          })
+          .eq('user_id', user.id);
     } catch (e) {
-      debugPrint('ExpenseResetService.runMonthlyReset error: $e');
+      AppLog.e('ExpenseResetService.runMonthlyReset error', e);
     } finally {
       _isRunning = false;
     }

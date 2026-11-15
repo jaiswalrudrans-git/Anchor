@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -85,7 +86,9 @@ class _ExamCountdownTileState extends ConsumerState<ExamCountdownTile> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Exam'),
-        content: Text('Are you sure you want to delete "${widget.exam.title}"?'),
+        content: Text(
+          'Are you sure you want to delete "${widget.exam.title}"?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -100,9 +103,7 @@ class _ExamCountdownTileState extends ConsumerState<ExamCountdownTile> {
     );
 
     if (confirm == true) {
-      await ref
-          .read(academicItemsProvider.notifier)
-          .deleteItem(widget.exam.id);
+      await ref.read(academicItemsProvider.notifier).deleteItem(widget.exam.id);
     }
   }
 
@@ -114,7 +115,8 @@ class _ExamCountdownTileState extends ConsumerState<ExamCountdownTile> {
     final daysLeft = AppDateUtils.daysBetween(today, cleanExamDate);
     final isExamToday = daysLeft == 0;
     final tone = UrgencyTone.fromDaysLeft(daysLeft, soonThreshold: 3);
-    final formattedDate = DateFormat('EEE, d MMM yyyy').format(widget.exam.dueDate);
+    final formattedDate = DateFormat('EEE, d MMM yyyy')
+        .format(widget.exam.dueDate);
 
     final isCompactScreen = Breakpoints.isCompact(context);
     final showTrailing = isCompactScreen || !_isDesktop || _isHovered;
@@ -192,9 +194,7 @@ class _ExamCountdownTileState extends ConsumerState<ExamCountdownTile> {
                 width: widget.isCompact ? 54 : 64,
                 height: widget.isCompact ? 48 : 56,
                 decoration: BoxDecoration(
-                  color: isExamToday
-                      ? palette.accentSoft
-                      : palette.cardRaised,
+                  color: isExamToday ? palette.accentSoft : palette.cardRaised,
                   borderRadius: AppDimens.borderRadiusSm,
                   border: Border.all(
                     color: isExamToday
@@ -232,9 +232,7 @@ class _ExamCountdownTileState extends ConsumerState<ExamCountdownTile> {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         if (widget.subject != null)
-                          Tag(
-                            label: widget.subject!.name,
-                          ),
+                          Tag(label: widget.subject!.name),
                         Text(
                           formattedDate,
                           style: TextStyle(
@@ -258,8 +256,14 @@ class _ExamCountdownTileState extends ConsumerState<ExamCountdownTile> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: palette.accent,
                     foregroundColor: palette.onAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   child: const Text('Mark as done'),
                 ),
@@ -290,10 +294,7 @@ class _ExamCountdownTileState extends ConsumerState<ExamCountdownTile> {
       isRemoved: _isDismissing,
       duration: const Duration(milliseconds: 300),
       child: _showAchievementMoment
-          ? PulseRing(
-              trigger: true,
-              child: card,
-            )
+          ? PulseRing(trigger: true, child: card)
           : card,
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../models/habit.dart';
 import 'date_utils.dart';
 
@@ -78,9 +79,9 @@ class MonthStats {
 
 /// Status of a day cell in the habit matrix or weekly strip.
 enum HabitDayStatus {
-  completed,     // Solid #111111
-  incomplete,    // Past or today with no log (outlined / interactive)
-  future,        // Days after today (subtle #A1A1AA, inert)
+  completed, // Solid #111111
+  incomplete, // Past or today with no log (outlined / interactive)
+  future, // Days after today (subtle #A1A1AA, inert)
   notApplicable, // Before habit creation date (subtle muted, inert)
 }
 
@@ -229,7 +230,9 @@ class StreakUtils {
       end: effectiveEnd,
       createdDate: createdDate,
     );
-    final percentage = eligibleDays > 0 ? (completions / eligibleDays) * 100.0 : 0.0;
+    final percentage = eligibleDays > 0
+        ? (completions / eligibleDays) * 100.0
+        : 0.0;
 
     return WeekStats(
       completions: completions,
@@ -296,12 +299,16 @@ class StreakUtils {
 
     // 4. Eligible days from creation through today or month end
     final eligibleEnd = dToday.isBefore(dMonthEnd) ? dToday : dMonthEnd;
-    final eligibleStart = dMonthStart.isAfter(dCreated) ? dMonthStart : dCreated;
+    final eligibleStart = dMonthStart.isAfter(dCreated)
+        ? dMonthStart
+        : dCreated;
     final eligibleDays = eligibleStart.isAfter(eligibleEnd)
         ? 0
         : eligibleEnd.difference(eligibleStart).inDays + 1;
 
-    final percentage = eligibleDays > 0 ? (completions / eligibleDays) * 100.0 : 0.0;
+    final percentage = eligibleDays > 0
+        ? (completions / eligibleDays) * 100.0
+        : 0.0;
 
     return MonthStats(
       completions: completions,
@@ -460,7 +467,9 @@ class StreakUtils {
       final day = dWeekStart.add(Duration(days: i));
       if (day.isAfter(dToday)) continue;
 
-      final hasEligibleHabits = habits.any((h) => !day.isBefore(AppDateUtils.dateOnly(h.createdAt)));
+      final hasEligibleHabits = habits.any(
+        (h) => !day.isBefore(AppDateUtils.dateOnly(h.createdAt)),
+      );
       if (hasEligibleHabits) {
         eligibleDayIndices.add(i);
       }

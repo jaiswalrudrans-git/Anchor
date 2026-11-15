@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -134,7 +135,9 @@ class _AssignmentTileState extends ConsumerState<AssignmentTile> {
             color: palette.card,
             borderRadius: AppDimens.borderRadiusSm,
             border: Border.all(
-              color: isOverdue ? palette.danger.withValues(alpha: 0.3) : palette.border,
+              color: isOverdue
+                  ? palette.danger.withValues(alpha: 0.3)
+                  : palette.border,
               width: AppDimens.hairline,
             ),
           ),
@@ -162,7 +165,11 @@ class _AssignmentTileState extends ConsumerState<AssignmentTile> {
                             Opacity(
                               opacity: 0.0,
                               child: Checkbox(
-                                key: widget.checkboxKey ?? ValueKey('assignment_checkbox_${widget.item.id}'),
+                                key:
+                                    widget.checkboxKey ??
+                                    ValueKey(
+                                      'assignment_checkbox_${widget.item.id}',
+                                    ),
                                 value: widget.item.isCompleted,
                                 onChanged: (_) => _handleToggle(),
                               ),
@@ -204,17 +211,19 @@ class _AssignmentTileState extends ConsumerState<AssignmentTile> {
                             Row(
                               children: [
                                 if (widget.subject != null) ...[
-                                  Tag(
-                                    label: widget.subject!.name,
-                                  ),
+                                  Tag(label: widget.subject!.name),
                                   const SizedBox(width: 6),
                                 ],
                                 Text(
                                   formattedDate,
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: isOverdue ? palette.danger : palette.textSecondary,
-                                    fontWeight: isOverdue ? FontWeight.w600 : FontWeight.w400,
+                                    color: isOverdue
+                                        ? palette.danger
+                                        : palette.textSecondary,
+                                    fontWeight: isOverdue
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
                                   ),
                                 ),
                               ],
@@ -226,10 +235,7 @@ class _AssignmentTileState extends ConsumerState<AssignmentTile> {
 
                       // Countdown Pill
                       if (!widget.item.isCompleted)
-                        CountdownPill(
-                          daysLeft: daysLeft,
-                          toneOverride: tone,
-                        ),
+                        CountdownPill(daysLeft: daysLeft, toneOverride: tone),
 
                       // Delete action
                       if (showTrailing && !widget.isCompact) ...[
@@ -253,10 +259,7 @@ class _AssignmentTileState extends ConsumerState<AssignmentTile> {
 
               // Proximity deadline bar along bottom edge
               if (!widget.isCompact && !widget.item.isCompleted)
-                DeadlineBar(
-                  daysLeft: daysLeft,
-                  toneOverride: tone,
-                ),
+                DeadlineBar(daysLeft: daysLeft, toneOverride: tone),
             ],
           ),
         ),

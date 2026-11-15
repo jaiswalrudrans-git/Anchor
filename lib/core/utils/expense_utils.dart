@@ -9,11 +9,7 @@ import 'date_utils.dart';
 /// - accent (< 75%)
 /// - warning (75% to 100%)
 /// - danger (> 100%)
-enum SpendingTone {
-  accent,
-  warning,
-  danger,
-}
+enum SpendingTone { accent, warning, danger }
 
 /// Computes the spending progress tone according to budget thresholds.
 SpendingTone getSpendingTone(double spent, double allowance) {
@@ -144,9 +140,13 @@ List<DayGroupedTransactions> groupTransactionsByDay(
 
   for (final tx in sorted) {
     final local = tx.txDate.toLocal();
-    final key = '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+    final key =
+        '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
     groups.putIfAbsent(key, () => []).add(tx);
-    groupDateMap.putIfAbsent(key, () => DateTime(local.year, local.month, local.day));
+    groupDateMap.putIfAbsent(
+      key,
+      () => DateTime(local.year, local.month, local.day),
+    );
   }
 
   final List<DayGroupedTransactions> result = [];
@@ -154,12 +154,14 @@ List<DayGroupedTransactions> groupTransactionsByDay(
     final date = groupDateMap[entry.key]!;
     final label = formatDayHeader(date, relativeTo);
     final net = calculateDayNetSpend(entry.value);
-    result.add(DayGroupedTransactions(
-      date: date,
-      label: label,
-      transactions: entry.value,
-      netSpend: net,
-    ));
+    result.add(
+      DayGroupedTransactions(
+        date: date,
+        label: label,
+        transactions: entry.value,
+        netSpend: net,
+      ),
+    );
   }
 
   return result;

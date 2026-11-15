@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/constants/dimens.dart';
 import '../core/constants/theme.dart';
 import 'motion/pressable_scale.dart';
@@ -31,7 +32,7 @@ class AppCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
 
-    Widget cardBody = Container(
+    final Widget cardBody = Container(
       margin: margin,
       padding: padding,
       decoration: BoxDecoration(
@@ -64,10 +65,7 @@ class AppCard extends StatelessWidget {
     );
 
     if (onTap != null) {
-      return PressableScale(
-        onTap: onTap,
-        child: cardBody,
-      );
+      return PressableScale(onTap: onTap, child: cardBody);
     }
 
     return cardBody;

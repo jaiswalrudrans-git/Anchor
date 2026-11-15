@@ -168,17 +168,11 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
             ],
           ),
           const SizedBox(height: 10),
-          AnimatedProgressBar(
-            value: stats.progress,
-            height: 6.0,
-          ),
+          AnimatedProgressBar(value: stats.progress, height: 6.0),
           const SizedBox(height: 10),
           Text(
             '${stats.totalModules} $moduleWord · ${stats.totalChapters} $chapterWord (${stats.studiedChapters} studied)',
-            style: TextStyle(
-              fontSize: 12,
-              color: palette.textSecondary,
-            ),
+            style: TextStyle(fontSize: 12, color: palette.textSecondary),
           ),
         ],
       ),
@@ -247,9 +241,16 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
                 ),
                 const SizedBox(width: 4),
                 PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert, size: 16, color: palette.textSecondary),
+                  icon: Icon(
+                    Icons.more_vert,
+                    size: 16,
+                    color: palette.textSecondary,
+                  ),
                   shape: RoundedRectangleBorder(
-                    side: BorderSide(color: palette.border, width: AppDimens.hairline),
+                    side: BorderSide(
+                      color: palette.border,
+                      width: AppDimens.hairline,
+                    ),
                     borderRadius: AppDimens.borderRadiusSm,
                   ),
                   color: palette.cardRaised,
@@ -263,17 +264,28 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
                   itemBuilder: (ctx) => [
                     PopupMenuItem(
                       value: 'rename',
-                      child: Text('Rename Module', style: TextStyle(color: palette.textPrimary, fontSize: 13)),
+                      child: Text(
+                        'Rename Module',
+                        style: TextStyle(
+                          color: palette.textPrimary,
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
                     PopupMenuItem(
                       value: 'delete',
-                      child: Text('Delete Module', style: TextStyle(color: palette.danger, fontSize: 13)),
+                      child: Text(
+                        'Delete Module',
+                        style: TextStyle(color: palette.danger, fontSize: 13),
+                      ),
                     ),
                   ],
                 ),
                 if (!isWideLayout)
                   Icon(
-                    isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
                     size: 18,
                     color: palette.textSecondary,
                   ),
@@ -300,42 +312,58 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
             const SizedBox(height: 6),
             if (moduleChapters.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14.0,
+                  vertical: 12.0,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'No chapters yet.',
-                      style: TextStyle(fontSize: 13, color: palette.textSecondary),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: palette.textSecondary,
+                      ),
                     ),
                     TextButton.icon(
                       key: Key('syllabus_add_chapter_button_${module.id}'),
                       icon: const Icon(Icons.add, size: 16),
                       label: const Text('Add Chapter'),
-                      onPressed: () => AddChapterDialog.show(context, module.id),
+                      onPressed: () =>
+                          AddChapterDialog.show(context, module.id),
                     ),
                   ],
                 ),
               )
             else ...[
-              ...moduleChapters.map((chapter) => ChapterRow(
-                    key: ValueKey('chapter_${chapter.id}'),
-                    chapter: chapter,
-                    onChapterStudiedToggled: () {
-                      // Check if module just reached 100%
-                      if (stats.studiedChapters == stats.totalChapters - 1) {
-                        _triggerModulePulse(module.id);
-                      }
-                    },
-                  )),
+              ...moduleChapters.map(
+                (chapter) => ChapterRow(
+                  key: ValueKey('chapter_${chapter.id}'),
+                  chapter: chapter,
+                  onChapterStudiedToggled: () {
+                    // Check if module just reached 100%
+                    if (stats.studiedChapters == stats.totalChapters - 1) {
+                      _triggerModulePulse(module.id);
+                    }
+                  },
+                ),
+              ),
               Padding(
-                padding: const EdgeInsets.only(left: 12.0, top: 4.0, bottom: 8.0),
+                padding: const EdgeInsets.only(
+                  left: 12.0,
+                  top: 4.0,
+                  bottom: 8.0,
+                ),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
                     key: Key('syllabus_add_chapter_button_${module.id}'),
                     icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Add Chapter', style: TextStyle(fontSize: 12)),
+                    label: const Text(
+                      'Add Chapter',
+                      style: TextStyle(fontSize: 12),
+                    ),
                     onPressed: () => AddChapterDialog.show(context, module.id),
                   ),
                 ),
@@ -388,10 +416,7 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
             ],
           ),
           const SizedBox(height: 10),
-          AnimatedProgressBar(
-            value: stats.progress,
-            height: 4.0,
-          ),
+          AnimatedProgressBar(value: stats.progress, height: 4.0),
           const SizedBox(height: 16),
           Divider(height: 1, color: palette.border),
           const SizedBox(height: 12),
@@ -403,36 +428,45 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
                   children: [
                     Text(
                       'No chapters yet in this module.',
-                      style: TextStyle(color: palette.textSecondary, fontSize: 13),
+                      style: TextStyle(
+                        color: palette.textSecondary,
+                        fontSize: 13,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     TextButton.icon(
                       key: Key('syllabus_add_chapter_button_${module.id}'),
                       icon: const Icon(Icons.add, size: 16),
                       label: const Text('Add Chapter'),
-                      onPressed: () => AddChapterDialog.show(context, module.id),
+                      onPressed: () =>
+                          AddChapterDialog.show(context, module.id),
                     ),
                   ],
                 ),
               ),
             )
           else ...[
-            ...moduleChapters.map((chapter) => ChapterRow(
-                  key: ValueKey('chapter_${chapter.id}'),
-                  chapter: chapter,
-                  onChapterStudiedToggled: () {
-                    if (stats.studiedChapters == stats.totalChapters - 1) {
-                      _triggerModulePulse(module.id);
-                    }
-                  },
-                )),
+            ...moduleChapters.map(
+              (chapter) => ChapterRow(
+                key: ValueKey('chapter_${chapter.id}'),
+                chapter: chapter,
+                onChapterStudiedToggled: () {
+                  if (stats.studiedChapters == stats.totalChapters - 1) {
+                    _triggerModulePulse(module.id);
+                  }
+                },
+              ),
+            ),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
                 key: Key('syllabus_add_chapter_button_${module.id}'),
                 icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add Chapter', style: TextStyle(fontSize: 12)),
+                label: const Text(
+                  'Add Chapter',
+                  style: TextStyle(fontSize: 12),
+                ),
                 onPressed: () => AddChapterDialog.show(context, module.id),
               ),
             ),
@@ -454,7 +488,9 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
 
     final palette = context.palette;
     final modules = ref.watch(modulesForSelectedSubjectProvider);
-    final subjectStats = ref.watch(subjectSyllabusStatsProvider(widget.selectedSubject!.id));
+    final subjectStats = ref.watch(
+      subjectSyllabusStatsProvider(widget.selectedSubject!.id),
+    );
 
     if (modules.isEmpty) {
       return Padding(
@@ -462,12 +498,14 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
         child: EmptyState(
           icon: Icons.view_list_outlined,
           title: 'No modules yet',
-          message: 'Add a module to organize chapters for ${widget.selectedSubject!.name}.',
+          message:
+              'Add a module to organize chapters for ${widget.selectedSubject!.name}.',
           action: OutlinedButton.icon(
             key: const Key('syllabus_empty_add_module_button'),
             icon: const Icon(Icons.add, size: 16),
             label: const Text('Add Module'),
-            onPressed: () => AddModuleDialog.show(context, widget.selectedSubject!.id),
+            onPressed: () =>
+                AddModuleDialog.show(context, widget.selectedSubject!.id),
           ),
         ),
       );
@@ -479,7 +517,9 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
     }
 
     final isWide = Breakpoints.isExpanded(context);
-    final activeSelectedModuleId = _selectedModuleId != null && modules.any((m) => m.id == _selectedModuleId)
+    final activeSelectedModuleId =
+        _selectedModuleId != null &&
+            modules.any((m) => m.id == _selectedModuleId)
         ? _selectedModuleId!
         : modules.first.id;
 
@@ -492,7 +532,9 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
         // Responsive Layout: Single column on compact/medium, Two-pane on expanded (>= 900 dp)
         if (!isWide)
           ...modules.map((module) {
-            final moduleStats = ref.watch(moduleSyllabusStatsProvider(module.id));
+            final moduleStats = ref.watch(
+              moduleSyllabusStatsProvider(module.id),
+            );
             final isExpanded = _expandedModuleIds.contains(module.id);
             return _buildModuleCard(
               module: module,
@@ -512,7 +554,9 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
                 flex: 2,
                 child: Column(
                   children: modules.map((module) {
-                    final moduleStats = ref.watch(moduleSyllabusStatsProvider(module.id));
+                    final moduleStats = ref.watch(
+                      moduleSyllabusStatsProvider(module.id),
+                    );
                     final isSelected = module.id == activeSelectedModuleId;
                     return _buildModuleCard(
                       module: module,
@@ -530,11 +574,21 @@ class _SyllabusTabState extends ConsumerState<SyllabusTab> {
               // Right Pane: Chapter detail & vault access (flex 3)
               Expanded(
                 flex: 3,
-                child: Builder(builder: (ctx) {
-                  final activeModule = modules.firstWhere((m) => m.id == activeSelectedModuleId);
-                  final activeStats = ref.watch(moduleSyllabusStatsProvider(activeModule.id));
-                  return _buildRightPaneDetail(activeModule, activeStats, palette);
-                }),
+                child: Builder(
+                  builder: (ctx) {
+                    final activeModule = modules.firstWhere(
+                      (m) => m.id == activeSelectedModuleId,
+                    );
+                    final activeStats = ref.watch(
+                      moduleSyllabusStatsProvider(activeModule.id),
+                    );
+                    return _buildRightPaneDetail(
+                      activeModule,
+                      activeStats,
+                      palette,
+                    );
+                  },
+                ),
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -68,7 +69,8 @@ class HabitCard extends ConsumerStatefulWidget {
   ConsumerState<HabitCard> createState() => _HabitCardState();
 }
 
-class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateMixin {
+class _HabitCardState extends ConsumerState<HabitCard>
+    with TickerProviderStateMixin {
   late final AnimationController _iconController;
   late final Animation<double> _iconBounce;
   late final Animation<double> _iconTilt;
@@ -89,15 +91,21 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _iconBounce = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -6.0), weight: 40),
-      TweenSequenceItem(tween: Tween(begin: -6.0, end: 0.0), weight: 60),
-    ]).animate(CurvedAnimation(parent: _iconController, curve: Curves.easeInOut));
+    _iconBounce =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0.0, end: -6.0), weight: 40),
+          TweenSequenceItem(tween: Tween(begin: -6.0, end: 0.0), weight: 60),
+        ]).animate(
+          CurvedAnimation(parent: _iconController, curve: Curves.easeInOut),
+        );
 
-    _iconTilt = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -0.08), weight: 40),
-      TweenSequenceItem(tween: Tween(begin: -0.08, end: 0.0), weight: 60),
-    ]).animate(CurvedAnimation(parent: _iconController, curve: Curves.easeInOut));
+    _iconTilt =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0.0, end: -0.08), weight: 40),
+          TweenSequenceItem(tween: Tween(begin: -0.08, end: 0.0), weight: 60),
+        ]).animate(
+          CurvedAnimation(parent: _iconController, curve: Curves.easeInOut),
+        );
 
     // 2. Radiating dots
     _dotsController = AnimationController(
@@ -110,10 +118,13 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _pulseScale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.25), weight: 40),
-      TweenSequenceItem(tween: Tween(begin: 1.25, end: 1.0), weight: 60),
-    ]).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+    _pulseScale =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.25), weight: 40),
+          TweenSequenceItem(tween: Tween(begin: 1.25, end: 1.0), weight: 60),
+        ]).animate(
+          CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+        );
   }
 
   @override
@@ -196,10 +207,14 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
     final iconData = HabitIcons.getIcon(widget.habit.icon);
 
     // Mini 7-day strip (ending today)
-    final last7Days = List.generate(7, (i) => today.subtract(Duration(days: 6 - i)));
+    final last7Days = List.generate(
+      7,
+      (i) => today.subtract(Duration(days: 6 - i)),
+    );
 
     return InkWell(
-      onLongPress: () => AddHabitSheet.show(context, initialHabit: widget.habit),
+      onLongPress: () =>
+          AddHabitSheet.show(context, initialHabit: widget.habit),
       borderRadius: BorderRadius.circular(AppDimens.radiusLg),
       child: Container(
         decoration: BoxDecoration(
@@ -217,10 +232,7 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
               builder: (context, child) {
                 return Transform.translate(
                   offset: Offset(0, _iconBounce.value),
-                  child: Transform.rotate(
-                    angle: _iconTilt.value,
-                    child: child,
-                  ),
+                  child: Transform.rotate(angle: _iconTilt.value, child: child),
                 );
               },
               child: Container(
@@ -231,11 +243,7 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Icon(
-                    iconData,
-                    size: 22,
-                    color: palette.accent,
-                  ),
+                  child: Icon(iconData, size: 22, color: palette.accent),
                 ),
               ),
             ),
@@ -254,8 +262,12 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: widget.isLoggedToday ? palette.textSecondary : palette.textPrimary,
-                      decoration: widget.isLoggedToday ? TextDecoration.lineThrough : null,
+                      color: widget.isLoggedToday
+                          ? palette.textSecondary
+                          : palette.textPrimary,
+                      decoration: widget.isLoggedToday
+                          ? TextDecoration.lineThrough
+                          : null,
                       letterSpacing: -0.2,
                     ),
                   ),
@@ -267,7 +279,9 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
                     runSpacing: 2.0,
                     children: last7Days.map((d) {
                       final isToday = d == today;
-                      final isPreCreation = d.isBefore(AppDateUtils.dateOnly(widget.habit.createdAt));
+                      final isPreCreation = d.isBefore(
+                        AppDateUtils.dateOnly(widget.habit.createdAt),
+                      );
                       final isDone = widget.loggedDates.contains(d);
 
                       return Container(
@@ -277,17 +291,17 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
                           color: isPreCreation
                               ? Colors.transparent
                               : isDone
-                                  ? palette.accent
-                                  : Colors.transparent,
+                              ? palette.accent
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(2.5),
                           border: Border.all(
                             color: isToday
                                 ? palette.accent
                                 : isPreCreation
-                                    ? palette.border.withValues(alpha: 0.25)
-                                    : isDone
-                                        ? palette.accent
-                                        : palette.border,
+                                ? palette.border.withValues(alpha: 0.25)
+                                : isDone
+                                ? palette.accent
+                                : palette.border,
                             width: isToday ? 1.5 : 1.0,
                           ),
                         ),
@@ -312,7 +326,10 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
                         },
                         child: Container(
                           key: Key('habit_streak_badge_${widget.habit.id}'),
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: palette.cardRaised,
                             borderRadius: BorderRadius.circular(6),
@@ -324,7 +341,9 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
                               Icon(
                                 Icons.local_fire_department,
                                 size: 13,
-                                color: widget.streak > 0 ? palette.accent : palette.textMuted,
+                                color: widget.streak > 0
+                                    ? palette.accent
+                                    : palette.textMuted,
                               ),
                               const SizedBox(width: 4),
                               Flexible(
@@ -349,8 +368,12 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
-                                      color: widget.streak > 0 ? palette.textPrimary : palette.textSecondary,
-                                      fontFeatures: const [FontFeature.tabularFigures()],
+                                      color: widget.streak > 0
+                                          ? palette.textPrimary
+                                          : palette.textSecondary,
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures(),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -361,7 +384,10 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
                       ),
                       if (_activeMilestone != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: palette.accentSoft,
                             borderRadius: BorderRadius.circular(4),
@@ -392,7 +418,10 @@ class _HabitCardState extends ConsumerState<HabitCard> with TickerProviderStateM
                   key: Key('delete_habit_${widget.habit.id}'),
                   icon: const Icon(Icons.delete_outline, size: 16),
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                  constraints: const BoxConstraints(
+                    minWidth: 24,
+                    minHeight: 24,
+                  ),
                   visualDensity: VisualDensity.compact,
                   color: palette.textSecondary,
                   tooltip: 'Delete habit',

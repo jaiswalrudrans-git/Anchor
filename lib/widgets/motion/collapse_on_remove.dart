@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/constants/motion.dart';
 
 /// Wraps list items to animate removal with a height collapse and fade in 250ms.
@@ -66,10 +67,7 @@ class _CollapseOnRemoveState extends State<CollapseOnRemove>
   Widget build(BuildContext context) {
     return SizeTransition(
       sizeFactor: _animation,
-      child: FadeTransition(
-        opacity: _animation,
-        child: widget.child,
-      ),
+      child: FadeTransition(opacity: _animation, child: widget.child),
     );
   }
 }

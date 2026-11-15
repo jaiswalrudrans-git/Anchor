@@ -36,7 +36,9 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.initialHabit?.title ?? '');
+    _titleController = TextEditingController(
+      text: widget.initialHabit?.title ?? '',
+    );
     _selectedIcon = widget.initialHabit?.icon ?? 'check_circle';
   }
 
@@ -52,12 +54,13 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
     setState(() => _isSubmitting = true);
     try {
       if (widget.initialHabit == null) {
-        await ref.read(habitsProvider.notifier).createHabit(
-              _titleController.text.trim(),
-              icon: _selectedIcon,
-            );
+        await ref
+            .read(habitsProvider.notifier)
+            .createHabit(_titleController.text.trim(), icon: _selectedIcon);
       } else {
-        await ref.read(habitsProvider.notifier).editHabit(
+        await ref
+            .read(habitsProvider.notifier)
+            .editHabit(
               widget.initialHabit!.id,
               title: _titleController.text.trim(),
               icon: _selectedIcon,
@@ -69,9 +72,8 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
     } catch (e) {
       if (mounted) {
         setState(() => _isSubmitting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save habit: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to save habit: $e')));
       }
     }
   }
@@ -165,7 +167,9 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: isSelected ? palette.accentSoft : palette.cardRaised,
+                        color: isSelected
+                            ? palette.accentSoft
+                            : palette.cardRaised,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: isSelected ? palette.accent : palette.border,
@@ -176,7 +180,9 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
                         child: Icon(
                           iconData,
                           size: 22,
-                          color: isSelected ? palette.accent : palette.textSecondary,
+                          color: isSelected
+                              ? palette.accent
+                              : palette.textSecondary,
                         ),
                       ),
                     ),
@@ -191,7 +197,10 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
                     ? SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: palette.onAccent),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: palette.onAccent,
+                        ),
                       )
                     : Text(isEditing ? 'Save Changes' : 'Create Habit'),
               ),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../constants/dimens.dart';
 
 /// Screen size classes according to Material 3 responsive design.
 enum SizeClass {
-  compact,  // < 600 dp (Phones, portrait)
-  medium,   // 600–899 dp (Tablets, foldables, narrow desktop windows)
+  compact, // < 600 dp (Phones, portrait)
+  medium, // 600–899 dp (Tablets, foldables, narrow desktop windows)
   expanded, // >= 900 dp (Desktop, landscape tablets)
 }
 
@@ -47,9 +48,11 @@ class Breakpoints {
   }
 
   /// Convenience helpers
-  static bool isCompact(BuildContext context) => of(context) == SizeClass.compact;
+  static bool isCompact(BuildContext context) =>
+      of(context) == SizeClass.compact;
   static bool isMedium(BuildContext context) => of(context) == SizeClass.medium;
-  static bool isExpanded(BuildContext context) => of(context) == SizeClass.expanded;
+  static bool isExpanded(BuildContext context) =>
+      of(context) == SizeClass.expanded;
 }
 
 /// Centralized shell navigation metrics for floating dock layout & clearance.

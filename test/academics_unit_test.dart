@@ -35,15 +35,21 @@ void main() {
       expect(reminder, isNull);
     });
 
-    test('assignmentReminderTime: due tomorrow before 21:00 returns reminder', () {
-      final now = DateTime(2026, 11, 14, 20, 59, 0);
-      final dueDate = DateTime(2026, 11, 15);
+    test(
+      'assignmentReminderTime: due tomorrow before 21:00 returns reminder',
+      () {
+        final now = DateTime(2026, 11, 14, 20, 59, 0);
+        final dueDate = DateTime(2026, 11, 15);
 
-      final reminder = NotificationService.assignmentReminderTime(dueDate, now);
+        final reminder = NotificationService.assignmentReminderTime(
+          dueDate,
+          now,
+        );
 
-      expect(reminder, isNotNull);
-      expect(reminder, DateTime(2026, 11, 14, 21, 0, 0));
-    });
+        expect(reminder, isNotNull);
+        expect(reminder, DateTime(2026, 11, 14, 21, 0, 0));
+      },
+    );
 
     test('assignmentReminderTime: due today is already past reminder time and returns null', () {
       final now = DateTime(2026, 11, 14, 9, 0, 0);
@@ -82,7 +88,11 @@ void main() {
 
     test('examReminderTime: due in 3 days after 08:00 has already passed returns null', () {
       final now = DateTime(2026, 11, 14, 8, 30, 0);
-      final dueDate = DateTime(2026, 11, 17); // 3 days before is Nov 14 at 08:00
+      final dueDate = DateTime(
+        2026,
+        11,
+        17,
+      ); // 3 days before is Nov 14 at 08:00
 
       final reminder = NotificationService.examReminderTime(dueDate, now);
 
@@ -236,7 +246,11 @@ void main() {
       final urgent = filterUrgentAssignments(items, today);
 
       expect(urgent.length, 3);
-      expect(urgent.map((a) => a.id).toList(), ['a-today', 'a-in-3-days', 'a-in-7-days']);
+      expect(urgent.map((a) => a.id).toList(), [
+        'a-today',
+        'a-in-3-days',
+        'a-in-7-days',
+      ]);
     });
 
     test('filterUrgentExams: 14-day window strictly sorted due_date ASC', () {
@@ -286,44 +300,55 @@ void main() {
       final urgent = filterUrgentExams(items, today);
 
       expect(urgent.length, 3);
-      expect(urgent.map((e) => e.id).toList(), ['e-today', 'e-in-5-days', 'e-in-14-days']);
+      expect(urgent.map((e) => e.id).toList(), [
+        'e-today',
+        'e-in-5-days',
+        'e-in-14-days',
+      ]);
     });
 
-    test('sortAssignments: incomplete by dueDate ASC, completed sink to bottom', () {
-      final items = [
-        AcademicItem(
-          id: 'comp-1',
-          userId: 'u1',
-          title: 'Completed 1',
-          itemType: 'assignment',
-          dueDate: DateTime(2026, 11, 10),
-          isCompleted: true,
-          createdAt: DateTime(2026, 11, 1),
-        ),
-        AcademicItem(
-          id: 'inc-later',
-          userId: 'u1',
-          title: 'Incomplete Later',
-          itemType: 'assignment',
-          dueDate: DateTime(2026, 11, 25),
-          isCompleted: false,
-          createdAt: DateTime(2026, 11, 2),
-        ),
-        AcademicItem(
-          id: 'inc-sooner',
-          userId: 'u1',
-          title: 'Incomplete Sooner',
-          itemType: 'assignment',
-          dueDate: DateTime(2026, 11, 15),
-          isCompleted: false,
-          createdAt: DateTime(2026, 11, 3),
-        ),
-      ];
+    test(
+      'sortAssignments: incomplete by dueDate ASC, completed sink to bottom',
+      () {
+        final items = [
+          AcademicItem(
+            id: 'comp-1',
+            userId: 'u1',
+            title: 'Completed 1',
+            itemType: 'assignment',
+            dueDate: DateTime(2026, 11, 10),
+            isCompleted: true,
+            createdAt: DateTime(2026, 11, 1),
+          ),
+          AcademicItem(
+            id: 'inc-later',
+            userId: 'u1',
+            title: 'Incomplete Later',
+            itemType: 'assignment',
+            dueDate: DateTime(2026, 11, 25),
+            isCompleted: false,
+            createdAt: DateTime(2026, 11, 2),
+          ),
+          AcademicItem(
+            id: 'inc-sooner',
+            userId: 'u1',
+            title: 'Incomplete Sooner',
+            itemType: 'assignment',
+            dueDate: DateTime(2026, 11, 15),
+            isCompleted: false,
+            createdAt: DateTime(2026, 11, 3),
+          ),
+        ];
 
-      final sorted = sortAssignments(items);
+        final sorted = sortAssignments(items);
 
-      expect(sorted.map((a) => a.id).toList(), ['inc-sooner', 'inc-later', 'comp-1']);
-    });
+        expect(sorted.map((a) => a.id).toList(), [
+          'inc-sooner',
+          'inc-later',
+          'comp-1',
+        ]);
+      },
+    );
   });
 
   group('Syllabus Tree Sorting', () {
@@ -341,8 +366,20 @@ void main() {
 
     test('sortModules: sort_order ASC, then title ASC', () {
       final modules = [
-        const AcademicModule(id: 'm2', userId: 'u', subjectId: 's1', title: 'Module 2', sortOrder: 2),
-        const AcademicModule(id: 'm1', userId: 'u', subjectId: 's1', title: 'Module 1', sortOrder: 1),
+        const AcademicModule(
+          id: 'm2',
+          userId: 'u',
+          subjectId: 's1',
+          title: 'Module 2',
+          sortOrder: 2,
+        ),
+        const AcademicModule(
+          id: 'm1',
+          userId: 'u',
+          subjectId: 's1',
+          title: 'Module 1',
+          sortOrder: 1,
+        ),
       ];
 
       final sorted = sortModules(modules);
@@ -352,8 +389,20 @@ void main() {
 
     test('sortChapters: sort_order ASC, then title ASC', () {
       final chapters = [
-        const Chapter(id: 'c2', userId: 'u', moduleId: 'm1', title: 'Chapter 2', sortOrder: 2),
-        const Chapter(id: 'c1', userId: 'u', moduleId: 'm1', title: 'Chapter 1', sortOrder: 1),
+        const Chapter(
+          id: 'c2',
+          userId: 'u',
+          moduleId: 'm1',
+          title: 'Chapter 2',
+          sortOrder: 2,
+        ),
+        const Chapter(
+          id: 'c1',
+          userId: 'u',
+          moduleId: 'm1',
+          title: 'Chapter 1',
+          sortOrder: 1,
+        ),
       ];
 
       final sorted = sortChapters(chapters);

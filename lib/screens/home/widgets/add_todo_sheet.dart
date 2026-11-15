@@ -12,10 +12,7 @@ import '../../../widgets/quick_add/forms/todo_form_body.dart';
 class AddTodoSheet extends ConsumerStatefulWidget {
   final DateTime? initialDate;
 
-  const AddTodoSheet({
-    super.key,
-    this.initialDate,
-  });
+  const AddTodoSheet({super.key, this.initialDate});
 
   /// Static helper to display the sheet in a standardized bottom sheet.
   static Future<void> show(BuildContext context, {DateTime? initialDate}) {
@@ -24,7 +21,9 @@ class AddTodoSheet extends ConsumerStatefulWidget {
       isScrollControlled: true,
       backgroundColor: context.palette.cardRaised,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppDimens.radiusXl)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimens.radiusXl),
+        ),
       ),
       builder: (ctx) => AddTodoSheet(initialDate: initialDate),
     );
@@ -66,9 +65,8 @@ class _AddTodoSheetState extends ConsumerState<AddTodoSheet> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add task: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to add task: $e')));
       }
     } finally {
       if (mounted) {
@@ -134,7 +132,9 @@ class _AddTodoSheetState extends ConsumerState<AddTodoSheet> {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(palette.onAccent),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          palette.onAccent,
+                        ),
                       ),
                     )
                   : const Text('Add Task'),

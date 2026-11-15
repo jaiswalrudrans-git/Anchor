@@ -20,13 +20,7 @@ import 'forms/todo_form_body.dart';
 import 'forms/transaction_form_body.dart';
 
 /// The 5 item types available in the Global Quick Add sheet.
-enum QuickAddType {
-  todo,
-  assignment,
-  exam,
-  expense,
-  habit,
-}
+enum QuickAddType { todo, assignment, exam, expense, habit }
 
 /// Smart default type provider based on current screen and segment:
 /// - Home (0) -> To-do
@@ -58,10 +52,7 @@ final quickAddContextProvider = Provider<QuickAddType>((ref) {
 class QuickAddSheet extends ConsumerStatefulWidget {
   final QuickAddType? initialType;
 
-  const QuickAddSheet({
-    super.key,
-    this.initialType,
-  });
+  const QuickAddSheet({super.key, this.initialType});
 
   /// Displays the QuickAddSheet adaptively: bottom sheet on compact, dialog on medium/expanded.
   static Future<void> show(BuildContext context) {
@@ -71,11 +62,16 @@ class QuickAddSheet extends ConsumerStatefulWidget {
       backgroundColor: palette.cardRaised,
       shape: Breakpoints.isCompact(context)
           ? const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(AppDimens.radiusXl)),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(AppDimens.radiusXl),
+              ),
             )
           : RoundedRectangleBorder(
               borderRadius: AppDimens.borderRadiusLg,
-              side: BorderSide(color: palette.border, width: AppDimens.hairline),
+              side: BorderSide(
+                color: palette.border,
+                width: AppDimens.hairline,
+              ),
             ),
       builder: (ctx) => const QuickAddSheet(),
     );
@@ -121,7 +117,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 
     _titleController = TextEditingController()..addListener(_onFieldChanged);
     _amountController = TextEditingController()..addListener(_onFieldChanged);
-    _expenseTitleController = TextEditingController()..addListener(_onFieldChanged);
+    _expenseTitleController = TextEditingController()
+      ..addListener(_onFieldChanged);
 
     final today = AppDateUtils.today();
     _selectedDate = today;
@@ -222,7 +219,10 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     final index = QuickAddType.values.indexOf(newType);
     if (_chipScrollController.hasClients) {
       _chipScrollController.animateTo(
-        (index * 100.0).clamp(0.0, _chipScrollController.position.maxScrollExtent),
+        (index * 100.0).clamp(
+          0.0,
+          _chipScrollController.position.maxScrollExtent,
+        ),
         duration: Motion.base,
         curve: Motion.standard,
       );
@@ -230,7 +230,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   }
 
   void _navigateType(int delta) {
-    final values = QuickAddType.values;
+    const values = QuickAddType.values;
     final nextIndex = (_currentType.index + delta).clamp(0, values.length - 1);
     if (nextIndex != _currentType.index) {
       _selectType(values[nextIndex]);
@@ -275,14 +275,16 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           break;
 
         case QuickAddType.assignment:
-          final academicItemsNotifier = ref.read(academicItemsProvider.notifier);
+          final academicItemsNotifier = ref.read(
+            academicItemsProvider.notifier,
+          );
           final title = _titleController.text.trim();
           final newItem = await academicItemsNotifier.addItem(
-                title: title,
-                itemType: 'assignment',
-                dueDate: _dueDate,
-                subjectId: _selectedSubjectId,
-              );
+            title: title,
+            itemType: 'assignment',
+            dueDate: _dueDate,
+            subjectId: _selectedSubjectId,
+          );
           if (mounted) navigator.pop();
 
           await academicItemsNotifier.refresh();
@@ -304,14 +306,16 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           break;
 
         case QuickAddType.exam:
-          final academicItemsNotifier = ref.read(academicItemsProvider.notifier);
+          final academicItemsNotifier = ref.read(
+            academicItemsProvider.notifier,
+          );
           final title = _titleController.text.trim();
           final newItem = await academicItemsNotifier.addItem(
-                title: title,
-                itemType: 'exam',
-                dueDate: _examDate,
-                subjectId: _selectedSubjectId,
-              );
+            title: title,
+            itemType: 'exam',
+            dueDate: _examDate,
+            subjectId: _selectedSubjectId,
+          );
           if (mounted) navigator.pop();
 
           await academicItemsNotifier.refresh();
@@ -333,17 +337,23 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           break;
 
         case QuickAddType.expense:
-          final allTransactionsNotifier = ref.read(allTransactionsProvider.notifier);
-          final monthSummariesNotifier = ref.read(monthSummariesProvider.notifier);
-          final expenseSettingsNotifier = ref.read(expenseSettingsProvider.notifier);
+          final allTransactionsNotifier = ref.read(
+            allTransactionsProvider.notifier,
+          );
+          final monthSummariesNotifier = ref.read(
+            monthSummariesProvider.notifier,
+          );
+          final expenseSettingsNotifier = ref.read(
+            expenseSettingsProvider.notifier,
+          );
           final amount = double.parse(_amountController.text.trim());
           final title = _expenseTitleController.text.trim();
           final newTx = await allTransactionsNotifier.logTransaction(
-                amount: amount,
-                title: title,
-                category: _category,
-                txType: _txType,
-              );
+            amount: amount,
+            title: title,
+            category: _category,
+            txType: _txType,
+          );
           if (mounted) navigator.pop();
 
           await allTransactionsNotifier.refresh();
@@ -412,7 +422,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                 Icon(
                   icon,
                   size: 16,
-                  color: isSelected ? palette.onSelected : palette.textSecondary,
+                  color: isSelected
+                      ? palette.onSelected
+                      : palette.textSecondary,
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -420,7 +432,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? palette.onSelected : palette.textSecondary,
+                    color: isSelected
+                        ? palette.onSelected
+                        : palette.textSecondary,
                   ),
                 ),
               ],
@@ -506,18 +520,24 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             final canClose = await _confirmDiscard();
             if (canClose && mounted) nav.pop();
           },
-          const SingleActivator(LogicalKeyboardKey.arrowLeft): () => _navigateType(-1),
-          const SingleActivator(LogicalKeyboardKey.arrowRight): () => _navigateType(1),
+          const SingleActivator(LogicalKeyboardKey.arrowLeft): () =>
+              _navigateType(-1),
+          const SingleActivator(LogicalKeyboardKey.arrowRight): () =>
+              _navigateType(1),
         },
         child: Container(
           key: const Key('quick_add_sheet'),
           constraints: BoxConstraints(
-            maxHeight: isCompact ? MediaQuery.sizeOf(context).height * 0.9 : 680,
+            maxHeight: isCompact
+                ? MediaQuery.sizeOf(context).height * 0.9
+                : 680,
           ),
           decoration: BoxDecoration(
             color: palette.cardRaised,
             borderRadius: isCompact
-                ? const BorderRadius.vertical(top: Radius.circular(AppDimens.radiusXl))
+                ? const BorderRadius.vertical(
+                    top: Radius.circular(AppDimens.radiusXl),
+                  )
                 : AppDimens.borderRadiusLg,
           ),
           child: Column(
@@ -632,7 +652,10 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                       // Error Banner if submission failed
                       if (_errorMessage != null) ...[
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
                             color: palette.danger.withValues(alpha: 0.12),
@@ -644,12 +667,19 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.error_outline, size: 16, color: palette.danger),
+                              Icon(
+                                Icons.error_outline,
+                                size: 16,
+                                color: palette.danger,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   _errorMessage!,
-                                  style: TextStyle(fontSize: 12, color: palette.danger),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: palette.danger,
+                                  ),
                                 ),
                               ),
                             ],
@@ -683,8 +713,11 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: palette.accent,
                             foregroundColor: palette.onAccent,
-                            disabledBackgroundColor: palette.accent.withValues(alpha: 0.3),
-                            disabledForegroundColor: palette.onAccent.withValues(alpha: 0.5),
+                            disabledBackgroundColor: palette.accent.withValues(
+                              alpha: 0.3,
+                            ),
+                            disabledForegroundColor: palette.onAccent
+                                .withValues(alpha: 0.5),
                             shape: RoundedRectangleBorder(
                               borderRadius: AppDimens.borderRadiusSm,
                             ),
@@ -696,7 +729,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(palette.onAccent),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      palette.onAccent,
+                                    ),
                                   ),
                                 )
                               : const Text(

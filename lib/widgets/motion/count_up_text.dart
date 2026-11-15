@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/constants/motion.dart';
 import '../../core/constants/theme.dart';
 
@@ -20,9 +21,8 @@ class CountUpText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveDuration = Motion.duration(context, duration);
-    final textStyle = (style ?? Theme.of(context).textTheme.bodyMedium)?.copyWith(
-      fontFeatures: AppTypography.tabularFigures,
-    );
+    final textStyle = (style ?? Theme.of(context).textTheme.bodyMedium)
+        ?.copyWith(fontFeatures: AppTypography.tabularFigures);
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(end: value.toDouble()),
@@ -31,12 +31,11 @@ class CountUpText extends StatelessWidget {
       builder: (context, animValue, child) {
         final formattedText = formatter != null
             ? formatter!(animValue)
-            : (value is int ? animValue.round().toString() : animValue.toStringAsFixed(1));
+            : (value is int
+                  ? animValue.round().toString()
+                  : animValue.toStringAsFixed(1));
 
-        return Text(
-          formattedText,
-          style: textStyle,
-        );
+        return Text(formattedText, style: textStyle);
       },
     );
   }

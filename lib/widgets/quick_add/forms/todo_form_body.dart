@@ -38,16 +38,10 @@ class TodoFormBody extends StatelessWidget {
           onSubmitted: (_) => onSubmit?.call(),
           autocorrect: false,
           enableSuggestions: false,
-          style: TextStyle(
-            fontSize: 14,
-            color: palette.textPrimary,
-          ),
+          style: TextStyle(fontSize: 14, color: palette.textPrimary),
           decoration: InputDecoration(
             hintText: 'What needs to be done?',
-            hintStyle: TextStyle(
-              fontSize: 14,
-              color: palette.textMuted,
-            ),
+            hintStyle: TextStyle(fontSize: 14, color: palette.textMuted),
           ),
         ),
         const SizedBox(height: 16),

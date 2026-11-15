@@ -7,6 +7,7 @@ import '../core/constants/theme.dart';
 import '../core/services/exam_cleanup_service.dart';
 import '../core/services/expense_reset_service.dart';
 import '../core/services/rollover_service.dart';
+import '../core/utils/app_log.dart';
 import '../core/utils/responsive.dart';
 import '../providers/academics_providers.dart';
 import '../providers/expenses_providers.dart';
@@ -75,7 +76,8 @@ class MainShell extends ConsumerStatefulWidget {
   ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends ConsumerState<MainShell> with WidgetsBindingObserver {
+class _MainShellState extends ConsumerState<MainShell>
+    with WidgetsBindingObserver {
   static const List<Widget> _screens = [
     HomeScreen(),
     AcademicsScreen(),
@@ -124,7 +126,7 @@ class _MainShellState extends ConsumerState<MainShell> with WidgetsBindingObserv
         await ref.read(habitLogsProvider.notifier).refresh();
       }
     } catch (e) {
-      debugPrint('MainShell: error running background sync: $e');
+      AppLog.e('MainShell: error running background sync', e);
     }
   }
 
@@ -147,7 +149,8 @@ class _MainShellState extends ConsumerState<MainShell> with WidgetsBindingObserv
 
     return CallbackShortcuts(
       bindings: {
-        const SingleActivator(LogicalKeyboardKey.keyN, control: true): _openQuickAdd,
+        const SingleActivator(LogicalKeyboardKey.keyN, control: true):
+            _openQuickAdd,
       },
       child: Focus(
         autofocus: true,
@@ -210,7 +213,9 @@ class _MainShellState extends ConsumerState<MainShell> with WidgetsBindingObserv
                     right: AppDimens.dockMarginHorizontal,
                     bottom: AppDimens.dockBottomOffset + safeBottom,
                     child: AnimatedSlide(
-                      offset: isKeyboardOpen ? const Offset(0, 2.5) : Offset.zero,
+                      offset: isKeyboardOpen
+                          ? const Offset(0, 2.5)
+                          : Offset.zero,
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeInOut,
                       child: Row(
@@ -221,7 +226,9 @@ class _MainShellState extends ConsumerState<MainShell> with WidgetsBindingObserv
                               destinations: _navDestinations,
                               selectedIndex: currentIndex,
                               onSelected: (idx) {
-                                ref.read(mainNavIndexProvider.notifier).setIndex(idx);
+                                ref
+                                    .read(mainNavIndexProvider.notifier)
+                                    .setIndex(idx);
                               },
                             ),
                           ),

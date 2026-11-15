@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../core/constants/motion.dart';
@@ -20,11 +21,7 @@ class DeadlineBar extends StatelessWidget {
   final int daysLeft;
   final UrgencyTone? toneOverride;
 
-  const DeadlineBar({
-    super.key,
-    required this.daysLeft,
-    this.toneOverride,
-  });
+  const DeadlineBar({super.key, required this.daysLeft, this.toneOverride});
 
   @override
   Widget build(BuildContext context) {

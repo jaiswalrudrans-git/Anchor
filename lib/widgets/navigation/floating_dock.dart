@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../core/constants/dimens.dart';
@@ -53,10 +54,12 @@ class DockShape {
 
     // 1. Base dock pill
     final pill = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, width, height),
-        Radius.circular(rCorner),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(0, 0, width, height),
+          Radius.circular(rCorner),
+        ),
+      );
 
     // 2. Notch cutout with smooth cubic Bezier shoulders
     const theta0 = 55.0 * math.pi / 180.0;
@@ -93,11 +96,7 @@ class DockShape {
       ..moveTo(pShoulderStart.dx, -50.0)
       ..lineTo(pShoulderStart.dx, 0.0)
       ..cubicTo(c1.dx, c1.dy, c2.dx, c2.dy, pArcLeft.dx, pArcLeft.dy)
-      ..arcToPoint(
-        pArcRight,
-        radius: Radius.circular(rNotch),
-        clockwise: false,
-      )
+      ..arcToPoint(pArcRight, radius: Radius.circular(rNotch), clockwise: false)
       ..cubicTo(c3.dx, c3.dy, c4.dx, c4.dy, pShoulderEnd.dx, 0.0)
       ..lineTo(pShoulderEnd.dx, -50.0)
       ..close();
@@ -113,10 +112,7 @@ class DockClipper extends CustomClipper<Path> {
   final double position;
   final DockShape shape;
 
-  const DockClipper({
-    required this.position,
-    required this.shape,
-  });
+  const DockClipper({required this.position, required this.shape});
 
   @override
   Path getClip(Size size) {
@@ -209,10 +205,7 @@ class DockBubble extends StatelessWidget {
           decoration: BoxDecoration(
             color: palette.accentSoft,
             shape: BoxShape.circle,
-            border: Border.all(
-              color: palette.accent,
-              width: 2.0,
-            ),
+            border: Border.all(color: palette.accent, width: 2.0),
           ),
           child: Center(
             child: Icon(
@@ -270,25 +263,24 @@ class _FloatingDockState extends State<FloatingDock>
       vsync: this,
       duration: const Duration(milliseconds: 320),
     );
-    _glideAnimation = Tween<double>(
-      begin: widget.selectedIndex.toDouble(),
-      end: widget.selectedIndex.toDouble(),
-    ).animate(CurvedAnimation(
-      parent: _glideController,
-      curve: Curves.easeInOutCubic,
-    ));
+    _glideAnimation =
+        Tween<double>(
+          begin: widget.selectedIndex.toDouble(),
+          end: widget.selectedIndex.toDouble(),
+        ).animate(
+          CurvedAnimation(
+            parent: _glideController,
+            curve: Curves.easeInOutCubic,
+          ),
+        );
 
     _popController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 180),
     );
-    _popAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _popController,
-      curve: Curves.easeOutBack,
-    ));
+    _popAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _popController, curve: Curves.easeOutBack),
+    );
   }
 
   @override
@@ -325,13 +317,13 @@ class _FloatingDockState extends State<FloatingDock>
     _targetIcon = widget.destinations[newIndex].selectedIcon;
     final startIndex = _glideAnimation.value;
 
-    _glideAnimation = Tween<double>(
-      begin: startIndex,
-      end: newIndex.toDouble(),
-    ).animate(CurvedAnimation(
-      parent: _glideController,
-      curve: Curves.easeInOutCubic,
-    ));
+    _glideAnimation = Tween<double>(begin: startIndex, end: newIndex.toDouble())
+        .animate(
+          CurvedAnimation(
+            parent: _glideController,
+            curve: Curves.easeInOutCubic,
+          ),
+        );
 
     _glideController.forward(from: 0.0).then((_) {
       if (mounted) {
@@ -362,11 +354,21 @@ class _FloatingDockState extends State<FloatingDock>
     final palette = context.palette;
     final isShort = MediaQuery.sizeOf(context).height < 480;
 
-    final dockHeight = isShort ? AppDimens.dockHeightShort : AppDimens.dockHeight;
-    final dockRadius = isShort ? AppDimens.dockRadiusShort : AppDimens.dockRadius;
-    final bubbleDiameter = isShort ? AppDimens.bubbleDiameterShort : AppDimens.bubbleDiameter;
-    final bubbleLift = isShort ? AppDimens.bubbleLiftShort : AppDimens.bubbleLift;
-    final notchRadius = isShort ? AppDimens.notchRadiusShort : AppDimens.notchRadius;
+    final dockHeight = isShort
+        ? AppDimens.dockHeightShort
+        : AppDimens.dockHeight;
+    final dockRadius = isShort
+        ? AppDimens.dockRadiusShort
+        : AppDimens.dockRadius;
+    final bubbleDiameter = isShort
+        ? AppDimens.bubbleDiameterShort
+        : AppDimens.bubbleDiameter;
+    final bubbleLift = isShort
+        ? AppDimens.bubbleLiftShort
+        : AppDimens.bubbleLift;
+    final notchRadius = isShort
+        ? AppDimens.notchRadiusShort
+        : AppDimens.notchRadius;
 
     final shape = DockShape(
       cornerRadius: dockRadius,
@@ -418,7 +420,9 @@ class _FloatingDockState extends State<FloatingDock>
                     // 2. Destination Items (Icon & Label in equal slots)
                     Positioned.fill(
                       child: Row(
-                        children: widget.destinations.asMap().entries.map((entry) {
+                        children: widget.destinations.asMap().entries.map((
+                          entry,
+                        ) {
                           final idx = entry.key;
                           final dest = entry.value;
                           final isSelected = widget.selectedIndex == idx;
@@ -443,7 +447,9 @@ class _FloatingDockState extends State<FloatingDock>
                                 },
                                 borderRadius: BorderRadius.circular(dockRadius),
                                 child: Container(
-                                  constraints: const BoxConstraints(minHeight: 48.0),
+                                  constraints: const BoxConstraints(
+                                    minHeight: 48.0,
+                                  ),
                                   alignment: Alignment.center,
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,

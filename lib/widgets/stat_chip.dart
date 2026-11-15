@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/constants/dimens.dart';
 import '../core/constants/theme.dart';
 
@@ -23,7 +24,7 @@ class StatChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
 
-    Widget content = Container(
+    final Widget content = Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.space12,
         vertical: AppDimens.space8,

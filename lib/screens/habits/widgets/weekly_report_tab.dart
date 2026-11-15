@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -131,13 +132,19 @@ class WeeklyReportTab extends ConsumerWidget {
       loading: () => Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
-          child: CircularProgressIndicator(strokeWidth: 2, color: palette.accent),
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: palette.accent,
+          ),
         ),
       ),
       error: (err, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: Text('Error loading habits: $err', style: TextStyle(color: palette.danger)),
+          child: Text(
+            'Error loading habits: $err',
+            style: TextStyle(color: palette.danger),
+          ),
         ),
       ),
       data: (habits) {
@@ -145,7 +152,8 @@ class WeeklyReportTab extends ConsumerWidget {
           return const EmptyState(
             icon: Icons.repeat_outlined,
             title: 'No habits yet',
-            message: 'Create a habit to view detailed weekly consistency reports.',
+            message:
+                'Create a habit to view detailed weekly consistency reports.',
           );
         }
 
@@ -238,7 +246,8 @@ class WeeklyReportTab extends ConsumerWidget {
                             flex: 6,
                             child: LayoutBuilder(
                               builder: (context, rightConstraints) {
-                                final cardWidth = rightConstraints.maxWidth >= 640
+                                final cardWidth =
+                                    rightConstraints.maxWidth >= 640
                                     ? (rightConstraints.maxWidth - 12) / 2
                                     : rightConstraints.maxWidth;
 
@@ -380,7 +389,9 @@ class WeeklyReportTab extends ConsumerWidget {
           IconButton(
             key: const Key('weekly_next_week_button'),
             icon: const Icon(Icons.chevron_right, size: 22),
-            color: canGoForward ? palette.textPrimary : palette.disabledForeground,
+            color: canGoForward
+                ? palette.textPrimary
+                : palette.disabledForeground,
             tooltip: canGoForward ? 'Next week' : 'Cannot navigate to future',
             onPressed: canGoForward
                 ? () {
@@ -417,7 +428,9 @@ class WeeklyReportTab extends ConsumerWidget {
       totalEligibleDays += stats.eligibleDays;
     }
 
-    final double overallPercent = totalEligibleDays > 0 ? (totalCompletions / totalEligibleDays) * 100 : 0.0;
+    final double overallPercent = totalEligibleDays > 0
+        ? (totalCompletions / totalEligibleDays) * 100
+        : 0.0;
     final int perfectDaysCount = StreakUtils.perfectDays(
       habits: habits,
       habitLogsMap: logsMap,
@@ -546,15 +559,15 @@ class WeeklyReportTab extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Perfect days: $perfectDaysCount',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: palette.textSecondary,
-                  ),
+                  style: TextStyle(fontSize: 13, color: palette.textSecondary),
                 ),
                 if (comparisonChip != null) ...[
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: palette.cardRaised,
                       borderRadius: BorderRadius.circular(6),
@@ -661,7 +674,10 @@ class WeeklyReportTab extends ConsumerWidget {
                         child: Align(
                           alignment: Alignment.bottomCenter,
                           child: TweenAnimationBuilder<double>(
-                            tween: Tween<double>(begin: 0.0, end: isFuture ? 0.0 : frac),
+                            tween: Tween<double>(
+                              begin: 0.0,
+                              end: isFuture ? 0.0 : frac,
+                            ),
                             duration: Duration(milliseconds: 300 + (i * 40)),
                             curve: Curves.easeOutCubic,
                             builder: (context, animatedFrac, _) {
@@ -671,10 +687,19 @@ class WeeklyReportTab extends ConsumerWidget {
                                 decoration: BoxDecoration(
                                   color: isFuture
                                       ? Colors.transparent
-                                      : (animatedFrac > 0 ? palette.accent : palette.border.withValues(alpha: 0.4)),
+                                      : (animatedFrac > 0
+                                            ? palette.accent
+                                            : palette.border.withValues(
+                                                alpha: 0.4,
+                                              )),
                                   borderRadius: BorderRadius.circular(4),
                                   border: isFuture
-                                      ? Border.all(color: palette.border.withValues(alpha: 0.35), width: 1)
+                                      ? Border.all(
+                                          color: palette.border.withValues(
+                                            alpha: 0.35,
+                                          ),
+                                          width: 1,
+                                        )
                                       : null,
                                 ),
                               );
@@ -689,8 +714,12 @@ class WeeklyReportTab extends ConsumerWidget {
                         dayLetters[i],
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
-                          color: isToday ? palette.accent : palette.textSecondary,
+                          fontWeight: isToday
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: isToday
+                              ? palette.accent
+                              : palette.textSecondary,
                         ),
                       ),
                       Text(
@@ -753,7 +782,9 @@ class WeeklyReportTab extends ConsumerWidget {
       );
     }
 
-    if (bestWeakest != null && bestWeakest.weakestDay != null && bestWeakest.weakestDay != bestWeakest.bestDay) {
+    if (bestWeakest != null &&
+        bestWeakest.weakestDay != null &&
+        bestWeakest.weakestDay != bestWeakest.bestDay) {
       chips.add(
         _buildChip(
           icon: Icons.trending_down,
@@ -777,11 +808,7 @@ class WeeklyReportTab extends ConsumerWidget {
 
     if (chips.isEmpty) return const SizedBox.shrink();
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: chips,
-    );
+    return Wrap(spacing: 8, runSpacing: 8, children: chips);
   }
 
   Widget _buildChip({
@@ -959,8 +986,12 @@ class WeeklyReportTab extends ConsumerWidget {
                       dayLabels[index],
                       style: TextStyle(
                         fontSize: 10,
-                        fontWeight: isDayToday ? FontWeight.w700 : FontWeight.w500,
-                        color: isDayToday ? palette.textPrimary : palette.textSecondary,
+                        fontWeight: isDayToday
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isDayToday
+                            ? palette.textPrimary
+                            : palette.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -968,7 +999,9 @@ class WeeklyReportTab extends ConsumerWidget {
                       '${d.day}',
                       style: TextStyle(
                         fontSize: 10,
-                        color: isDayToday ? palette.textPrimary : palette.textSecondary,
+                        color: isDayToday
+                            ? palette.textPrimary
+                            : palette.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -1024,7 +1057,9 @@ class WeeklyReportTab extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: currentStreak > 0 ? palette.textPrimary : palette.textSecondary,
+                    color: currentStreak > 0
+                        ? palette.textPrimary
+                        : palette.textSecondary,
                   ),
                 ),
               ),
@@ -1059,11 +1094,7 @@ class WeeklyReportTab extends ConsumerWidget {
               color: palette.accent,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Icon(
-              Icons.check,
-              size: 14,
-              color: palette.onAccent,
-            ),
+            child: Icon(Icons.check, size: 14, color: palette.onAccent),
           ),
         );
 
@@ -1093,7 +1124,10 @@ class WeeklyReportTab extends ConsumerWidget {
           decoration: BoxDecoration(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: palette.border.withValues(alpha: 0.35), width: 1),
+            border: Border.all(
+              color: palette.border.withValues(alpha: 0.35),
+              width: 1,
+            ),
           ),
         );
 

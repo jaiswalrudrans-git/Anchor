@@ -23,7 +23,10 @@ class TestHabitsNotifier extends HabitsNotifier {
   }
 
   @override
-  Future<Habit> createHabit(String title, {String icon = 'check_circle'}) async {
+  Future<Habit> createHabit(
+    String title, {
+    String icon = 'check_circle',
+  }) async {
     final newHabit = Habit(
       id: 'habit-${_habits.length + 1}',
       userId: 'user-1',
@@ -93,10 +96,7 @@ class TestHabitLogsNotifier extends HabitLogsNotifier {
 }
 
 void main() {
-  Widget createWidget({
-    List<Habit>? habits,
-    List<HabitLog>? logs,
-  }) {
+  Widget createWidget({List<Habit>? habits, List<HabitLog>? logs}) {
     final hList = habits ?? [];
     final lList = logs ?? [];
 
@@ -113,99 +113,112 @@ void main() {
   }
 
   group('HabitsScreen Layout and Controls', () {
-    testWidgets('renders Overview and Weekly Report segmented tabs and New Habit button, ZERO FAB', (tester) async {
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders Overview and Weekly Report segmented tabs and New Habit button, ZERO FAB',
+      (tester) async {
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      // Top segmented toggle
-      expect(find.text('Overview'), findsOneWidget);
-      expect(find.text('Weekly Report'), findsOneWidget);
+        // Top segmented toggle
+        expect(find.text('Overview'), findsOneWidget);
+        expect(find.text('Weekly Report'), findsOneWidget);
 
-      // Sole add control: New Habit
-      expect(find.byKey(const Key('add_habit_button')), findsOneWidget);
+        // Sole add control: New Habit
+        expect(find.byKey(const Key('add_habit_button')), findsOneWidget);
 
-      // Verify ZERO FloatingActionButton
-      expect(find.byType(FloatingActionButton), findsNothing);
+        // Verify ZERO FloatingActionButton
+        expect(find.byType(FloatingActionButton), findsNothing);
 
-      // Empty state initially
-      expect(find.text('No habits yet'), findsOneWidget);
-    });
+        // Empty state initially
+        expect(find.text('No habits yet'), findsOneWidget);
+      },
+    );
 
-    testWidgets("'+ New Habit' opens AddHabitSheet with ONLY the habit title field", (tester) async {
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+    testWidgets(
+      "'+ New Habit' opens AddHabitSheet with ONLY the habit title field",
+      (tester) async {
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      // Tap + New Habit
-      await tester.tap(find.byKey(const Key('add_habit_button')));
-      await tester.pumpAndSettle();
+        // Tap + New Habit
+        await tester.tap(find.byKey(const Key('add_habit_button')));
+        await tester.pumpAndSettle();
 
-      // Verify AddHabitSheet is shown
-      expect(find.byType(AddHabitSheet), findsOneWidget);
-      expect(find.byKey(const Key('add_habit_title_field')), findsOneWidget);
-      expect(find.byKey(const Key('create_habit_button')), findsOneWidget);
+        // Verify AddHabitSheet is shown
+        expect(find.byType(AddHabitSheet), findsOneWidget);
+        expect(find.byKey(const Key('add_habit_title_field')), findsOneWidget);
+        expect(find.byKey(const Key('create_habit_button')), findsOneWidget);
 
-      // Verify NO other inputs exist (no category dropdown, no amount field, no dates, etc.)
-      expect(find.byType(DropdownButtonFormField), findsNothing);
-      expect(find.byType(Radio), findsNothing);
-      expect(find.byType(Checkbox), findsNothing);
+        // Verify NO other inputs exist (no category dropdown, no amount field, no dates, etc.)
+        expect(find.byType(DropdownButtonFormField), findsNothing);
+        expect(find.byType(Radio), findsNothing);
+        expect(find.byType(Checkbox), findsNothing);
 
-      // Enter title and submit
-      await tester.enterText(find.byKey(const Key('add_habit_title_field')), 'Morning Run');
-      await tester.tap(find.byKey(const Key('create_habit_button')));
-      await tester.pumpAndSettle();
+        // Enter title and submit
+        await tester.enterText(
+          find.byKey(const Key('add_habit_title_field')),
+          'Morning Run',
+        );
+        await tester.tap(find.byKey(const Key('create_habit_button')));
+        await tester.pumpAndSettle();
 
-      // Form closed and habit now displayed (both in row and matrix)
-      expect(find.text('Morning Run'), findsWidgets);
-      expect(find.text('0d streak'), findsOneWidget);
-    });
+        // Form closed and habit now displayed (both in row and matrix)
+        expect(find.text('Morning Run'), findsWidgets);
+        expect(find.text('0d streak'), findsOneWidget);
+      },
+    );
   });
 
   group('Daily Habit Rows & Today Toggle', () {
-    testWidgets('one-tap today toggle inserts log and updates streak immediately', (tester) async {
-      final today = AppDateUtils.today();
-      final yesterday = today.subtract(const Duration(days: 1));
+    testWidgets(
+      'one-tap today toggle inserts log and updates streak immediately',
+      (tester) async {
+        final today = AppDateUtils.today();
+        final yesterday = today.subtract(const Duration(days: 1));
 
-      final habit = Habit(
-        id: 'h1',
-        userId: 'user-1',
-        title: 'Read 20 pages',
-        createdAt: today.subtract(const Duration(days: 5)),
-      );
+        final habit = Habit(
+          id: 'h1',
+          userId: 'user-1',
+          title: 'Read 20 pages',
+          createdAt: today.subtract(const Duration(days: 5)),
+        );
 
-      // Yesterday was logged (so unlogged today still holds 1d streak)
-      final logYesterday = HabitLog(
-        id: 'l1',
-        userId: 'user-1',
-        habitId: 'h1',
-        logDate: yesterday,
-      );
+        // Yesterday was logged (so unlogged today still holds 1d streak)
+        final logYesterday = HabitLog(
+          id: 'l1',
+          userId: 'user-1',
+          habitId: 'h1',
+          logDate: yesterday,
+        );
 
-      await tester.pumpWidget(createWidget(
-        habits: [habit],
-        logs: [logYesterday],
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createWidget(habits: [habit], logs: [logYesterday]),
+        );
+        await tester.pumpAndSettle();
 
-      // Habit row displayed with 1d streak (appears in habit row and matrix)
-      expect(find.text('Read 20 pages'), findsWidgets);
-      expect(find.text('1d streak'), findsOneWidget);
+        // Habit row displayed with 1d streak (appears in habit row and matrix)
+        expect(find.text('Read 20 pages'), findsWidgets);
+        expect(find.text('1d streak'), findsOneWidget);
 
-      // Tap today toggle
-      await tester.tap(find.byKey(const Key('habit_today_toggle_h1')));
-      await tester.pumpAndSettle();
+        // Tap today toggle
+        await tester.tap(find.byKey(const Key('habit_today_toggle_h1')));
+        await tester.pumpAndSettle();
 
-      // Streak immediately becomes 2d
-      expect(find.text('2d streak'), findsOneWidget);
+        // Streak immediately becomes 2d
+        expect(find.text('2d streak'), findsOneWidget);
 
-      // Tap again to toggle off
-      await tester.tap(find.byKey(const Key('habit_today_toggle_h1')));
-      await tester.pumpAndSettle();
+        // Tap again to toggle off
+        await tester.tap(find.byKey(const Key('habit_today_toggle_h1')));
+        await tester.pumpAndSettle();
 
-      // Reverts back to 1d streak
-      expect(find.text('1d streak'), findsOneWidget);
-    });
+        // Reverts back to 1d streak
+        expect(find.text('1d streak'), findsOneWidget);
+      },
+    );
 
-    testWidgets('delete habit shows confirmation dialog and removes habit', (tester) async {
+    testWidgets('delete habit shows confirmation dialog and removes habit', (
+      tester,
+    ) async {
       final habit = Habit(
         id: 'h1',
         userId: 'user-1',
@@ -237,7 +250,9 @@ void main() {
   });
 
   group('Monthly Reality Report Card & Matrix Grid', () {
-    testWidgets('displays Reality Report figures and Matrix cells', (tester) async {
+    testWidgets('displays Reality Report figures and Matrix cells', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1200, 900);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -266,23 +281,26 @@ void main() {
         logDate: monthStart.add(const Duration(days: 1)),
       );
 
-      await tester.pumpWidget(createWidget(
-        habits: [habit],
-        logs: [l1, l2],
-      ));
+      await tester.pumpWidget(createWidget(habits: [habit], logs: [l1, l2]));
       await tester.pumpAndSettle();
 
       // Verify Reality Report Card title
       expect(find.text('Reality Report'), findsOneWidget);
-      expect(find.byKey(const Key('reality_metric_completions')), findsOneWidget);
-      expect(find.byKey(const Key('reality_metric_streak_breaks')), findsOneWidget);
+      expect(
+        find.byKey(const Key('reality_metric_completions')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('reality_metric_streak_breaks')),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key('reality_metric_rebounds')), findsOneWidget);
 
       // Verify Heatmap title
       expect(find.text('Monthly Consistency Heatmap'), findsOneWidget);
 
       // Tapping a past cell opens DayLogSheet, where toggling un-logs it
-      final cellKey = const Key('matrix_cell_h1_1'); // Day 1
+      const cellKey = Key('matrix_cell_h1_1'); // Day 1
       expect(find.byKey(cellKey), findsOneWidget);
 
       // Tap cell to open day log sheet
@@ -300,44 +318,54 @@ void main() {
   });
 
   group('Weekly Report Tab', () {
-    testWidgets('navigates to Weekly Report tab, shows per-habit stats and 7-cell strip', (tester) async {
-      final today = AppDateUtils.today();
-      final habit = Habit(
-        id: 'h1',
-        userId: 'user-1',
-        title: 'Journaling',
-        createdAt: today.subtract(const Duration(days: 14)),
-      );
+    testWidgets(
+      'navigates to Weekly Report tab, shows per-habit stats and 7-cell strip',
+      (tester) async {
+        final today = AppDateUtils.today();
+        final habit = Habit(
+          id: 'h1',
+          userId: 'user-1',
+          title: 'Journaling',
+          createdAt: today.subtract(const Duration(days: 14)),
+        );
 
-      await tester.pumpWidget(createWidget(habits: [habit]));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(createWidget(habits: [habit]));
+        await tester.pumpAndSettle();
 
-      // Switch to Weekly Report
-      await tester.tap(find.text('Weekly Report'));
-      await tester.pumpAndSettle();
+        // Switch to Weekly Report
+        await tester.tap(find.text('Weekly Report'));
+        await tester.pumpAndSettle();
 
-      // Per-habit card visible
-      expect(find.byKey(const Key('weekly_habit_card_h1')), findsOneWidget);
-      expect(find.text('Journaling'), findsOneWidget);
+        // Per-habit card visible
+        expect(find.byKey(const Key('weekly_habit_card_h1')), findsOneWidget);
+        expect(find.text('Journaling'), findsOneWidget);
 
-      // 7-cell strip visible
-      expect(find.byKey(const Key('weekly_strip_cell_h1_0')), findsOneWidget);
-      expect(find.byKey(const Key('weekly_strip_cell_h1_6')), findsOneWidget);
+        // 7-cell strip visible
+        expect(find.byKey(const Key('weekly_strip_cell_h1_0')), findsOneWidget);
+        expect(find.byKey(const Key('weekly_strip_cell_h1_6')), findsOneWidget);
 
-      // Overall weekly summary visible
-      expect(find.byKey(const Key('weekly_overall_summary_card')), findsOneWidget);
+        // Overall weekly summary visible
+        expect(
+          find.byKey(const Key('weekly_overall_summary_card')),
+          findsOneWidget,
+        );
 
-      // Next week button is disabled at current week
-      final nextButton = tester.widget<IconButton>(find.byKey(const Key('weekly_next_week_button')));
-      expect(nextButton.onPressed, isNull);
+        // Next week button is disabled at current week
+        final nextButton = tester.widget<IconButton>(
+          find.byKey(const Key('weekly_next_week_button')),
+        );
+        expect(nextButton.onPressed, isNull);
 
-      // Can navigate to previous week
-      await tester.tap(find.byKey(const Key('weekly_prev_week_button')));
-      await tester.pumpAndSettle();
+        // Can navigate to previous week
+        await tester.tap(find.byKey(const Key('weekly_prev_week_button')));
+        await tester.pumpAndSettle();
 
-      // Now next week button is enabled
-      final nextButtonAfterPrev = tester.widget<IconButton>(find.byKey(const Key('weekly_next_week_button')));
-      expect(nextButtonAfterPrev.onPressed, isNotNull);
-    });
+        // Now next week button is enabled
+        final nextButtonAfterPrev = tester.widget<IconButton>(
+          find.byKey(const Key('weekly_next_week_button')),
+        );
+        expect(nextButtonAfterPrev.onPressed, isNotNull);
+      },
+    );
   });
 }

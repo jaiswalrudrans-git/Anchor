@@ -4,23 +4,26 @@ import 'package:anchor/core/utils/date_utils.dart';
 
 void main() {
   group('MonthClose Pure Calculation Tests', () {
-    test('surplus month: remainder positive carries entire remainder to savings', () {
-      // allowance 10000, received 2000, spent 6000, saved 1000
-      // remainder = (10000 + 2000) - (6000 + 1000) = 5000
-      final close = ExpenseResetService.computeMonthClose(
-        allowance: 10000.0,
-        received: 2000.0,
-        spent: 6000.0,
-        saved: 1000.0,
-      );
+    test(
+      'surplus month: remainder positive carries entire remainder to savings',
+      () {
+        // allowance 10000, received 2000, spent 6000, saved 1000
+        // remainder = (10000 + 2000) - (6000 + 1000) = 5000
+        final close = ExpenseResetService.computeMonthClose(
+          allowance: 10000.0,
+          received: 2000.0,
+          spent: 6000.0,
+          saved: 1000.0,
+        );
 
-      expect(close.allowance, 10000.0);
-      expect(close.received, 2000.0);
-      expect(close.spent, 6000.0);
-      expect(close.saved, 1000.0);
-      expect(close.remainder, 5000.0);
-      expect(close.carriedToSavings, 5000.0);
-    });
+        expect(close.allowance, 10000.0);
+        expect(close.received, 2000.0);
+        expect(close.spent, 6000.0);
+        expect(close.saved, 1000.0);
+        expect(close.remainder, 5000.0);
+        expect(close.carriedToSavings, 5000.0);
+      },
+    );
 
     test('deficit month: remainder negative carries 0 to savings', () {
       // allowance 5000, received 0, spent 7500, saved 0
@@ -76,17 +79,23 @@ void main() {
   });
 
   group('Month Key Utilities Tests', () {
-    test('nextMonthKey rolls over across years and standard months correctly', () {
-      expect(AppDateUtils.nextMonthKey('2026-01'), '2026-02');
-      expect(AppDateUtils.nextMonthKey('2026-11'), '2026-12');
-      expect(AppDateUtils.nextMonthKey('2026-12'), '2027-01');
-    });
+    test(
+      'nextMonthKey rolls over across years and standard months correctly',
+      () {
+        expect(AppDateUtils.nextMonthKey('2026-01'), '2026-02');
+        expect(AppDateUtils.nextMonthKey('2026-11'), '2026-12');
+        expect(AppDateUtils.nextMonthKey('2026-12'), '2027-01');
+      },
+    );
 
-    test('prevMonthKey rolls back across years and standard months correctly', () {
-      expect(AppDateUtils.prevMonthKey('2026-02'), '2026-01');
-      expect(AppDateUtils.prevMonthKey('2026-01'), '2025-12');
-      expect(AppDateUtils.prevMonthKey('2026-11'), '2026-10');
-    });
+    test(
+      'prevMonthKey rolls back across years and standard months correctly',
+      () {
+        expect(AppDateUtils.prevMonthKey('2026-02'), '2026-01');
+        expect(AppDateUtils.prevMonthKey('2026-01'), '2025-12');
+        expect(AppDateUtils.prevMonthKey('2026-11'), '2026-10');
+      },
+    );
 
     test('formatMonthTitle formats YYYY-MM to readable title', () {
       expect(AppDateUtils.formatMonthTitle('2026-11'), 'November 2026');
@@ -108,10 +117,10 @@ void main() {
 
   group('Multi-Month Rollover Logic Simulation', () {
     test('3-month gap simulation snapshots every month and accumulates total_savings without double count', () {
-      final initialAllowance = 10000.0;
+      const initialAllowance = 10000.0;
       double totalSavings = 5000.0;
       String lastResetMonth = '2026-08';
-      final currentMonth = '2026-11';
+      const currentMonth = '2026-11';
 
       // Mock month transaction totals
       final monthData = {

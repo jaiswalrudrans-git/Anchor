@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../models/academic_item.dart';
+import '../utils/app_log.dart';
 import '../utils/date_utils.dart';
 
 /// Notification service for scheduled academic reminders on Android.
@@ -21,7 +23,7 @@ class NotificationService {
       'Reminders for upcoming assignments and exams';
 
   NotificationService({FlutterLocalNotificationsPlugin? plugin})
-      : _notificationsPlugin = plugin ?? FlutterLocalNotificationsPlugin();
+    : _notificationsPlugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   /// Deterministic 31-bit positive int notification ID from UUID.
   static int notificationId(String uuid) {
@@ -33,7 +35,14 @@ class NotificationService {
   static DateTime? assignmentReminderTime(DateTime dueDate, [DateTime? now]) {
     final cleanDue = AppDateUtils.dateOnly(dueDate);
     final targetDay = cleanDue.subtract(const Duration(days: 1));
-    final reminder = DateTime(targetDay.year, targetDay.month, targetDay.day, 21, 0, 0);
+    final reminder = DateTime(
+      targetDay.year,
+      targetDay.month,
+      targetDay.day,
+      21,
+      0,
+      0,
+    );
 
     final current = now ?? DateTime.now();
     if (current.isAfter(reminder)) {
@@ -47,7 +56,14 @@ class NotificationService {
   static DateTime? examReminderTime(DateTime dueDate, [DateTime? now]) {
     final cleanDue = AppDateUtils.dateOnly(dueDate);
     final targetDay = cleanDue.subtract(const Duration(days: 3));
-    final reminder = DateTime(targetDay.year, targetDay.month, targetDay.day, 8, 0, 0);
+    final reminder = DateTime(
+      targetDay.year,
+      targetDay.month,
+      targetDay.day,
+      8,
+      0,
+      0,
+    );
 
     final current = now ?? DateTime.now();
     if (current.isAfter(reminder)) {
@@ -70,24 +86,28 @@ class NotificationService {
         final timezoneInfo = await FlutterTimezone.getLocalTimezone();
         tz.setLocalLocation(tz.getLocation(timezoneInfo.identifier));
       } catch (e) {
-        debugPrint('NotificationService: local timezone detection fallback: $e');
+        AppLog.d('NotificationService: local timezone detection fallback: $e');
       }
 
-      const androidInit = AndroidInitializationSettings('@drawable/ic_stat_anchor');
+      const androidInit = AndroidInitializationSettings(
+        '@drawable/ic_stat_anchor',
+      );
       const initSettings = InitializationSettings(android: androidInit);
 
       await _notificationsPlugin.initialize(settings: initSettings);
 
       // Create high-importance notification channel
-      final androidChannel = AndroidNotificationChannel(
+      const androidChannel = AndroidNotificationChannel(
         academicChannelId,
         academicChannelName,
         description: academicChannelDesc,
         importance: Importance.high,
       );
 
-      final androidImpl = _notificationsPlugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+      final androidImpl = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
 
       if (androidImpl != null) {
         await androidImpl.createNotificationChannel(androidChannel);
@@ -99,7 +119,7 @@ class NotificationService {
 
       _isInitialized = true;
     } catch (e) {
-      debugPrint('NotificationService initialization failed: $e');
+      AppLog.e('NotificationService initialization failed', e);
     }
   }
 
@@ -153,7 +173,7 @@ class NotificationService {
           androidScheduleMode: AndroidScheduleMode.inexact,
         );
       } catch (inner) {
-        debugPrint('NotificationService: failed to schedule assignment: $inner');
+        AppLog.e('NotificationService: failed to schedule assignment', inner);
       }
     }
   }
@@ -203,7 +223,7 @@ class NotificationService {
           androidScheduleMode: AndroidScheduleMode.inexact,
         );
       } catch (inner) {
-        debugPrint('NotificationService: failed to schedule exam: $inner');
+        AppLog.e('NotificationService: failed to schedule exam', inner);
       }
     }
   }
@@ -216,7 +236,7 @@ class NotificationService {
       final id = notificationId(itemId);
       await _notificationsPlugin.cancel(id: id);
     } catch (e) {
-      debugPrint('NotificationService: cancel reminder error: $e');
+      AppLog.e('NotificationService: cancel reminder error', e);
     }
   }
 
@@ -237,7 +257,7 @@ class NotificationService {
         }
       }
     } catch (e) {
-      debugPrint('NotificationService: resyncAll error: $e');
+      AppLog.e('NotificationService: resyncAll error', e);
     }
   }
 }

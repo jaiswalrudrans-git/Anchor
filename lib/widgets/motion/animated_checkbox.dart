@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/constants/motion.dart';
 import '../../core/constants/theme.dart';
 
@@ -30,7 +31,9 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
   @override
   void initState() {
     super.initState();
-    final duration = widget.playful ? const Duration(milliseconds: 350) : const Duration(milliseconds: 180);
+    final duration = widget.playful
+        ? const Duration(milliseconds: 350)
+        : const Duration(milliseconds: 180);
     _controller = AnimationController(
       vsync: this,
       duration: duration,
@@ -40,11 +43,20 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
     final curve = widget.playful ? Curves.easeOutCubic : Motion.standard;
 
     _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: widget.playful ? 1.15 : 1.05), weight: 50),
-      TweenSequenceItem(tween: Tween(begin: widget.playful ? 1.15 : 1.05, end: 1.0), weight: 50),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: widget.playful ? 1.15 : 1.05),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: widget.playful ? 1.15 : 1.05, end: 1.0),
+        weight: 50,
+      ),
     ]).animate(CurvedAnimation(parent: _controller, curve: curve));
 
-    _checkAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _checkAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -136,17 +148,11 @@ class _CheckPainter extends CustomPainter {
 
     if (progress <= 0.4) {
       final t = progress / 0.4;
-      path.lineTo(
-        p1.dx + (p2.dx - p1.dx) * t,
-        p1.dy + (p2.dy - p1.dy) * t,
-      );
+      path.lineTo(p1.dx + (p2.dx - p1.dx) * t, p1.dy + (p2.dy - p1.dy) * t);
     } else {
       path.lineTo(p2.dx, p2.dy);
       final t = (progress - 0.4) / 0.6;
-      path.lineTo(
-        p2.dx + (p3.dx - p2.dx) * t,
-        p2.dy + (p3.dy - p2.dy) * t,
-      );
+      path.lineTo(p2.dx + (p3.dx - p2.dx) * t, p2.dy + (p3.dy - p2.dy) * t);
     }
 
     canvas.drawPath(path, paint);

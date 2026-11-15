@@ -33,7 +33,9 @@ class _TomorrowSectionState extends ConsumerState<TomorrowSection> {
     if (text.isEmpty) return;
 
     try {
-      await ref.read(todosProvider.notifier).addTodo(text, AppDateUtils.tomorrow());
+      await ref
+          .read(todosProvider.notifier)
+          .addTodo(text, AppDateUtils.tomorrow());
       _controller.clear();
       setState(() {
         _showInlineInput = false;
@@ -67,7 +69,10 @@ class _TomorrowSectionState extends ConsumerState<TomorrowSection> {
             },
             borderRadius: AppDimens.borderRadiusMd,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 12.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -95,11 +100,17 @@ class _TomorrowSectionState extends ConsumerState<TomorrowSection> {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: palette.cardRaised,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: palette.border, width: AppDimens.hairline),
+                            border: Border.all(
+                              color: palette.border,
+                              width: AppDimens.hairline,
+                            ),
                           ),
                           child: Text(
                             '${tomorrowsTodos.length}',
@@ -131,7 +142,9 @@ class _TomorrowSectionState extends ConsumerState<TomorrowSection> {
                         },
                       ),
                       Icon(
-                        _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
                         size: 20,
                         color: palette.textSecondary,
                       ),
@@ -145,12 +158,18 @@ class _TomorrowSectionState extends ConsumerState<TomorrowSection> {
           // Animated Collapsible Body
           AnimatedCrossFade(
             duration: Motion.base,
-            crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: _isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
             firstChild: const SizedBox.shrink(),
             secondChild: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Divider(height: 1, thickness: AppDimens.hairline, color: palette.border),
+                Divider(
+                  height: 1,
+                  thickness: AppDimens.hairline,
+                  color: palette.border,
+                ),
 
                 // Optional Inline Input for Tomorrow
                 if (_showInlineInput)
@@ -160,7 +179,10 @@ class _TomorrowSectionState extends ConsumerState<TomorrowSection> {
                       decoration: BoxDecoration(
                         color: palette.cardRaised,
                         borderRadius: AppDimens.borderRadiusSm,
-                        border: Border.all(color: palette.border, width: AppDimens.hairline),
+                        border: Border.all(
+                          color: palette.border,
+                          width: AppDimens.hairline,
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -171,14 +193,23 @@ class _TomorrowSectionState extends ConsumerState<TomorrowSection> {
                               autofocus: true,
                               textInputAction: TextInputAction.done,
                               onSubmitted: (_) => _submitTomorrowTask(),
-                              style: TextStyle(fontSize: 13, color: palette.textPrimary),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: palette.textPrimary,
+                              ),
                               decoration: InputDecoration(
                                 hintText: 'Add a task for tomorrow...',
-                                hintStyle: TextStyle(fontSize: 13, color: palette.textMuted),
+                                hintStyle: TextStyle(
+                                  fontSize: 13,
+                                  color: palette.textMuted,
+                                ),
                                 border: InputBorder.none,
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
                                 fillColor: Colors.transparent,
                                 filled: true,
                               ),

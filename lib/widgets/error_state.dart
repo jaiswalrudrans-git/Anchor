@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/constants/dimens.dart';
 import '../core/constants/theme.dart';
 
@@ -34,13 +35,12 @@ class ErrorState extends StatelessWidget {
               decoration: BoxDecoration(
                 color: palette.dangerSoft,
                 shape: BoxShape.circle,
-                border: Border.all(color: palette.border, width: AppDimens.hairline),
+                border: Border.all(
+                  color: palette.border,
+                  width: AppDimens.hairline,
+                ),
               ),
-              child: Icon(
-                Icons.error_outline,
-                size: 28,
-                color: palette.danger,
-              ),
+              child: Icon(Icons.error_outline, size: 28, color: palette.danger),
             ),
             const SizedBox(height: AppDimens.space16),
             Text(
@@ -65,10 +65,7 @@ class ErrorState extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: AppDimens.space20),
-              OutlinedButton(
-                onPressed: onRetry,
-                child: Text(retryLabel),
-              ),
+              OutlinedButton(onPressed: onRetry, child: Text(retryLabel)),
             ],
           ],
         ),

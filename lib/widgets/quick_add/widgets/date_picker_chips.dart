@@ -24,10 +24,7 @@ class DatePickerChips extends StatelessWidget {
       firstDate: today,
       lastDate: DateTime(2100),
       builder: (ctx, child) {
-        return Theme(
-          data: Theme.of(context),
-          child: child!,
-        );
+        return Theme(data: Theme.of(context), child: child!);
       },
     );
 
@@ -76,7 +73,9 @@ class DatePickerChips extends StatelessWidget {
         Expanded(
           child: _buildChip(
             context: context,
-            label: isCustom ? AppDateUtils.formatDbDate(selectedDate) : 'Pick Date',
+            label: isCustom
+                ? AppDateUtils.formatDbDate(selectedDate)
+                : 'Pick Date',
             isSelected: isCustom,
             onTap: () => _pickCustomDate(context),
             palette: palette,
@@ -103,9 +102,7 @@ class DatePickerChips extends StatelessWidget {
           color: isSelected ? palette.accent : palette.border,
           width: isSelected ? 1.5 : AppDimens.hairline,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppDimens.borderRadiusSm,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppDimens.borderRadiusSm),
       ),
       child: Text(
         label,

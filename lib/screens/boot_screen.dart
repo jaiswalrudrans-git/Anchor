@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../core/constants/motion.dart';
@@ -15,7 +16,8 @@ class BootScreen extends StatefulWidget {
   State<BootScreen> createState() => _BootScreenState();
 }
 
-class _BootScreenState extends State<BootScreen> with SingleTickerProviderStateMixin {
+class _BootScreenState extends State<BootScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _animController;
   late final Animation<double> _fadeAnim;
   late final Animation<double> _scaleAnim;
@@ -25,22 +27,17 @@ class _BootScreenState extends State<BootScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: Motion.moment,
-    );
+    _animController = AnimationController(vsync: this, duration: Motion.moment);
 
     _fadeAnim = CurvedAnimation(
       parent: _animController,
       curve: Motion.standard,
     );
 
-    _scaleAnim = Tween<double>(begin: 0.94, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animController,
-        curve: Motion.standard,
-      ),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 0.94,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animController, curve: Motion.standard));
 
     _animController.forward();
 
@@ -61,17 +58,15 @@ class _BootScreenState extends State<BootScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
     Widget mark = const AnchorMark(size: 88.0);
 
     if (!reduceMotion) {
       mark = FadeTransition(
         opacity: _fadeAnim,
-        child: ScaleTransition(
-          scale: _scaleAnim,
-          child: mark,
-        ),
+        child: ScaleTransition(scale: _scaleAnim, child: mark),
       );
     }
 
@@ -96,7 +91,9 @@ class _BootScreenState extends State<BootScreen> with SingleTickerProviderStateM
                         child: LinearProgressIndicator(
                           minHeight: 2.0,
                           backgroundColor: palette.border,
-                          valueColor: AlwaysStoppedAnimation<Color>(palette.textSecondary),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            palette.textSecondary,
+                          ),
                         ),
                       )
                     : const SizedBox.shrink(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../core/constants/dimens.dart';
 import '../../core/constants/theme.dart';
 import '../motion/pressable_scale.dart';
@@ -10,17 +11,13 @@ class ProfileAvatar extends StatelessWidget {
   final VoidCallback? onTap;
   final String? tooltip;
 
-  const ProfileAvatar({
-    super.key,
-    this.size = 36.0,
-    this.onTap,
-    this.tooltip,
-  });
+  const ProfileAvatar({super.key, this.size = 36.0, this.onTap, this.tooltip});
 
   static String getInitials(User? user) {
     if (user == null) return 'U';
     final metadata = user.userMetadata ?? {};
-    final fullName = (metadata['full_name'] ?? metadata['name'] ?? '') as String;
+    final fullName =
+        (metadata['full_name'] ?? metadata['name'] ?? '') as String;
     if (fullName.trim().isNotEmpty) {
       final parts = fullName.trim().split(RegExp(r'\s+'));
       if (parts.length >= 2) {
@@ -48,7 +45,8 @@ class ProfileAvatar extends StatelessWidget {
   static String getDisplayName(User? user) {
     if (user == null) return 'User';
     final metadata = user.userMetadata ?? {};
-    final fullName = (metadata['full_name'] ?? metadata['name'] ?? '') as String;
+    final fullName =
+        (metadata['full_name'] ?? metadata['name'] ?? '') as String;
     if (fullName.trim().isNotEmpty) return fullName.trim();
     final email = user.email ?? '';
     if (email.isNotEmpty) return email.split('@').first;
@@ -70,7 +68,7 @@ class ProfileAvatar extends StatelessWidget {
     final avatarUrl = getAvatarUrl(user);
     final initials = getInitials(user);
 
-    Widget fallback = Container(
+    final Widget fallback = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
@@ -98,7 +96,10 @@ class ProfileAvatar extends StatelessWidget {
             height: size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: palette.border, width: AppDimens.hairline),
+              border: Border.all(
+                color: palette.border,
+                width: AppDimens.hairline,
+              ),
             ),
             child: ClipOval(
               child: Image.network(
@@ -118,17 +119,11 @@ class ProfileAvatar extends StatelessWidget {
           );
 
     if (onTap != null) {
-      avatar = PressableScale(
-        onTap: onTap,
-        child: avatar,
-      );
+      avatar = PressableScale(onTap: onTap, child: avatar);
     }
 
     if (tooltip != null) {
-      return Tooltip(
-        message: tooltip!,
-        child: avatar,
-      );
+      return Tooltip(message: tooltip, child: avatar);
     }
 
     return avatar;

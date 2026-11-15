@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
 /// Configuration for Supabase backend.
@@ -13,7 +14,8 @@ class SupabaseConfig {
   static const String redirectUrl = 'io.anchor.app://login-callback';
 
   /// Returns true if both URL and Anon Key were supplied at build/run time.
-  static bool get isConfigured => url.trim().isNotEmpty && anonKey.trim().isNotEmpty;
+  static bool get isConfigured =>
+      url.trim().isNotEmpty && anonKey.trim().isNotEmpty;
 
   /// Registers the custom URL protocol on Windows (HKCU\Software\Classes\io.anchor.app).
   /// Safe no-op on non-Windows platforms.

@@ -32,9 +32,9 @@ class _ChapterRowState extends ConsumerState<ChapterRow> {
       widget.onChapterStudiedToggled?.call();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update chapter: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to update chapter: $e')));
       }
     }
   }
@@ -63,7 +63,9 @@ class _ChapterRowState extends ConsumerState<ChapterRow> {
       ),
     );
 
-    if (newTitle != null && newTitle.isNotEmpty && newTitle != widget.chapter.title) {
+    if (newTitle != null &&
+        newTitle.isNotEmpty &&
+        newTitle != widget.chapter.title) {
       await ref
           .read(chaptersProvider.notifier)
           .renameChapter(widget.chapter.id, newTitle);
@@ -92,7 +94,9 @@ class _ChapterRowState extends ConsumerState<ChapterRow> {
     );
 
     if (confirm == true) {
-      await ref.read(chaptersProvider.notifier).deleteChapter(widget.chapter.id);
+      await ref
+          .read(chaptersProvider.notifier)
+          .deleteChapter(widget.chapter.id);
     }
   }
 
@@ -133,10 +137,7 @@ class _ChapterRowState extends ConsumerState<ChapterRow> {
                       ),
                     ),
                     IgnorePointer(
-                      child: AnimatedCheckbox(
-                        value: isStudied,
-                        size: 20,
-                      ),
+                      child: AnimatedCheckbox(value: isStudied, size: 20),
                     ),
                   ],
                 ),
@@ -152,7 +153,9 @@ class _ChapterRowState extends ConsumerState<ChapterRow> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: isStudied ? FontWeight.w400 : FontWeight.w500,
-                    color: isStudied ? palette.textSecondary : palette.textPrimary,
+                    color: isStudied
+                        ? palette.textSecondary
+                        : palette.textPrimary,
                   ),
                 ),
               ),
@@ -164,7 +167,10 @@ class _ChapterRowState extends ConsumerState<ChapterRow> {
                 decoration: BoxDecoration(
                   color: palette.cardRaised,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: palette.border, width: AppDimens.hairline),
+                  border: Border.all(
+                    color: palette.border,
+                    width: AppDimens.hairline,
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -180,7 +186,9 @@ class _ChapterRowState extends ConsumerState<ChapterRow> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: fileCount > 0 ? palette.textPrimary : palette.textMuted,
+                        color: fileCount > 0
+                            ? palette.textPrimary
+                            : palette.textMuted,
                         fontFeatures: AppTypography.tabularFigures,
                       ),
                     ),
@@ -191,9 +199,16 @@ class _ChapterRowState extends ConsumerState<ChapterRow> {
 
               // Context menu (rename / delete)
               PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert, size: 16, color: palette.textSecondary),
+                icon: Icon(
+                  Icons.more_vert,
+                  size: 16,
+                  color: palette.textSecondary,
+                ),
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(color: palette.border, width: AppDimens.hairline),
+                  side: BorderSide(
+                    color: palette.border,
+                    width: AppDimens.hairline,
+                  ),
                   borderRadius: AppDimens.borderRadiusSm,
                 ),
                 color: palette.cardRaised,
@@ -207,11 +222,20 @@ class _ChapterRowState extends ConsumerState<ChapterRow> {
                 itemBuilder: (ctx) => [
                   PopupMenuItem(
                     value: 'rename',
-                    child: Text('Rename Chapter', style: TextStyle(color: palette.textPrimary, fontSize: 13)),
+                    child: Text(
+                      'Rename Chapter',
+                      style: TextStyle(
+                        color: palette.textPrimary,
+                        fontSize: 13,
+                      ),
+                    ),
                   ),
                   PopupMenuItem(
                     value: 'delete',
-                    child: Text('Delete Chapter', style: TextStyle(color: palette.danger, fontSize: 13)),
+                    child: Text(
+                      'Delete Chapter',
+                      style: TextStyle(color: palette.danger, fontSize: 13),
+                    ),
                   ),
                 ],
               ),

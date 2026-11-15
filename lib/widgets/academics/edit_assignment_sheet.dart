@@ -24,7 +24,8 @@ class EditAssignmentSheet extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<EditAssignmentSheet> createState() => _EditAssignmentSheetState();
+  ConsumerState<EditAssignmentSheet> createState() =>
+      _EditAssignmentSheetState();
 }
 
 class _EditAssignmentSheetState extends ConsumerState<EditAssignmentSheet> {
@@ -65,7 +66,9 @@ class _EditAssignmentSheetState extends ConsumerState<EditAssignmentSheet> {
 
     setState(() => _isSaving = true);
     try {
-      await ref.read(academicItemsProvider.notifier).editItem(
+      await ref
+          .read(academicItemsProvider.notifier)
+          .editItem(
             id: widget.item.id,
             title: title,
             dueDate: _selectedDueDate,
@@ -92,7 +95,9 @@ class _EditAssignmentSheetState extends ConsumerState<EditAssignmentSheet> {
       decoration: BoxDecoration(
         color: palette.cardRaised,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        border: Border(top: BorderSide(color: palette.border, width: AppDimens.hairline)),
+        border: Border(
+          top: BorderSide(color: palette.border, width: AppDimens.hairline),
+        ),
       ),
       padding: EdgeInsets.only(
         top: 20,
@@ -133,14 +138,23 @@ class _EditAssignmentSheetState extends ConsumerState<EditAssignmentSheet> {
               hintStyle: TextStyle(color: palette.textMuted),
               filled: true,
               fillColor: palette.background,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
               border: OutlineInputBorder(
                 borderRadius: AppDimens.borderRadiusSm,
-                borderSide: BorderSide(color: palette.border, width: AppDimens.hairline),
+                borderSide: BorderSide(
+                  color: palette.border,
+                  width: AppDimens.hairline,
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: AppDimens.borderRadiusSm,
-                borderSide: BorderSide(color: palette.border, width: AppDimens.hairline),
+                borderSide: BorderSide(
+                  color: palette.border,
+                  width: AppDimens.hairline,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: AppDimens.borderRadiusSm,
@@ -158,25 +172,42 @@ class _EditAssignmentSheetState extends ConsumerState<EditAssignmentSheet> {
               labelStyle: TextStyle(color: palette.textSecondary),
               filled: true,
               fillColor: palette.background,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
               border: OutlineInputBorder(
                 borderRadius: AppDimens.borderRadiusSm,
-                borderSide: BorderSide(color: palette.border, width: AppDimens.hairline),
+                borderSide: BorderSide(
+                  color: palette.border,
+                  width: AppDimens.hairline,
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: AppDimens.borderRadiusSm,
-                borderSide: BorderSide(color: palette.border, width: AppDimens.hairline),
+                borderSide: BorderSide(
+                  color: palette.border,
+                  width: AppDimens.hairline,
+                ),
               ),
             ),
             items: [
               DropdownMenuItem<String?>(
                 value: null,
-                child: Text('No Subject', style: TextStyle(color: palette.textMuted)),
+                child: Text(
+                  'No Subject',
+                  style: TextStyle(color: palette.textMuted),
+                ),
               ),
-              ...subjects.map((s) => DropdownMenuItem<String?>(
-                    value: s.id,
-                    child: Text(s.name, style: TextStyle(color: palette.textPrimary)),
-                  )),
+              ...subjects.map(
+                (s) => DropdownMenuItem<String?>(
+                  value: s.id,
+                  child: Text(
+                    s.name,
+                    style: TextStyle(color: palette.textPrimary),
+                  ),
+                ),
+              ),
             ],
             onChanged: (val) => setState(() => _selectedSubjectId = val),
           ),
@@ -189,18 +220,32 @@ class _EditAssignmentSheetState extends ConsumerState<EditAssignmentSheet> {
               decoration: BoxDecoration(
                 color: palette.background,
                 borderRadius: AppDimens.borderRadiusSm,
-                border: Border.all(color: palette.border, width: AppDimens.hairline),
+                border: Border.all(
+                  color: palette.border,
+                  width: AppDimens.hairline,
+                ),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_today_outlined, size: 16, color: palette.textSecondary),
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 16,
+                    color: palette.textSecondary,
+                  ),
                   const SizedBox(width: 10),
                   Text(
                     'Due: ${DateFormat('EEE, d MMM yyyy').format(_selectedDueDate)}',
                     style: TextStyle(fontSize: 13, color: palette.textPrimary),
                   ),
                   const Spacer(),
-                  Text('Change', style: TextStyle(fontSize: 12, color: palette.accent, fontWeight: FontWeight.w600)),
+                  Text(
+                    'Change',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: palette.accent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -210,7 +255,11 @@ class _EditAssignmentSheetState extends ConsumerState<EditAssignmentSheet> {
             key: const Key('edit_assignment_save_button'),
             onPressed: _isSaving ? null : _handleSave,
             child: _isSaving
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                 : const Text('Save Changes'),
           ),
         ],

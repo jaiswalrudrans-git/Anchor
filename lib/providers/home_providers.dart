@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/utils/app_log.dart';
 import '../core/utils/date_utils.dart';
 import '../models/idle_prompt.dart';
 import '../models/todo.dart';
@@ -99,13 +100,17 @@ class TodosNotifier extends AsyncNotifier<List<Todo>> {
       final response = await client
           .from('todos')
           .select()
-          .or('scheduled_date.eq.$todayStr,scheduled_date.eq.$tomorrowStr,and(is_completed.eq.false,scheduled_date.lt.$todayStr)')
+          .or(
+            'scheduled_date.eq.$todayStr,scheduled_date.eq.$tomorrowStr,and(is_completed.eq.false,scheduled_date.lt.$todayStr)',
+          )
           .order('created_at', ascending: true);
 
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => Todo.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => Todo.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      debugPrint('TodosNotifier._fetchTodos error: $e');
+      AppLog.e('TodosNotifier._fetchTodos error', e);
       return [];
     }
   }
@@ -148,7 +153,7 @@ class TodosNotifier extends AsyncNotifier<List<Todo>> {
     } catch (e) {
       // Rollback on failure
       state = AsyncData(previous);
-      debugPrint('addTodo failed: $e');
+      AppLog.e('addTodo failed', e);
       rethrow;
     }
   }
@@ -172,13 +177,14 @@ class TodosNotifier extends AsyncNotifier<List<Todo>> {
     state = AsyncData(updatedList);
 
     try {
-      await client.from('todos').update({
-        'is_completed': updated.isCompleted,
-      }).eq('id', id);
+      await client
+          .from('todos')
+          .update({'is_completed': updated.isCompleted})
+          .eq('id', id);
     } catch (e) {
       // Rollback on failure
       state = AsyncData(previous);
-      debugPrint('toggleComplete failed: $e');
+      AppLog.e('toggleComplete failed', e);
       rethrow;
     }
   }
@@ -203,13 +209,14 @@ class TodosNotifier extends AsyncNotifier<List<Todo>> {
     state = AsyncData(updatedList);
 
     try {
-      await client.from('todos').update({
-        'scheduled_date': AppDateUtils.formatDbDate(sanitizedDate),
-      }).eq('id', id);
+      await client
+          .from('todos')
+          .update({'scheduled_date': AppDateUtils.formatDbDate(sanitizedDate)})
+          .eq('id', id);
     } catch (e) {
       // Rollback on failure
       state = AsyncData(previous);
-      debugPrint('reschedule failed: $e');
+      AppLog.e('reschedule failed', e);
       rethrow;
     }
   }
@@ -230,7 +237,7 @@ class TodosNotifier extends AsyncNotifier<List<Todo>> {
     } catch (e) {
       // Rollback on failure
       state = AsyncData(previous);
-      debugPrint('delete failed: $e');
+      AppLog.e('delete failed', e);
       rethrow;
     }
   }
@@ -247,7 +254,7 @@ class TodosNotifier extends AsyncNotifier<List<Todo>> {
         await client.from('todos').insert(todo.toJson());
       } catch (e) {
         state = AsyncData(previous);
-        debugPrint('restoreTodo failed: $e');
+        AppLog.e('restoreTodo failed', e);
         rethrow;
       }
     }
@@ -333,9 +340,11 @@ class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
           .order('created_at', ascending: true);
 
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => IdlePrompt.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => IdlePrompt.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      debugPrint('IdlePromptsNotifier._fetchPrompts error: $e');
+      AppLog.e('IdlePromptsNotifier._fetchPrompts error', e);
       return [];
     }
   }
@@ -376,14 +385,16 @@ class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
         };
       }).toList();
 
-      await client.from('idle_prompts').upsert(
-        inserts,
-        onConflict: 'user_id,prompt_text',
-        ignoreDuplicates: true,
-      );
+      await client
+          .from('idle_prompts')
+          .upsert(
+            inserts,
+            onConflict: 'user_id,prompt_text',
+            ignoreDuplicates: true,
+          );
       state = AsyncData(await _fetchPrompts());
     } catch (e) {
-      debugPrint('seedIfEmpty error: $e');
+      AppLog.e('seedIfEmpty error', e);
       rethrow;
     }
   }
@@ -411,7 +422,7 @@ class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
       await client.from('idle_prompts').insert(newPrompt.toJson());
     } catch (e) {
       state = AsyncData(previous);
-      debugPrint('addPrompt error: $e');
+      AppLog.e('addPrompt error', e);
       rethrow;
     }
   }
@@ -429,7 +440,7 @@ class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
       await client.from('idle_prompts').delete().eq('id', id);
     } catch (e) {
       state = AsyncData(previous);
-      debugPrint('deletePrompt error: $e');
+      AppLog.e('deletePrompt error', e);
       rethrow;
     }
   }
@@ -445,7 +456,7 @@ class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
         await client.from('idle_prompts').insert(prompt.toJson());
       } catch (e) {
         state = AsyncData(previous);
-        debugPrint('restorePrompt error: $e');
+        AppLog.e('restorePrompt error', e);
         rethrow;
       }
     }
@@ -453,6 +464,7 @@ class IdlePromptsNotifier extends AsyncNotifier<List<IdlePrompt>> {
 }
 
 /// Provider for idle prompts pool.
-final idlePromptsProvider = AsyncNotifierProvider<IdlePromptsNotifier, List<IdlePrompt>>(() {
-  return IdlePromptsNotifier();
-});
+final idlePromptsProvider =
+    AsyncNotifierProvider<IdlePromptsNotifier, List<IdlePrompt>>(() {
+      return IdlePromptsNotifier();
+    });

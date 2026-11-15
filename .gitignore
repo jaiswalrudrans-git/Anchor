@@ -31,6 +31,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/android/build/
 /coverage/
 
 # Symbolication related
@@ -46,3 +47,15 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Security & Signing Secrets
+.env
+*.env
+android/key.properties
+key.properties
+*.jks
+*.keystore
+
+# Performance trace dumps
+/perf/raw_traces/
+perf/*.timeline.json

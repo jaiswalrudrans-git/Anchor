@@ -46,14 +46,13 @@ class AcademicRadarSlot extends ConsumerWidget {
         children: [
           // Radar Header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Row(
               children: [
-                Icon(
-                  Icons.radar,
-                  size: 18,
-                  color: palette.textPrimary,
-                ),
+                Icon(Icons.radar, size: 18, color: palette.textPrimary),
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
@@ -71,11 +70,17 @@ class AcademicRadarSlot extends ConsumerWidget {
                 const Spacer(),
                 if (hasContent)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: palette.background,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: palette.border, width: AppDimens.hairline),
+                      border: Border.all(
+                        color: palette.border,
+                        width: AppDimens.hairline,
+                      ),
                     ),
                     child: Text(
                       '$totalUpcoming upcoming',
@@ -94,7 +99,10 @@ class AcademicRadarSlot extends ConsumerWidget {
 
           if (!hasContent)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(
+                vertical: 24.0,
+                horizontal: 16.0,
+              ),
               child: Center(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -121,7 +129,12 @@ class AcademicRadarSlot extends ConsumerWidget {
             // 1. Upcoming Assignments Section (Next 7 days)
             if (urgentAssignments.isNotEmpty) ...[
               Padding(
-                padding: const EdgeInsets.only(left: 14.0, right: 14.0, top: 10.0, bottom: 4.0),
+                padding: const EdgeInsets.only(
+                  left: 14.0,
+                  right: 14.0,
+                  top: 10.0,
+                  bottom: 4.0,
+                ),
                 child: Text(
                   'ASSIGNMENTS (NEXT 7 DAYS)',
                   style: TextStyle(
@@ -151,7 +164,12 @@ class AcademicRadarSlot extends ConsumerWidget {
             // 2. Upcoming Exams Section (Next 14 days)
             if (urgentExams.isNotEmpty) ...[
               Padding(
-                padding: const EdgeInsets.only(left: 14.0, right: 14.0, top: 10.0, bottom: 4.0),
+                padding: const EdgeInsets.only(
+                  left: 14.0,
+                  right: 14.0,
+                  top: 10.0,
+                  bottom: 4.0,
+                ),
                 child: Text(
                   'EXAMS (NEXT 14 DAYS)',
                   style: TextStyle(

@@ -47,10 +47,7 @@ class QuickAddButton extends StatelessWidget {
               color: palette.accent,
               shape: isExtended ? BoxShape.rectangle : BoxShape.circle,
               borderRadius: isExtended ? BorderRadius.circular(22.0) : null,
-              border: Border.all(
-                color: palette.background,
-                width: 1.0,
-              ),
+              border: Border.all(color: palette.background, width: 1.0),
               boxShadow: [
                 BoxShadow(
                   color: palette.isDark

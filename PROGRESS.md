@@ -1,6 +1,52 @@
 # Anchor App - Project Progress Log
 
-## Current Status: Branding Stage Complete (Anchor Logo Applied Everywhere) — ALL POLISH STAGES & BRANDING COMPLETE
+## Current Status: Final Stage Complete (Smooth 120 Hz, Clean-Up, Release Builds for Windows & Android) — SHIP READY
+
+### Final Stage Summary: Release Optimization, Performance & Production Packaging
+
+- **Phase 1: Code Clean-Up & Dead Code Elimination**:
+  - **Strict Static Analysis**: Enforced analyzer error severity and linter rules in `analysis_options.yaml` (`avoid_print`, `unused_element`, `unused_field`, `unused_import`, `unused_local_variable`, `unused_catch_clause`, `unnecessary_null_checks`, `prefer_const_constructors`, `prefer_const_declarations`, `prefer_final_fields`, `prefer_final_locals`, `use_build_context_synchronously`, `cancel_subscriptions`, `close_sinks`).
+  - **Zero Debug Residue**: Replaced every ad-hoc `debugPrint` and `print` across `lib/` with centralized `AppLog` (`lib/core/utils/app_log.dart`), which cleanly no-ops in release builds (`kReleaseMode`).
+  - **Dead Code & Leftovers**: Eliminated unused dependencies (`cupertino_icons`, `dio`). Cleared commented-out Flutter boilerplate in `pubspec.yaml` and `res/drawable*/launch_background.xml`.
+  - **Automated Fix & Format**: Applied 47 automatic code fixes via `dart fix --apply` and formatted entire codebase using `dart format .`.
+  - **Zero Hardcoded Colors Guard**: Replaced fallback error widget text color with `palette?.textMuted`; verified 100% pass on `test/guards/no_hardcoded_colors_test.dart` and `test/guards/dark_surfaces_test.dart`.
+
+- **Phase 2: Performance (Smooth 120 Hz Target & Frame Budget)**:
+  - **Display Rate Negotiation**: Integrated `flutter_displaymode 0.7.0` on Android startup (`main()`) to request maximum device refresh rate (90 Hz / 120 Hz) with fallback safety.
+  - **Ticker & Animation Throttling**: Wrapped hidden `IndexedStack` pages in `TickerMode(enabled: currentIndex == i, child: ...)` so inactive screens halt animation tickers and do not consume frame budget.
+  - **Layer Isolation**: Applied `RepaintBoundary` around the floating dock and navigation actions to decouple dock animations from screen rebuilds. `CardProgressStroke` animated painter is isolated with its own boundary.
+  - **Automated Performance Driver**: Implemented `test_driver/perf_test.dart` and `test_driver/perf_test_e2e.dart` measuring frame build and raster times across dock glide, Quick Add transitions, and Home scroll.
+
+- **Phase 3: Responsive & System Insets Audit**:
+  - **10-Viewport Responsive Matrix**: Validated all screen sizes from 320x568 up to 1920x1080 across text scale 1.0 and 1.3 with 0 layout overflows (`test/quality_audit_test.dart`: 24/24 passed).
+  - **Android 13+ Predictive Back**: Enabled `android:enableOnBackInvokedCallback="true"` in `AndroidManifest.xml` to support modern predictive back navigation gestures without breaking modal sheets.
+
+- **Phase 4: Functional Regression Sweep**:
+  - Full automated suite: **333/333 passed** across all 16 test files.
+  - Zero functional regressions in To-dos, Academics, Expenses, Habits, Quick Add, and Profile.
+
+- **Phase 5: Security & Backend Hygiene**:
+  - **Git Secrets Protection**: Updated `.gitignore` to strictly exclude `.env`, `*.env`, `android/key.properties`, `key.properties`, `*.jks`, `*.keystore`, and performance trace files.
+  - **RLS Verification Query**: Created `supabase/checks/rls_check.sql` covering all public tables and the `academic_vault` storage bucket.
+  - **Cleartext Traffic Disabled**: Configured `android:usesCleartextTraffic="false"` in `AndroidManifest.xml`.
+  - **Deep Link Callback**: Verified OAuth callback schemes (`io.anchor.app://login-callback`).
+
+- **Phase 6: Release Build & Packaging Delivery**:
+  - **Release Signing**: Added `android/key.properties.example` template and wired release signing config in `android/app/build.gradle.kts`.
+  - **R8 & Resource Shrinking**: Enabled `isMinifyEnabled = true` and `isShrinkResources = true` with comprehensive `android/app/proguard-rules.pro`.
+  - **Android Release Binaries**:
+    - `build\app\outputs\flutter-apk\app-arm64-v8a-release.apk` (21.7 MB - down from 58.7 MB, 63% reduction)
+    - `build\app\outputs\flutter-apk\app-armeabi-v7a-release.apk` (19.4 MB)
+    - `build\app\outputs\flutter-apk\app-x86_64-release.apk` (23.1 MB)
+    - `build\app\outputs\flutter-apk\app-release.apk` (59.5 MB universal)
+    - `build\app\outputs\bundle\release\app-release.aab` (57.1 MB Play Store bundle)
+  - **Windows Release Executable**:
+    - `build\windows\x64\runner\Release\anchor.exe` (Standalone 98.8 KB executable with complete runtime bundle in `Release/`)
+  - **Documentation**: Generated `RELEASE_CHECKLIST.md` at repo root.
+
+---
+
+## Previous Milestones:
 
 ### 0. Branding Stage Summary: Complete Brand Identity & Icon Integration
 

@@ -9,11 +9,7 @@ class AnchorMark extends StatelessWidget {
   final double size;
   final Color? color;
 
-  const AnchorMark({
-    super.key,
-    this.size = 48.0,
-    this.color,
-  });
+  const AnchorMark({super.key, this.size = 48.0, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -47,10 +43,7 @@ class AnchorMark extends StatelessWidget {
 class AnchorTile extends StatelessWidget {
   final double size;
 
-  const AnchorTile({
-    super.key,
-    this.size = 72.0,
-  });
+  const AnchorTile({super.key, this.size = 72.0});
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +60,7 @@ class AnchorTile extends StatelessWidget {
         border: Border.all(color: palette.border, width: 1.0),
       ),
       alignment: Alignment.center,
-      child: AnchorMark(
-        size: markSize,
-        color: palette.textPrimary,
-      ),
+      child: AnchorMark(size: markSize, color: palette.textPrimary),
     );
   }
 }

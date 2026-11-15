@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/utils/responsive.dart';
 
 /// Renders children in a single column on compact/medium and multi-column row on expanded.

@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,10 +19,7 @@ import '../../../widgets/tag.dart';
 class TodoItemRow extends ConsumerStatefulWidget {
   final Todo todo;
 
-  const TodoItemRow({
-    super.key,
-    required this.todo,
-  });
+  const TodoItemRow({super.key, required this.todo});
 
   @override
   ConsumerState<TodoItemRow> createState() => _TodoItemRowState();
@@ -46,7 +44,9 @@ class _TodoItemRowState extends ConsumerState<TodoItemRow> {
 
   Future<void> _handleReschedule(BuildContext context) async {
     final tomorrow = AppDateUtils.tomorrow();
-    final initial = widget.todo.scheduledDate.isBefore(tomorrow) ? tomorrow : widget.todo.scheduledDate;
+    final initial = widget.todo.scheduledDate.isBefore(tomorrow)
+        ? tomorrow
+        : widget.todo.scheduledDate;
 
     final picked = await showDatePicker(
       context: context,
@@ -154,8 +154,12 @@ class _TodoItemRowState extends ConsumerState<TodoItemRow> {
                     isCompleted: widget.todo.isCompleted,
                     style: TextStyle(
                       fontSize: 14,
-                      color: widget.todo.isCompleted ? palette.textSecondary : palette.textPrimary,
-                      fontWeight: widget.todo.isCompleted ? FontWeight.w400 : FontWeight.w500,
+                      color: widget.todo.isCompleted
+                          ? palette.textSecondary
+                          : palette.textPrimary,
+                      fontWeight: widget.todo.isCompleted
+                          ? FontWeight.w400
+                          : FontWeight.w500,
                     ),
                     strikeColor: palette.textSecondary,
                   ),
@@ -181,16 +185,28 @@ class _TodoItemRowState extends ConsumerState<TodoItemRow> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.calendar_today_outlined, size: 18, color: palette.textSecondary),
+                    icon: Icon(
+                      Icons.calendar_today_outlined,
+                      size: 18,
+                      color: palette.textSecondary,
+                    ),
                     tooltip: 'Reschedule',
                     splashRadius: 18,
-                    onPressed: showTrailing ? () => _handleReschedule(context) : null,
+                    onPressed: showTrailing
+                        ? () => _handleReschedule(context)
+                        : null,
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete_outline, size: 18, color: palette.textSecondary),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: palette.textSecondary,
+                    ),
                     tooltip: 'Delete',
                     splashRadius: 18,
-                    onPressed: showTrailing ? () => _handleDelete(context) : null,
+                    onPressed: showTrailing
+                        ? () => _handleDelete(context)
+                        : null,
                   ),
                 ],
               ),
@@ -200,10 +216,7 @@ class _TodoItemRowState extends ConsumerState<TodoItemRow> {
       ),
     );
 
-    return CollapseOnRemove(
-      isRemoved: _isDeleting,
-      child: content,
-    );
+    return CollapseOnRemove(isRemoved: _isDeleting, child: content);
   }
 }
 
@@ -233,10 +246,7 @@ class AnimatedStrikeThroughText extends StatelessWidget {
           foregroundPainter: progress > 0
               ? _StrikeThroughPainter(progress: progress, color: strikeColor)
               : null,
-          child: Text(
-            text,
-            style: style,
-          ),
+          child: Text(text, style: style),
         );
       },
     );

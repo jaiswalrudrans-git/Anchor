@@ -4,6 +4,7 @@ import 'package:open_filex/open_filex.dart';
 
 import '../../../core/constants/theme.dart';
 import '../../../core/services/file_vault_service.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../models/chapter.dart';
 import '../../../models/chapter_file.dart';
 import '../../../providers/academics_providers.dart';
@@ -17,14 +18,11 @@ import '../../../widgets/loading_state.dart';
 class ChapterVaultSheet extends ConsumerStatefulWidget {
   final Chapter chapter;
 
-  const ChapterVaultSheet({
-    super.key,
-    required this.chapter,
-  });
+  const ChapterVaultSheet({super.key, required this.chapter});
 
   /// Opens the Chapter Vault as a bottom sheet on mobile or dialog on desktop.
   static Future<void> show(BuildContext context, Chapter chapter) {
-    final isDesktop = MediaQuery.of(context).size.width >= 700;
+    final isDesktop = !Breakpoints.isCompact(context);
 
     if (isDesktop) {
       return showDialog(
@@ -75,9 +73,8 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Upload failed: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Upload failed: $e')));
       }
     } finally {
       if (mounted) {
@@ -108,9 +105,8 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to open file: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to open file: $e')));
       }
     } finally {
       if (mounted) {
@@ -142,14 +138,11 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
 
     if (confirm == true) {
       try {
-        await ref
-            .read(chapterFilesProvider.notifier)
-            .deleteFile(file);
+        await ref.read(chapterFilesProvider.notifier).deleteFile(file);
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Delete failed: $e')),
-          );
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Delete failed: $e')));
         }
       }
     }
@@ -171,106 +164,115 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
         color: palette.card,
         borderRadius: AppTheme.borderRadius8,
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12.0,
+            vertical: 4.0,
+          ),
           onTap: isOpening ? null : () => _handleOpenFile(file),
           leading: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: palette.cardRaised,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: palette.border, width: 1),
-          ),
-          child: Center(
-            child: Text(
-              file.fileType.toUpperCase(),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: palette.textPrimary,
-                letterSpacing: 0.5,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: palette.cardRaised,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: palette.border, width: 1),
             ),
-          ),
-        ),
-        title: Text(
-          file.fileName,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: palette.textPrimary,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Row(
-          children: [
-            Text(
-              FileVaultService.formatFileSize(file.fileSize),
-              style: TextStyle(
-                fontSize: 11,
-                color: palette.textSecondary,
+            child: Center(
+              child: Text(
+                file.fileType.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: palette.textPrimary,
+                  letterSpacing: 0.5,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 8),
-            Text('•', style: TextStyle(color: palette.textSecondary)),
-            const SizedBox(width: 8),
-            statusAsync.when(
-              data: (status) {
-                final isCached = status == VaultFileStatus.cachedOffline;
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isCached ? Icons.offline_pin_outlined : Icons.cloud_outlined,
-                      size: 13,
-                      color: isCached ? palette.accent : palette.textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isCached ? 'Cached Offline' : 'Cloud Only',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: isCached ? FontWeight.w600 : FontWeight.normal,
-                        color: isCached ? palette.accent : palette.textSecondary,
+          ),
+          title: Text(
+            file.fileName,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: palette.textPrimary,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Row(
+            children: [
+              Text(
+                FileVaultService.formatFileSize(file.fileSize),
+                style: TextStyle(fontSize: 11, color: palette.textSecondary),
+              ),
+              const SizedBox(width: 8),
+              Text('•', style: TextStyle(color: palette.textSecondary)),
+              const SizedBox(width: 8),
+              statusAsync.when(
+                data: (status) {
+                  final isCached = status == VaultFileStatus.cachedOffline;
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isCached
+                            ? Icons.offline_pin_outlined
+                            : Icons.cloud_outlined,
+                        size: 13,
+                        color: isCached
+                            ? palette.accent
+                            : palette.textSecondary,
                       ),
-                    ),
-                  ],
-                );
-              },
-              loading: () => Text(
-                'Checking...',
-                style: TextStyle(fontSize: 11, color: palette.textSecondary),
+                      const SizedBox(width: 4),
+                      Text(
+                        isCached ? 'Cached Offline' : 'Cloud Only',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: isCached
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                          color: isCached
+                              ? palette.accent
+                              : palette.textSecondary,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+                loading: () => Text(
+                  'Checking...',
+                  style: TextStyle(fontSize: 11, color: palette.textSecondary),
+                ),
+                error: (err, stack) => Text(
+                  'Unknown',
+                  style: TextStyle(fontSize: 11, color: palette.textSecondary),
+                ),
               ),
-              error: (err, stack) => Text(
-                'Unknown',
-                style: TextStyle(fontSize: 11, color: palette.textSecondary),
-              ),
-            ),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isOpening)
-              const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            else
-              IconButton(
-                key: ValueKey('vault_delete_${file.id}'),
-                icon: const Icon(Icons.delete_outline, size: 18),
-                color: palette.textSecondary,
-                onPressed: () => _confirmDelete(file),
-              ),
-          ],
+            ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isOpening)
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else
+                IconButton(
+                  key: ValueKey('vault_delete_${file.id}'),
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  color: palette.textSecondary,
+                  onPressed: () => _confirmDelete(file),
+                ),
+            ],
+          ),
         ),
       ),
-    ),);
+    );
   }
 
   @override
@@ -348,7 +350,9 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
                   )
                 : const Icon(Icons.upload_file_outlined, size: 18),
             label: Text(
-              _isUploading ? 'Uploading Material...' : '+ Upload Material (PPT / PDF)',
+              _isUploading
+                  ? 'Uploading Material...'
+                  : '+ Upload Material (PPT / PDF)',
               style: const TextStyle(fontSize: 13),
             ),
             onPressed: _isUploading ? null : _handleUpload,
@@ -364,8 +368,7 @@ class _ChapterVaultSheetState extends ConsumerState<ChapterVaultSheet> {
                     key: Key('chapter_vault_empty_state'),
                     icon: Icons.inventory_2_outlined,
                     title: 'No materials yet.',
-                    message:
-                        'Upload lecture slides, notes, or past papers for offline access.',
+                    message: 'Upload lecture slides, notes, or past papers for offline access.',
                   );
                 }
 

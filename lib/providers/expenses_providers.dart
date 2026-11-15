@@ -1,10 +1,11 @@
 import 'dart:math';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/services/expense_reset_service.dart';
+import '../core/utils/app_log.dart';
 import '../core/utils/date_utils.dart';
 import '../models/expense_month_summary.dart';
 import '../models/expense_settings.dart';
@@ -60,7 +61,10 @@ class ExpenseSettingsNotifier extends AsyncNotifier<ExpenseSettings?> {
       await client.from('expense_settings').insert(defaultSettings.toJson());
       return defaultSettings;
     } catch (e) {
-      debugPrint('ExpenseSettingsNotifier._fetchOrCreateSettings error: $e');
+      AppLog.e(
+        'ExpenseSettingsNotifier._fetchOrCreateSettings error',
+        e,
+      );
       return null;
     }
   }
@@ -75,7 +79,9 @@ class ExpenseSettingsNotifier extends AsyncNotifier<ExpenseSettings?> {
     final user = client?.auth.currentUser;
     final current = state.value;
     if (client == null || user == null || current == null) {
-      throw StateError('Cannot update allowance: unauthenticated or uninitialized');
+      throw StateError(
+        'Cannot update allowance: unauthenticated or uninitialized',
+      );
     }
 
     if (newAllowance < 0) {
@@ -92,7 +98,7 @@ class ExpenseSettingsNotifier extends AsyncNotifier<ExpenseSettings?> {
           .eq('user_id', user.id);
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('updateAllowance failed: $e');
+      AppLog.e('updateAllowance failed', e);
       rethrow;
     }
   }
@@ -115,7 +121,7 @@ class ExpenseSettingsNotifier extends AsyncNotifier<ExpenseSettings?> {
             .eq('user_id', user.id);
       } catch (e) {
         state = AsyncData(current);
-        debugPrint('adjustSavings failed: $e');
+        AppLog.e('adjustSavings failed', e);
         rethrow;
       }
     }
@@ -124,8 +130,8 @@ class ExpenseSettingsNotifier extends AsyncNotifier<ExpenseSettings?> {
 
 final expenseSettingsProvider =
     AsyncNotifierProvider<ExpenseSettingsNotifier, ExpenseSettings?>(() {
-  return ExpenseSettingsNotifier();
-});
+      return ExpenseSettingsNotifier();
+    });
 
 // =========================================================================
 // 2. TRANSACTIONS NOTIFIER & PROVIDER
@@ -163,7 +169,7 @@ class AllTransactionsNotifier extends AsyncNotifier<List<ExpenseTransaction>> {
           .map((j) => ExpenseTransaction.fromJson(j as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      debugPrint('AllTransactionsNotifier._fetchTransactions error: $e');
+      AppLog.e('AllTransactionsNotifier._fetchTransactions error', e);
       return [];
     }
   }
@@ -220,7 +226,10 @@ class AllTransactionsNotifier extends AsyncNotifier<List<ExpenseTransaction>> {
             await ref.read(expenseSettingsProvider.notifier).refreshSettings();
           } catch (settingsError) {
             // Rollback inserted transaction if savings update failed
-            await client.from('expense_transactions').delete().eq('id', newTx.id);
+            await client
+                .from('expense_transactions')
+                .delete()
+                .eq('id', newTx.id);
             rethrow;
           }
         }
@@ -230,7 +239,7 @@ class AllTransactionsNotifier extends AsyncNotifier<List<ExpenseTransaction>> {
     } catch (e) {
       // Rollback optimistic state
       state = AsyncData(currentTxs);
-      debugPrint('logTransaction error: $e');
+      AppLog.e('logTransaction error', e);
       rethrow;
     }
   }
@@ -248,7 +257,9 @@ class AllTransactionsNotifier extends AsyncNotifier<List<ExpenseTransaction>> {
     try {
       // 1. If deleting a 'saved' transaction, decrement total_savings
       if (tx.txType == 'saved') {
-        await ref.read(expenseSettingsProvider.notifier).adjustSavings(-tx.amount);
+        await ref
+            .read(expenseSettingsProvider.notifier)
+            .adjustSavings(-tx.amount);
       }
 
       // 2. Delete transaction row if authenticated
@@ -258,7 +269,7 @@ class AllTransactionsNotifier extends AsyncNotifier<List<ExpenseTransaction>> {
     } catch (e) {
       // Rollback optimistic delete
       state = AsyncData(currentTxs);
-      debugPrint('deleteTransaction error: $e');
+      AppLog.e('deleteTransaction error', e);
       rethrow;
     }
   }
@@ -274,22 +285,26 @@ class AllTransactionsNotifier extends AsyncNotifier<List<ExpenseTransaction>> {
 
     try {
       if (tx.txType == 'saved') {
-        await ref.read(expenseSettingsProvider.notifier).adjustSavings(tx.amount);
+        await ref
+            .read(expenseSettingsProvider.notifier)
+            .adjustSavings(tx.amount);
       }
 
       if (client != null && user != null) {
         await client.from('expense_transactions').insert(tx.toJson());
       }
     } catch (e) {
-      debugPrint('restoreTransaction error: $e');
+      AppLog.e('restoreTransaction error', e);
     }
   }
 }
 
 final allTransactionsProvider =
-    AsyncNotifierProvider<AllTransactionsNotifier, List<ExpenseTransaction>>(() {
-  return AllTransactionsNotifier();
-});
+    AsyncNotifierProvider<AllTransactionsNotifier, List<ExpenseTransaction>>(
+      () {
+        return AllTransactionsNotifier();
+      },
+    );
 
 // =========================================================================
 // 3. MONTH SUMMARIES NOTIFIER & PROVIDER
@@ -327,7 +342,7 @@ class MonthSummariesNotifier extends AsyncNotifier<List<ExpenseMonthSummary>> {
           .map((j) => ExpenseMonthSummary.fromJson(j as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      debugPrint('MonthSummariesNotifier._fetchSummaries error: $e');
+      AppLog.e('MonthSummariesNotifier._fetchSummaries error', e);
       return [];
     }
   }
@@ -339,9 +354,11 @@ class MonthSummariesNotifier extends AsyncNotifier<List<ExpenseMonthSummary>> {
 }
 
 final monthSummariesProvider =
-    AsyncNotifierProvider<MonthSummariesNotifier, List<ExpenseMonthSummary>>(() {
-  return MonthSummariesNotifier();
-});
+    AsyncNotifierProvider<MonthSummariesNotifier, List<ExpenseMonthSummary>>(
+      () {
+        return MonthSummariesNotifier();
+      },
+    );
 
 // =========================================================================
 // 4. MONTH SELECTION & NAVIGATION PROVIDERS
@@ -372,8 +389,8 @@ class SelectedMonthKeyNotifier extends Notifier<String> {
 
 final selectedMonthKeyProvider =
     NotifierProvider<SelectedMonthKeyNotifier, String>(() {
-  return SelectedMonthKeyNotifier();
-});
+      return SelectedMonthKeyNotifier();
+    });
 
 /// List of all available month keys in chronological ascending order,
 /// covering the earliest tracked month up to the current active month.
@@ -420,18 +437,18 @@ final isCurrentMonthSelectedProvider = Provider<bool>((ref) {
 });
 
 /// Transactions for the currently selected month, newest first.
-final transactionsForSelectedMonthProvider =
-    Provider<List<ExpenseTransaction>>((ref) {
-  final selectedMonth = ref.watch(selectedMonthKeyProvider);
-  final allTxs = ref.watch(allTransactionsProvider).value ?? [];
-  return allTxs
-      .where((t) => AppDateUtils.monthKey(t.txDate) == selectedMonth)
-      .toList();
-});
+final transactionsForSelectedMonthProvider = Provider<List<ExpenseTransaction>>(
+  (ref) {
+    final selectedMonth = ref.watch(selectedMonthKeyProvider);
+    final allTxs = ref.watch(allTransactionsProvider).value ?? [];
+    return allTxs
+        .where((t) => AppDateUtils.monthKey(t.txDate) == selectedMonth)
+        .toList();
+  },
+);
 
 /// Closed month summary for the selected month (if it is a past closed month).
-final summaryForSelectedMonthProvider =
-    Provider<ExpenseMonthSummary?>((ref) {
+final summaryForSelectedMonthProvider = Provider<ExpenseMonthSummary?>((ref) {
   final selectedMonth = ref.watch(selectedMonthKeyProvider);
   final summaries = ref.watch(monthSummariesProvider).value ?? [];
   try {
@@ -445,8 +462,9 @@ final summaryForSelectedMonthProvider =
 // 5. CURRENT MONTH 4-METRIC HEADER PROVIDERS
 // =========================================================================
 
-final currentMonthTransactionsProvider =
-    Provider<List<ExpenseTransaction>>((ref) {
+final currentMonthTransactionsProvider = Provider<List<ExpenseTransaction>>((
+  ref,
+) {
   final currentMonth = AppDateUtils.monthKey(DateTime.now());
   final allTxs = ref.watch(allTransactionsProvider).value ?? [];
   return allTxs

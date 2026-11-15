@@ -43,12 +43,20 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
             child: OutlinedButton.icon(
               key: const Key('add_habit_button'),
               icon: const Icon(Icons.add, size: 16),
-              label: const Text('New Habit', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              label: const Text(
+                'New Habit',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: palette.textPrimary,
                 side: BorderSide(color: palette.border),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: AppTheme.borderRadius8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppTheme.borderRadius8,
+                ),
               ),
               onPressed: () => AddHabitSheet.show(context),
             ),
@@ -151,7 +159,9 @@ class _HabitsScreenState extends ConsumerState<HabitsScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected ? palette.onSelected : palette.textSecondary,
+                  color: isSelected
+                      ? palette.onSelected
+                      : palette.textSecondary,
                 ),
               ),
             ),

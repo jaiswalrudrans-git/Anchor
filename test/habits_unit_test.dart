@@ -21,24 +21,26 @@ void main() {
       expect(StreakUtils.currentStreak(logged, today), 2);
     });
 
-    test('returns consecutive streak ending yesterday when today is NOT logged', () {
-      // An unlogged today does not zero the streak until the day is over
-      final logged = {
-        yesterday,
-        dayBeforeYesterday,
-        DateTime(2026, 11, 11),
-      };
-      expect(StreakUtils.currentStreak(logged, today), 3);
-    });
+    test(
+      'returns consecutive streak ending yesterday when today is NOT logged',
+      () {
+        // An unlogged today does not zero the streak until the day is over
+        final logged = {yesterday, dayBeforeYesterday, DateTime(2026, 11, 11)};
+        expect(StreakUtils.currentStreak(logged, today), 3);
+      },
+    );
 
-    test('returns 0 when neither today nor yesterday is logged (streak broken)', () {
-      final logged = {
-        dayBeforeYesterday,
-        DateTime(2026, 11, 11),
-        DateTime(2026, 11, 10),
-      };
-      expect(StreakUtils.currentStreak(logged, today), 0);
-    });
+    test(
+      'returns 0 when neither today nor yesterday is logged (streak broken)',
+      () {
+        final logged = {
+          dayBeforeYesterday,
+          DateTime(2026, 11, 11),
+          DateTime(2026, 11, 10),
+        };
+        expect(StreakUtils.currentStreak(logged, today), 0);
+      },
+    );
 
     test('stops counting at a gap', () {
       final logged = {
@@ -82,7 +84,10 @@ void main() {
         DateTime(2026, 11, 14, 18, 45),
         DateTime(2026, 11, 13, 9, 15),
       };
-      expect(StreakUtils.currentStreak(logged, DateTime(2026, 11, 14, 23, 59)), 2);
+      expect(
+        StreakUtils.currentStreak(logged, DateTime(2026, 11, 14, 23, 59)),
+        2,
+      );
     });
   });
 
@@ -90,16 +95,19 @@ void main() {
     final start = DateTime(2026, 11, 1);
     final end = DateTime(2026, 11, 30);
 
-    test('created on first day of month with no logs counts all 30 days as missed', () {
-      final created = DateTime(2026, 11, 1);
-      final missed = StreakUtils.missedDays(
-        logged: {},
-        start: start,
-        end: end,
-        createdDate: created,
-      );
-      expect(missed, 30);
-    });
+    test(
+      'created on first day of month with no logs counts all 30 days as missed',
+      () {
+        final created = DateTime(2026, 11, 1);
+        final missed = StreakUtils.missedDays(
+          logged: {},
+          start: start,
+          end: end,
+          createdDate: created,
+        );
+        expect(missed, 30);
+      },
+    );
 
     test('created mid-month counts only days from creation date', () {
       final created = DateTime(2026, 11, 15);
@@ -115,7 +123,10 @@ void main() {
 
     test('all logged days in range yields 0 missed days', () {
       final created = DateTime(2026, 11, 1);
-      final logged = List.generate(30, (i) => DateTime(2026, 11, i + 1)).toSet();
+      final logged = List.generate(
+        30,
+        (i) => DateTime(2026, 11, i + 1),
+      ).toSet();
 
       final missed = StreakUtils.missedDays(
         logged: logged,
@@ -129,7 +140,10 @@ void main() {
     test('alternating pattern correctly counts unlogged days', () {
       final created = DateTime(2026, 11, 1);
       // Log even days: 2, 4, 6... 30 (15 logged, 15 missed)
-      final logged = List.generate(15, (i) => DateTime(2026, 11, (i + 1) * 2)).toSet();
+      final logged = List.generate(
+        15,
+        (i) => DateTime(2026, 11, (i + 1) * 2),
+      ).toSet();
 
       final missed = StreakUtils.missedDays(
         logged: logged,
@@ -178,7 +192,10 @@ void main() {
 
     test('returns 0 rebounds when all days are logged', () {
       final created = DateTime(2026, 11, 1);
-      final logged = List.generate(10, (i) => DateTime(2026, 11, i + 1)).toSet();
+      final logged = List.generate(
+        10,
+        (i) => DateTime(2026, 11, i + 1),
+      ).toSet();
 
       final r = StreakUtils.rebounds(
         logged: logged,
@@ -343,42 +360,45 @@ void main() {
   });
 
   group('StreakUtils - monthStats', () {
-    test('calculates completions, missed days through yesterday, and rebounds', () {
-      final monthStart = DateTime(2026, 11, 1);
-      final today = DateTime(2026, 11, 14); // Nov 14
-      final created = DateTime(2026, 11, 5);
+    test(
+      'calculates completions, missed days through yesterday, and rebounds',
+      () {
+        final monthStart = DateTime(2026, 11, 1);
+        final today = DateTime(2026, 11, 14); // Nov 14
+        final created = DateTime(2026, 11, 5);
 
-      // Logged: Nov 5, Nov 7, Nov 8, Nov 10, Nov 14 (today)
-      final logged = {
-        DateTime(2026, 11, 5),
-        DateTime(2026, 11, 7),
-        DateTime(2026, 11, 8),
-        DateTime(2026, 11, 10),
-        DateTime(2026, 11, 14),
-      };
+        // Logged: Nov 5, Nov 7, Nov 8, Nov 10, Nov 14 (today)
+        final logged = {
+          DateTime(2026, 11, 5),
+          DateTime(2026, 11, 7),
+          DateTime(2026, 11, 8),
+          DateTime(2026, 11, 10),
+          DateTime(2026, 11, 14),
+        };
 
-      final stats = StreakUtils.monthStats(
-        logged: logged,
-        monthStart: monthStart,
-        today: today,
-        createdDate: created,
-      );
+        final stats = StreakUtils.monthStats(
+          logged: logged,
+          monthStart: monthStart,
+          today: today,
+          createdDate: created,
+        );
 
-      // Completions this month: 5
-      expect(stats.completions, 5);
+        // Completions this month: 5
+        expect(stats.completions, 5);
 
-      // Missed through yesterday (Nov 13) from creation (Nov 5):
-      // Window: Nov 5..13 = 9 days.
-      // Logged in window: Nov 5, 7, 8, 10 = 4 days.
-      // Missed = 9 - 4 = 5 days (Nov 6, 9, 11, 12, 13).
-      expect(stats.missedDays, 5);
+        // Missed through yesterday (Nov 13) from creation (Nov 5):
+        // Window: Nov 5..13 = 9 days.
+        // Logged in window: Nov 5, 7, 8, 10 = 4 days.
+        // Missed = 9 - 4 = 5 days (Nov 6, 9, 11, 12, 13).
+        expect(stats.missedDays, 5);
 
-      // Rebounds:
-      // Nov 7 (Nov 6 missed) -> 1
-      // Nov 10 (Nov 9 missed) -> 2
-      // Nov 14 (Nov 13 missed) -> 3
-      expect(stats.rebounds, 3);
-    });
+        // Rebounds:
+        // Nov 7 (Nov 6 missed) -> 1
+        // Nov 10 (Nov 9 missed) -> 2
+        // Nov 14 (Nov 13 missed) -> 3
+        expect(stats.rebounds, 3);
+      },
+    );
   });
 
   group('StreakUtils - dayStatus', () {

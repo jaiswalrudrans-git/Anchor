@@ -94,8 +94,14 @@ void main() {
     });
 
     test('UrgencyTone thresholds for exams (soonThreshold = 3)', () {
-      expect(UrgencyTone.fromDaysLeft(3, soonThreshold: 3), equals(UrgencyTone.soon));
-      expect(UrgencyTone.fromDaysLeft(4, soonThreshold: 3), equals(UrgencyTone.normal));
+      expect(
+        UrgencyTone.fromDaysLeft(3, soonThreshold: 3),
+        equals(UrgencyTone.soon),
+      );
+      expect(
+        UrgencyTone.fromDaysLeft(4, soonThreshold: 3),
+        equals(UrgencyTone.normal),
+      );
     });
 
     test('CountdownPill labels format properly', () {
@@ -185,11 +191,22 @@ void main() {
 
       final grouped = groupAssignments(items, today);
 
-      expect(grouped[AssignmentGroup.overdue]!.map((a) => a.id).toList(), ['a-overdue']);
-      expect(grouped[AssignmentGroup.today]!.map((a) => a.id).toList(), ['a-today']);
-      expect(grouped[AssignmentGroup.thisWeek]!.map((a) => a.id).toList(), ['a-week-1', 'a-week-boundary']);
-      expect(grouped[AssignmentGroup.later]!.map((a) => a.id).toList(), ['a-later']);
-      expect(grouped[AssignmentGroup.completed]!.map((a) => a.id).toList(), ['a-completed']);
+      expect(grouped[AssignmentGroup.overdue]!.map((a) => a.id).toList(), [
+        'a-overdue',
+      ]);
+      expect(grouped[AssignmentGroup.today]!.map((a) => a.id).toList(), [
+        'a-today',
+      ]);
+      expect(grouped[AssignmentGroup.thisWeek]!.map((a) => a.id).toList(), [
+        'a-week-1',
+        'a-week-boundary',
+      ]);
+      expect(grouped[AssignmentGroup.later]!.map((a) => a.id).toList(), [
+        'a-later',
+      ]);
+      expect(grouped[AssignmentGroup.completed]!.map((a) => a.id).toList(), [
+        'a-completed',
+      ]);
     });
   });
 
@@ -227,32 +244,47 @@ void main() {
       ];
 
       final sorted = sortExams(items);
-      expect(sorted.map((e) => e.id).toList(), ['e-active-today', 'e-active-future']);
+      expect(sorted.map((e) => e.id).toList(), [
+        'e-active-today',
+        'e-active-future',
+      ]);
 
       final radar = filterUrgentExams(items, today);
-      expect(radar.map((e) => e.id).toList(), ['e-active-today', 'e-active-future']);
+      expect(radar.map((e) => e.id).toList(), [
+        'e-active-today',
+        'e-active-future',
+      ]);
     });
   });
 
   group('Polish Stage 4 - Syllabus Studied Math & Optimistic Toggle', () {
-    test('Subject & Module stats handle 0 chapters without division errors', () {
-      const stats = SubjectSyllabusStats(
-        totalModules: 1,
-        totalChapters: 0,
-        studiedChapters: 0,
-        progress: 0.0,
-      );
+    test(
+      'Subject & Module stats handle 0 chapters without division errors',
+      () {
+        const stats = SubjectSyllabusStats(
+          totalModules: 1,
+          totalChapters: 0,
+          studiedChapters: 0,
+          progress: 0.0,
+        );
 
-      expect(stats.progress, equals(0.0));
-      expect((stats.progress * 100).round(), equals(0));
-    });
+        expect(stats.progress, equals(0.0));
+        expect((stats.progress * 100).round(), equals(0));
+      },
+    );
 
     test('ChaptersNotifier toggleStudied optimistically updates and rolls back on failure', () async {
       final container = ProviderContainer(
         overrides: [
           chaptersProvider.overrideWith(
             () => MockChaptersNotifier([
-              const Chapter(id: 'c1', userId: 'u1', moduleId: 'm1', title: 'Chapter 1', isStudied: false),
+              const Chapter(
+                id: 'c1',
+                userId: 'u1',
+                moduleId: 'm1',
+                title: 'Chapter 1',
+                isStudied: false,
+              ),
             ]),
           ),
         ],
@@ -263,7 +295,8 @@ void main() {
       expect(initial.first.isStudied, isFalse);
 
       // 2. Successful toggle
-      final notifier = container.read(chaptersProvider.notifier) as MockChaptersNotifier;
+      final notifier =
+          container.read(chaptersProvider.notifier) as MockChaptersNotifier;
       await notifier.toggleStudied('c1');
       expect(container.read(chaptersProvider).value!.first.isStudied, isTrue);
 
@@ -279,14 +312,14 @@ void main() {
   });
 
   group('Polish Stage 4 - Responsive Layouts & Text Scale 1.3', () {
-    final testSubject = const Subject(
+    const testSubject = Subject(
       id: 'sub-1',
       userId: 'u1',
       name: 'Network Security',
       sortOrder: 1,
     );
 
-    final testModule = const AcademicModule(
+    const testModule = AcademicModule(
       id: 'mod-1',
       userId: 'u1',
       subjectId: 'sub-1',
@@ -294,7 +327,7 @@ void main() {
       sortOrder: 1,
     );
 
-    final testChapter = const Chapter(
+    const testChapter = Chapter(
       id: 'chap-1',
       userId: 'u1',
       moduleId: 'mod-1',
@@ -325,7 +358,11 @@ void main() {
       createdAt: DateTime.now(),
     );
 
-    Future<void> pumpScreen(WidgetTester tester, Size size, double textScale) async {
+    Future<void> pumpScreen(
+      WidgetTester tester,
+      Size size,
+      double textScale,
+    ) async {
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -334,10 +371,18 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            subjectsProvider.overrideWith(() => MockSubjectsNotifier([testSubject])),
-            modulesProvider.overrideWith(() => MockModulesNotifier([testModule])),
-            chaptersProvider.overrideWith(() => MockChaptersNotifier([testChapter])),
-            academicItemsProvider.overrideWith(() => MockAcademicItemsNotifier([testAssignment, testExam])),
+            subjectsProvider.overrideWith(
+              () => MockSubjectsNotifier([testSubject]),
+            ),
+            modulesProvider.overrideWith(
+              () => MockModulesNotifier([testModule]),
+            ),
+            chaptersProvider.overrideWith(
+              () => MockChaptersNotifier([testChapter]),
+            ),
+            academicItemsProvider.overrideWith(
+              () => MockAcademicItemsNotifier([testAssignment, testExam]),
+            ),
           ],
           child: MaterialApp(
             theme: AppTheme.lightTheme,
@@ -354,22 +399,31 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('Compact mobile (360x640) with text scale 1.3 renders without overflow', (tester) async {
-      await pumpScreen(tester, const Size(360, 640), 1.3);
-      expect(find.byType(AcademicsScreen), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
+    testWidgets(
+      'Compact mobile (360x640) with text scale 1.3 renders without overflow',
+      (tester) async {
+        await pumpScreen(tester, const Size(360, 640), 1.3);
+        expect(find.byType(AcademicsScreen), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
 
-    testWidgets('Medium tablet (800x1000) with text scale 1.3 renders without overflow', (tester) async {
-      await pumpScreen(tester, const Size(800, 1000), 1.3);
-      expect(find.byType(AcademicsScreen), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
+    testWidgets(
+      'Medium tablet (800x1000) with text scale 1.3 renders without overflow',
+      (tester) async {
+        await pumpScreen(tester, const Size(800, 1000), 1.3);
+        expect(find.byType(AcademicsScreen), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
 
-    testWidgets('Expanded desktop (1280x800) with text scale 1.3 renders without overflow', (tester) async {
-      await pumpScreen(tester, const Size(1280, 800), 1.3);
-      expect(find.byType(AcademicsScreen), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
+    testWidgets(
+      'Expanded desktop (1280x800) with text scale 1.3 renders without overflow',
+      (tester) async {
+        await pumpScreen(tester, const Size(1280, 800), 1.3);
+        expect(find.byType(AcademicsScreen), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }

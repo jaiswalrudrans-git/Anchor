@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/dimens.dart';
 import '../../core/constants/theme.dart';
 import '../../core/services/expense_reset_service.dart';
+import '../../core/utils/app_log.dart';
 import '../../providers/expenses_providers.dart';
 import '../../widgets/responsive/page_container.dart';
 import 'widgets/expense_metrics_header.dart';
@@ -43,7 +44,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
         await ref.read(monthSummariesProvider.notifier).refresh();
       }
     } catch (e) {
-      debugPrint('ExpensesScreen: error during rollover/refresh: $e');
+      AppLog.e('ExpensesScreen: error during rollover/refresh', e);
     }
   }
 
@@ -85,7 +86,10 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                 decoration: BoxDecoration(
                   color: palette.card,
                   borderRadius: AppDimens.borderRadiusSm,
-                  border: Border.all(color: palette.border, width: AppDimens.hairline),
+                  border: Border.all(
+                    color: palette.border,
+                    width: AppDimens.hairline,
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -122,14 +126,13 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                   layoutBuilder: (currentChild, previousChildren) {
                     return Stack(
                       fit: StackFit.expand,
-                      children: [
-                        ...previousChildren,
-                        ?currentChild,
-                      ],
+                      children: [...previousChildren, ?currentChild],
                     );
                   },
                   child: _selectedSegment == 0
-                      ? const MonthlyLedgerTab(key: ValueKey('monthly_ledger_view'))
+                      ? const MonthlyLedgerTab(
+                          key: ValueKey('monthly_ledger_view'),
+                        )
                       : ExpensesHistoryTab(
                           key: const ValueKey('expenses_history_view'),
                           onMonthTapped: (monthKey) {
@@ -177,7 +180,9 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? palette.onSelected : palette.textSecondary,
+                  color: isSelected
+                      ? palette.onSelected
+                      : palette.textSecondary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

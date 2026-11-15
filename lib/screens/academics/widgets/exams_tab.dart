@@ -66,11 +66,13 @@ class ExamsTab extends ConsumerWidget {
 
     final isExpanded = Breakpoints.isExpanded(context);
     final tiles = exams
-        .map((exam) => ExamCountdownTile(
-              key: ValueKey('exam_${exam.id}'),
-              exam: exam,
-              subject: findSubject(exam.subjectId),
-            ))
+        .map(
+          (exam) => ExamCountdownTile(
+            key: ValueKey('exam_${exam.id}'),
+            exam: exam,
+            subject: findSubject(exam.subjectId),
+          ),
+        )
         .toList();
 
     return _buildResponsiveTileList(tiles, isExpanded);

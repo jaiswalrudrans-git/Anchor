@@ -1,10 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/services/file_vault_service.dart';
 import '../core/services/notification_service.dart';
+import '../core/utils/app_log.dart';
 import '../core/utils/date_utils.dart';
 import '../models/academic_item.dart';
 import '../models/chapter.dart';
@@ -27,8 +27,8 @@ class AcademicsActiveSegmentNotifier extends Notifier<AcademicsSegment> {
 
 final academicsActiveSegmentProvider =
     NotifierProvider<AcademicsActiveSegmentNotifier, AcademicsSegment>(() {
-  return AcademicsActiveSegmentNotifier();
-});
+      return AcademicsActiveSegmentNotifier();
+    });
 
 // ==========================================
 // PURE FILTERING AND SORTING FUNCTIONS
@@ -91,7 +91,9 @@ List<AcademicItem> sortAssignments(List<AcademicItem> items) {
 
 /// Strictly sorts incomplete exams by due_date ASC, then created_at ASC.
 List<AcademicItem> sortExams(List<AcademicItem> items) {
-  final exams = items.where((i) => i.itemType == 'exam' && !i.isCompleted).toList();
+  final exams = items
+      .where((i) => i.itemType == 'exam' && !i.isCompleted)
+      .toList();
   exams.sort((a, b) {
     final dateCmp = a.dueDate.compareTo(b.dueDate);
     if (dateCmp != 0) return dateCmp;
@@ -102,7 +104,10 @@ List<AcademicItem> sortExams(List<AcademicItem> items) {
 
 /// Filters urgent assignments for Home Radar (next 7 days window: today <= due_date <= today+7).
 /// Incomplete only, sorted due_date ASC. Overdue assignments (< today) are excluded.
-List<AcademicItem> filterUrgentAssignments(List<AcademicItem> items, DateTime today) {
+List<AcademicItem> filterUrgentAssignments(
+  List<AcademicItem> items,
+  DateTime today,
+) {
   final cleanToday = AppDateUtils.dateOnly(today);
   final endWindow = cleanToday.add(const Duration(days: 7));
 
@@ -151,12 +156,12 @@ enum AssignmentGroup {
   completed;
 
   String get label => switch (this) {
-        AssignmentGroup.overdue => 'Overdue',
-        AssignmentGroup.today => 'Due today',
-        AssignmentGroup.thisWeek => 'This week',
-        AssignmentGroup.later => 'Later',
-        AssignmentGroup.completed => 'Completed',
-      };
+    AssignmentGroup.overdue => 'Overdue',
+    AssignmentGroup.today => 'Due today',
+    AssignmentGroup.thisWeek => 'This week',
+    AssignmentGroup.later => 'Later',
+    AssignmentGroup.completed => 'Completed',
+  };
 }
 
 /// Groups assignments into Overdue, Due today, This week, Later, and Completed.
@@ -274,7 +279,7 @@ class SubjectsNotifier extends AsyncNotifier<List<Subject>> {
         data.map((j) => Subject.fromJson(j as Map<String, dynamic>)).toList(),
       );
     } catch (e) {
-      debugPrint('SubjectsNotifier._fetchSubjects error: $e');
+      AppLog.e('SubjectsNotifier._fetchSubjects error', e);
       return [];
     }
   }
@@ -287,7 +292,9 @@ class SubjectsNotifier extends AsyncNotifier<List<Subject>> {
   Future<Subject?> addSubject(String name) async {
     final client = _supabase;
     final user = client?.auth.currentUser;
-    if (client == null || user == null) throw StateError('User not authenticated');
+    if (client == null || user == null) {
+      throw StateError('User not authenticated');
+    }
 
     final trimmed = name.trim();
     if (trimmed.isEmpty) return null;
@@ -311,7 +318,7 @@ class SubjectsNotifier extends AsyncNotifier<List<Subject>> {
       return newSubject;
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('addSubject failed: $e');
+      AppLog.e('addSubject failed', e);
       rethrow;
     }
   }
@@ -337,7 +344,7 @@ class SubjectsNotifier extends AsyncNotifier<List<Subject>> {
       await client.from('subjects').update({'name': trimmed}).eq('id', id);
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('renameSubject failed: $e');
+      AppLog.e('renameSubject failed', e);
       rethrow;
     }
   }
@@ -356,15 +363,17 @@ class SubjectsNotifier extends AsyncNotifier<List<Subject>> {
       await client.from('subjects').delete().eq('id', id);
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('deleteSubject failed: $e');
+      AppLog.e('deleteSubject failed', e);
       rethrow;
     }
   }
 }
 
-final subjectsProvider = AsyncNotifierProvider<SubjectsNotifier, List<Subject>>(() {
-  return SubjectsNotifier();
-});
+final subjectsProvider = AsyncNotifierProvider<SubjectsNotifier, List<Subject>>(
+  () {
+    return SubjectsNotifier();
+  },
+);
 
 /// Currently selected subject ID in the Academics tab.
 class SelectedSubjectNotifier extends Notifier<String?> {
@@ -379,8 +388,8 @@ class SelectedSubjectNotifier extends Notifier<String?> {
 
 final selectedSubjectIdProvider =
     NotifierProvider<SelectedSubjectNotifier, String?>(() {
-  return SelectedSubjectNotifier();
-});
+      return SelectedSubjectNotifier();
+    });
 
 // ==========================================
 // 2. MODULES NOTIFIER & PROVIDER
@@ -414,10 +423,12 @@ class ModulesNotifier extends AsyncNotifier<List<AcademicModule>> {
 
       final List<dynamic> data = response as List<dynamic>;
       return sortModules(
-        data.map((j) => AcademicModule.fromJson(j as Map<String, dynamic>)).toList(),
+        data
+            .map((j) => AcademicModule.fromJson(j as Map<String, dynamic>))
+            .toList(),
       );
     } catch (e) {
-      debugPrint('ModulesNotifier._fetchModules error: $e');
+      AppLog.e('ModulesNotifier._fetchModules error', e);
       return [];
     }
   }
@@ -430,16 +441,23 @@ class ModulesNotifier extends AsyncNotifier<List<AcademicModule>> {
   Future<AcademicModule?> addModule(String subjectId, String title) async {
     final client = _supabase;
     final user = client?.auth.currentUser;
-    if (client == null || user == null) throw StateError('User not authenticated');
+    if (client == null || user == null) {
+      throw StateError('User not authenticated');
+    }
 
     final trimmed = title.trim();
     if (trimmed.isEmpty) return null;
 
     final current = state.value ?? [];
-    final subjectModules = current.where((m) => m.subjectId == subjectId).toList();
+    final subjectModules = current
+        .where((m) => m.subjectId == subjectId)
+        .toList();
     final nextOrder = subjectModules.isEmpty
         ? 1
-        : (subjectModules.map((m) => m.sortOrder).reduce((a, b) => a > b ? a : b) + 1);
+        : (subjectModules
+                  .map((m) => m.sortOrder)
+                  .reduce((a, b) => a > b ? a : b) +
+              1);
 
     final newModule = AcademicModule(
       id: _uuid.v4(),
@@ -456,7 +474,7 @@ class ModulesNotifier extends AsyncNotifier<List<AcademicModule>> {
       return newModule;
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('addModule failed: $e');
+      AppLog.e('addModule failed', e);
       rethrow;
     }
   }
@@ -482,7 +500,7 @@ class ModulesNotifier extends AsyncNotifier<List<AcademicModule>> {
       await client.from('modules').update({'title': trimmed}).eq('id', id);
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('renameModule failed: $e');
+      AppLog.e('renameModule failed', e);
       rethrow;
     }
   }
@@ -501,15 +519,16 @@ class ModulesNotifier extends AsyncNotifier<List<AcademicModule>> {
       await client.from('modules').delete().eq('id', id);
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('deleteModule failed: $e');
+      AppLog.e('deleteModule failed', e);
       rethrow;
     }
   }
 }
 
-final modulesProvider = AsyncNotifierProvider<ModulesNotifier, List<AcademicModule>>(() {
-  return ModulesNotifier();
-});
+final modulesProvider =
+    AsyncNotifierProvider<ModulesNotifier, List<AcademicModule>>(() {
+      return ModulesNotifier();
+    });
 
 /// Returns modules filtered for the selected subject.
 final modulesForSelectedSubjectProvider = Provider<List<AcademicModule>>((ref) {
@@ -519,7 +538,9 @@ final modulesForSelectedSubjectProvider = Provider<List<AcademicModule>>((ref) {
   final modulesAsync = ref.watch(modulesProvider);
   final allModules = modulesAsync.value ?? [];
 
-  final subjectModules = allModules.where((m) => m.subjectId == selectedSubjectId).toList();
+  final subjectModules = allModules
+      .where((m) => m.subjectId == selectedSubjectId)
+      .toList();
   return sortModules(subjectModules);
 });
 
@@ -558,7 +579,7 @@ class ChaptersNotifier extends AsyncNotifier<List<Chapter>> {
         data.map((j) => Chapter.fromJson(j as Map<String, dynamic>)).toList(),
       );
     } catch (e) {
-      debugPrint('ChaptersNotifier._fetchChapters error: $e');
+      AppLog.e('ChaptersNotifier._fetchChapters error', e);
       return [];
     }
   }
@@ -571,16 +592,23 @@ class ChaptersNotifier extends AsyncNotifier<List<Chapter>> {
   Future<Chapter?> addChapter(String moduleId, String title) async {
     final client = _supabase;
     final user = client?.auth.currentUser;
-    if (client == null || user == null) throw StateError('User not authenticated');
+    if (client == null || user == null) {
+      throw StateError('User not authenticated');
+    }
 
     final trimmed = title.trim();
     if (trimmed.isEmpty) return null;
 
     final current = state.value ?? [];
-    final moduleChapters = current.where((c) => c.moduleId == moduleId).toList();
+    final moduleChapters = current
+        .where((c) => c.moduleId == moduleId)
+        .toList();
     final nextOrder = moduleChapters.isEmpty
         ? 1
-        : (moduleChapters.map((c) => c.sortOrder).reduce((a, b) => a > b ? a : b) + 1);
+        : (moduleChapters
+                  .map((c) => c.sortOrder)
+                  .reduce((a, b) => a > b ? a : b) +
+              1);
 
     final newChapter = Chapter(
       id: _uuid.v4(),
@@ -597,7 +625,7 @@ class ChaptersNotifier extends AsyncNotifier<List<Chapter>> {
       return newChapter;
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('addChapter failed: $e');
+      AppLog.e('addChapter failed', e);
       rethrow;
     }
   }
@@ -623,7 +651,7 @@ class ChaptersNotifier extends AsyncNotifier<List<Chapter>> {
       await client.from('chapters').update({'title': trimmed}).eq('id', id);
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('renameChapter failed: $e');
+      AppLog.e('renameChapter failed', e);
       rethrow;
     }
   }
@@ -644,10 +672,13 @@ class ChaptersNotifier extends AsyncNotifier<List<Chapter>> {
     state = AsyncData(sortChapters(updatedList));
 
     try {
-      await client.from('chapters').update({'is_studied': updated.isStudied}).eq('id', id);
+      await client
+          .from('chapters')
+          .update({'is_studied': updated.isStudied})
+          .eq('id', id);
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('toggleStudied failed: $e');
+      AppLog.e('toggleStudied failed', e);
       rethrow;
     }
   }
@@ -671,15 +702,17 @@ class ChaptersNotifier extends AsyncNotifier<List<Chapter>> {
       await client.from('chapters').delete().eq('id', id);
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('deleteChapter failed: $e');
+      AppLog.e('deleteChapter failed', e);
       rethrow;
     }
   }
 }
 
-final chaptersProvider = AsyncNotifierProvider<ChaptersNotifier, List<Chapter>>(() {
-  return ChaptersNotifier();
-});
+final chaptersProvider = AsyncNotifierProvider<ChaptersNotifier, List<Chapter>>(
+  () {
+    return ChaptersNotifier();
+  },
+);
 
 // ==========================================
 // 4. ACADEMIC ITEMS NOTIFIER & PROVIDER
@@ -721,7 +754,7 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
 
       return items;
     } catch (e) {
-      debugPrint('AcademicItemsNotifier._fetchItems error: $e');
+      AppLog.e('AcademicItemsNotifier._fetchItems error', e);
       return [];
     }
   }
@@ -739,7 +772,9 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
   }) async {
     final client = _supabase;
     final user = client?.auth.currentUser;
-    if (client == null || user == null) throw StateError('User not authenticated');
+    if (client == null || user == null) {
+      throw StateError('User not authenticated');
+    }
 
     final trimmed = title.trim();
     if (trimmed.isEmpty) return null;
@@ -773,7 +808,7 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
       return newItem;
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('addItem failed: $e');
+      AppLog.e('addItem failed', e);
       rethrow;
     }
   }
@@ -795,9 +830,10 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
     state = AsyncData(updatedList);
 
     try {
-      await client.from('academic_items').update({
-        'is_completed': updated.isCompleted,
-      }).eq('id', id);
+      await client
+          .from('academic_items')
+          .update({'is_completed': updated.isCompleted})
+          .eq('id', id);
 
       final notificationService = ref.read(notificationServiceProvider);
       if (updated.isCompleted) {
@@ -807,7 +843,7 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
       }
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('toggleAssignmentComplete failed: $e');
+      AppLog.e('toggleAssignmentComplete failed', e);
       rethrow;
     }
   }
@@ -829,14 +865,15 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
     state = AsyncData(updatedList);
 
     try {
-      await client.from('academic_items').update({
-        'is_completed': true,
-      }).eq('id', id);
+      await client
+          .from('academic_items')
+          .update({'is_completed': true})
+          .eq('id', id);
 
       await ref.read(notificationServiceProvider).cancelReminder(id);
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('markExamCompleted failed: $e');
+      AppLog.e('markExamCompleted failed', e);
       rethrow;
     }
   }
@@ -868,11 +905,14 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
     state = AsyncData(updatedList);
 
     try {
-      await client.from('academic_items').update({
-        'title': updated.title,
-        'due_date': AppDateUtils.formatDbDate(updated.dueDate),
-        'subject_id': updated.subjectId,
-      }).eq('id', id);
+      await client
+          .from('academic_items')
+          .update({
+            'title': updated.title,
+            'due_date': AppDateUtils.formatDbDate(updated.dueDate),
+            'subject_id': updated.subjectId,
+          })
+          .eq('id', id);
 
       if (!updated.isCompleted) {
         final notificationService = ref.read(notificationServiceProvider);
@@ -885,7 +925,7 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
       }
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('editItem failed: $e');
+      AppLog.e('editItem failed', e);
       rethrow;
     }
   }
@@ -911,7 +951,7 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
       }
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('restoreItem failed: $e');
+      AppLog.e('restoreItem failed', e);
       rethrow;
     }
   }
@@ -930,7 +970,7 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
       await client.from('academic_items').delete().eq('id', id);
     } catch (e) {
       state = AsyncData(current);
-      debugPrint('deleteItem failed: $e');
+      AppLog.e('deleteItem failed', e);
       rethrow;
     }
   }
@@ -938,8 +978,8 @@ class AcademicItemsNotifier extends AsyncNotifier<List<AcademicItem>> {
 
 final academicItemsProvider =
     AsyncNotifierProvider<AcademicItemsNotifier, List<AcademicItem>>(() {
-  return AcademicItemsNotifier();
-});
+      return AcademicItemsNotifier();
+    });
 
 // ==========================================
 // 5. DERIVED PROVIDERS FOR UI & HOME RADAR
@@ -949,7 +989,9 @@ final academicItemsProvider =
 final activeAssignmentsProvider = Provider<List<AcademicItem>>((ref) {
   final itemsAsync = ref.watch(academicItemsProvider);
   final allItems = itemsAsync.value ?? [];
-  final active = allItems.where((i) => i.itemType == 'assignment' && !i.isCompleted).toList();
+  final active = allItems
+      .where((i) => i.itemType == 'assignment' && !i.isCompleted)
+      .toList();
   active.sort((a, b) {
     final dateCmp = a.dueDate.compareTo(b.dueDate);
     if (dateCmp != 0) return dateCmp;
@@ -962,7 +1004,9 @@ final activeAssignmentsProvider = Provider<List<AcademicItem>>((ref) {
 final completedAssignmentsProvider = Provider<List<AcademicItem>>((ref) {
   final itemsAsync = ref.watch(academicItemsProvider);
   final allItems = itemsAsync.value ?? [];
-  final completed = allItems.where((i) => i.itemType == 'assignment' && i.isCompleted).toList();
+  final completed = allItems
+      .where((i) => i.itemType == 'assignment' && i.isCompleted)
+      .toList();
   completed.sort((a, b) {
     final dateCmp = b.dueDate.compareTo(a.dueDate);
     if (dateCmp != 0) return dateCmp;
@@ -995,53 +1039,64 @@ final urgentExamsRadarProvider = Provider<List<AcademicItem>>((ref) {
 /// Overall studied stats and progress for a subject.
 final subjectSyllabusStatsProvider =
     Provider.family<SubjectSyllabusStats, String>((ref, subjectId) {
-  final allModules = ref.watch(modulesProvider).value ?? [];
-  final subjectModules = allModules.where((m) => m.subjectId == subjectId).toList();
-  final moduleIds = subjectModules.map((m) => m.id).toSet();
+      final allModules = ref.watch(modulesProvider).value ?? [];
+      final subjectModules = allModules
+          .where((m) => m.subjectId == subjectId)
+          .toList();
+      final moduleIds = subjectModules.map((m) => m.id).toSet();
 
-  final allChapters = ref.watch(chaptersProvider).value ?? [];
-  final subjectChapters = allChapters.where((c) => moduleIds.contains(c.moduleId)).toList();
+      final allChapters = ref.watch(chaptersProvider).value ?? [];
+      final subjectChapters = allChapters
+          .where((c) => moduleIds.contains(c.moduleId))
+          .toList();
 
-  final totalModules = subjectModules.length;
-  final totalChapters = subjectChapters.length;
-  final studiedChapters = subjectChapters.where((c) => c.isStudied).length;
-  final progress = totalChapters == 0 ? 0.0 : (studiedChapters / totalChapters);
+      final totalModules = subjectModules.length;
+      final totalChapters = subjectChapters.length;
+      final studiedChapters = subjectChapters.where((c) => c.isStudied).length;
+      final progress = totalChapters == 0
+          ? 0.0
+          : (studiedChapters / totalChapters);
 
-  return SubjectSyllabusStats(
-    totalModules: totalModules,
-    totalChapters: totalChapters,
-    studiedChapters: studiedChapters,
-    progress: progress,
-  );
-});
+      return SubjectSyllabusStats(
+        totalModules: totalModules,
+        totalChapters: totalChapters,
+        studiedChapters: studiedChapters,
+        progress: progress,
+      );
+    });
 
 /// Studied stats and progress for a single module.
 final moduleSyllabusStatsProvider =
     Provider.family<ModuleSyllabusStats, String>((ref, moduleId) {
-  final allChapters = ref.watch(chaptersProvider).value ?? [];
-  final moduleChapters = allChapters.where((c) => c.moduleId == moduleId).toList();
+      final allChapters = ref.watch(chaptersProvider).value ?? [];
+      final moduleChapters = allChapters
+          .where((c) => c.moduleId == moduleId)
+          .toList();
 
-  final totalChapters = moduleChapters.length;
-  final studiedChapters = moduleChapters.where((c) => c.isStudied).length;
-  final progress = totalChapters == 0 ? 0.0 : (studiedChapters / totalChapters);
+      final totalChapters = moduleChapters.length;
+      final studiedChapters = moduleChapters.where((c) => c.isStudied).length;
+      final progress = totalChapters == 0
+          ? 0.0
+          : (studiedChapters / totalChapters);
 
-  return ModuleSyllabusStats(
-    totalChapters: totalChapters,
-    studiedChapters: studiedChapters,
-    progress: progress,
-  );
-});
+      return ModuleSyllabusStats(
+        totalChapters: totalChapters,
+        studiedChapters: studiedChapters,
+        progress: progress,
+      );
+    });
 
 /// Count of active (incomplete) assignments for a subject.
-final subjectPendingAssignmentsCountProvider =
-    Provider.family<int, String>((ref, subjectId) {
+final subjectPendingAssignmentsCountProvider = Provider.family<int, String>((
+  ref,
+  subjectId,
+) {
   final assignments = ref.watch(activeAssignmentsProvider);
   return assignments.where((a) => a.subjectId == subjectId).length;
 });
 
 /// Fast lookup for file count of a chapter.
-final chapterFileCountProvider =
-    Provider.family<int, String>((ref, chapterId) {
+final chapterFileCountProvider = Provider.family<int, String>((ref, chapterId) {
   final files = ref.watch(chapterFilesForChapterProvider(chapterId));
   return files.length;
 });
@@ -1078,7 +1133,7 @@ class ChapterFilesNotifier extends AsyncNotifier<List<ChapterFile>> {
           .map((json) => ChapterFile.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      debugPrint('ChapterFilesNotifier._fetchFiles failed: $e');
+      AppLog.e('ChapterFilesNotifier._fetchFiles failed', e);
       return [];
     }
   }
@@ -1130,20 +1185,19 @@ class ChapterFilesNotifier extends AsyncNotifier<List<ChapterFile>> {
 
 final chapterFilesProvider =
     AsyncNotifierProvider<ChapterFilesNotifier, List<ChapterFile>>(() {
-  return ChapterFilesNotifier();
-});
+      return ChapterFilesNotifier();
+    });
 
 final chapterFilesForChapterProvider =
     Provider.family<List<ChapterFile>, String>((ref, chapterId) {
-  final filesAsync = ref.watch(chapterFilesProvider);
-  final allFiles = filesAsync.value ?? [];
-  return allFiles.where((f) => f.chapterId == chapterId).toList();
-});
+      final filesAsync = ref.watch(chapterFilesProvider);
+      final allFiles = filesAsync.value ?? [];
+      return allFiles.where((f) => f.chapterId == chapterId).toList();
+    });
 
 /// Computes the offline/cloud-only status for a chapter file.
 final fileCacheStatusProvider =
     FutureProvider.family<VaultFileStatus, ChapterFile>((ref, file) async {
-  final service = ref.watch(fileVaultServiceProvider);
-  return service.getFileStatus(file);
-});
-
+      final service = ref.watch(fileVaultServiceProvider);
+      return service.getFileStatus(file);
+    });

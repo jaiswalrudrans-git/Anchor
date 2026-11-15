@@ -148,7 +148,9 @@ class ExpenseMetricsHeader extends ConsumerWidget {
         ? palette.danger
         : (tone == SpendingTone.warning ? palette.warning : palette.accent);
     final isOverBudget = spent > allowance && allowance > 0;
-    final progressFraction = allowance > 0 ? (spent / allowance).clamp(0.0, 1.0) : 0.0;
+    final progressFraction = allowance > 0
+        ? (spent / allowance).clamp(0.0, 1.0)
+        : 0.0;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -196,11 +198,17 @@ class ExpenseMetricsHeader extends ConsumerWidget {
               const SizedBox(height: 12),
               if (allowance <= 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: palette.card,
                     borderRadius: AppDimens.borderRadiusSm,
-                    border: Border.all(color: palette.border, width: AppDimens.hairline),
+                    border: Border.all(
+                      color: palette.border,
+                      width: AppDimens.hairline,
+                    ),
                   ),
                   child: constraints.maxWidth < 450
                       ? Column(
@@ -209,12 +217,19 @@ class ExpenseMetricsHeader extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.info_outline, size: 16, color: palette.textSecondary),
+                                Icon(
+                                  Icons.info_outline,
+                                  size: 16,
+                                  color: palette.textSecondary,
+                                ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     'Set your monthly allowance to track your spending.',
-                                    style: TextStyle(fontSize: 12, color: palette.textSecondary),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: palette.textSecondary,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -223,11 +238,18 @@ class ExpenseMetricsHeader extends ConsumerWidget {
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                 key: const Key('set_allowance_nudge_button'),
-                                onPressed: () => EditAllowanceDialog.show(context, allowance),
+                                onPressed: () => EditAllowanceDialog.show(
+                                  context,
+                                  allowance,
+                                ),
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   minimumSize: Size.zero,
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                                 child: Text(
                                   'Set allowance',
@@ -243,20 +265,31 @@ class ExpenseMetricsHeader extends ConsumerWidget {
                         )
                       : Row(
                           children: [
-                            Icon(Icons.info_outline, size: 16, color: palette.textSecondary),
+                            Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color: palette.textSecondary,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'Set your monthly allowance to track your spending.',
-                                style: TextStyle(fontSize: 12, color: palette.textSecondary),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: palette.textSecondary,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),
                             TextButton(
                               key: const Key('set_allowance_nudge_button'),
-                              onPressed: () => EditAllowanceDialog.show(context, allowance),
+                              onPressed: () =>
+                                  EditAllowanceDialog.show(context, allowance),
                               style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 minimumSize: Size.zero,
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
@@ -288,8 +321,12 @@ class ExpenseMetricsHeader extends ConsumerWidget {
                         getSpendingCaption(spent, allowance),
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: isOverBudget ? FontWeight.w600 : FontWeight.w500,
-                          color: isOverBudget ? palette.danger : palette.textSecondary,
+                          fontWeight: isOverBudget
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: isOverBudget
+                              ? palette.danger
+                              : palette.textSecondary,
                           fontFeatures: AppTypography.tabularFigures,
                         ),
                         maxLines: 1,

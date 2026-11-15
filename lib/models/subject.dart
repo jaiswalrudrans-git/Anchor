@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import 'model_helpers.dart';
 
 @immutable
@@ -15,12 +16,7 @@ class Subject {
     this.sortOrder = 0,
   });
 
-  Subject copyWith({
-    String? id,
-    String? userId,
-    String? name,
-    int? sortOrder,
-  }) {
+  Subject copyWith({String? id, String? userId, String? name, int? sortOrder}) {
     return Subject(
       id: id ?? this.id,
       userId: userId ?? this.userId,
@@ -39,12 +35,7 @@ class Subject {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'user_id': userId,
-      'name': name,
-      'sort_order': sortOrder,
-    };
+    return {'id': id, 'user_id': userId, 'name': name, 'sort_order': sortOrder};
   }
 
   @override
@@ -59,8 +50,5 @@ class Subject {
 
   @override
   int get hashCode =>
-      id.hashCode ^
-      userId.hashCode ^
-      name.hashCode ^
-      sortOrder.hashCode;
+      id.hashCode ^ userId.hashCode ^ name.hashCode ^ sortOrder.hashCode;
 }

@@ -26,7 +26,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Polish Stage 1 - Motion Widgets Tests', () {
-    testWidgets('PressableScale renders child and responds to tap', (tester) async {
+    testWidgets('PressableScale renders child and responds to tap', (
+      tester,
+    ) async {
       bool tapped = false;
       await tester.pumpWidget(
         wrapWithTheme(
@@ -43,7 +45,9 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('AnimatedCheckbox toggles value and triggers onChanged', (tester) async {
+    testWidgets('AnimatedCheckbox toggles value and triggers onChanged', (
+      tester,
+    ) async {
       bool value = false;
       await tester.pumpWidget(
         wrapWithTheme(
@@ -66,39 +70,33 @@ void main() {
       expect(value, isTrue);
     });
 
-    testWidgets('AnimatedProgressBar renders progress and animates value change', (tester) async {
-      await tester.pumpWidget(
-        wrapWithTheme(
-          const SizedBox(
-            width: 200,
-            child: AnimatedProgressBar(value: 0.5),
+    testWidgets(
+      'AnimatedProgressBar renders progress and animates value change',
+      (tester) async {
+        await tester.pumpWidget(
+          wrapWithTheme(
+            const SizedBox(width: 200, child: AnimatedProgressBar(value: 0.5)),
           ),
-        ),
-      );
+        );
 
-      expect(find.byType(AnimatedProgressBar), findsOneWidget);
-      await tester.pumpAndSettle();
+        expect(find.byType(AnimatedProgressBar), findsOneWidget);
+        await tester.pumpAndSettle();
 
-      await tester.pumpWidget(
-        wrapWithTheme(
-          const SizedBox(
-            width: 200,
-            child: AnimatedProgressBar(value: 0.8),
+        await tester.pumpWidget(
+          wrapWithTheme(
+            const SizedBox(width: 200, child: AnimatedProgressBar(value: 0.8)),
           ),
-        ),
-      );
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pumpAndSettle();
-      expect(find.byType(AnimatedProgressBar), findsOneWidget);
-    });
+        );
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpAndSettle();
+        expect(find.byType(AnimatedProgressBar), findsOneWidget);
+      },
+    );
 
     testWidgets('CountUpText renders target value', (tester) async {
       await tester.pumpWidget(
         wrapWithTheme(
-          const CountUpText(
-            value: 42,
-            style: TextStyle(fontSize: 16),
-          ),
+          const CountUpText(value: 42, style: TextStyle(fontSize: 16)),
         ),
       );
 
@@ -109,10 +107,7 @@ void main() {
     testWidgets('FadeSlideIn renders child with animation', (tester) async {
       await tester.pumpWidget(
         wrapWithTheme(
-          const FadeSlideIn(
-            index: 1,
-            child: Text('Fade In Content'),
-          ),
+          const FadeSlideIn(index: 1, child: Text('Fade In Content')),
         ),
       );
 
@@ -121,7 +116,9 @@ void main() {
       expect(find.text('Fade In Content'), findsOneWidget);
     });
 
-    testWidgets('PulseRing renders child and animates on trigger change', (tester) async {
+    testWidgets('PulseRing renders child and animates on trigger change', (
+      tester,
+    ) async {
       bool trigger = false;
       await tester.pumpWidget(
         wrapWithTheme(
@@ -146,7 +143,9 @@ void main() {
       expect(find.text('Pulse Target'), findsOneWidget);
     });
 
-    testWidgets('CollapseOnRemove collapses when isRemoved is true', (tester) async {
+    testWidgets('CollapseOnRemove collapses when isRemoved is true', (
+      tester,
+    ) async {
       bool isRemoved = false;
       await tester.pumpWidget(
         wrapWithTheme(
@@ -178,7 +177,9 @@ void main() {
   });
 
   group('Polish Stage 1 - Shared Polished Widgets Tests', () {
-    testWidgets('EmptyState displays icon, title, message and action', (tester) async {
+    testWidgets('EmptyState displays icon, title, message and action', (
+      tester,
+    ) async {
       bool ctaPressed = false;
       await tester.pumpWidget(
         wrapWithTheme(
@@ -202,7 +203,9 @@ void main() {
       expect(ctaPressed, isTrue);
     });
 
-    testWidgets('AppCard renders header, trailing, child, and handles tap', (tester) async {
+    testWidgets('AppCard renders header, trailing, child, and handles tap', (
+      tester,
+    ) async {
       bool tapped = false;
       await tester.pumpWidget(
         wrapWithTheme(
@@ -224,29 +227,29 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('SectionHeader displays title, count chip, and trailing action', (tester) async {
-      await tester.pumpWidget(
-        wrapWithTheme(
-          const SectionHeader(
-            title: 'Active Modules',
-            count: 5,
-            trailing: Icon(Icons.more_horiz),
+    testWidgets(
+      'SectionHeader displays title, count chip, and trailing action',
+      (tester) async {
+        await tester.pumpWidget(
+          wrapWithTheme(
+            const SectionHeader(
+              title: 'Active Modules',
+              count: 5,
+              trailing: Icon(Icons.more_horiz),
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(find.text('Active Modules'), findsOneWidget);
-      expect(find.text('5'), findsOneWidget);
-      expect(find.byIcon(Icons.more_horiz), findsOneWidget);
-    });
+        expect(find.text('Active Modules'), findsOneWidget);
+        expect(find.text('5'), findsOneWidget);
+        expect(find.byIcon(Icons.more_horiz), findsOneWidget);
+      },
+    );
 
     testWidgets('Tag displays label and icon', (tester) async {
       await tester.pumpWidget(
         wrapWithTheme(
-          const Tag(
-            label: 'Mathematics',
-            icon: Icons.calculate_outlined,
-          ),
+          const Tag(label: 'Mathematics', icon: Icons.calculate_outlined),
         ),
       );
 
@@ -272,12 +275,7 @@ void main() {
 
     testWidgets('SkeletonBox renders without crashing', (tester) async {
       await tester.pumpWidget(
-        wrapWithTheme(
-          const SkeletonBox(
-            width: 100,
-            height: 20,
-          ),
-        ),
+        wrapWithTheme(const SkeletonBox(width: 100, height: 20)),
       );
 
       expect(find.byType(SkeletonBox), findsOneWidget);

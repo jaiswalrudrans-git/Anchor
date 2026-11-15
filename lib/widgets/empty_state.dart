@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/constants/theme.dart';
 
 /// Polished empty state placeholder widget.
@@ -37,11 +38,7 @@ class EmptyState extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: palette.border, width: 1),
               ),
-              child: Icon(
-                icon,
-                size: 26,
-                color: palette.accent,
-              ),
+              child: Icon(icon, size: 26, color: palette.accent),
             ),
             const SizedBox(height: 12),
             Text(
@@ -66,10 +63,7 @@ class EmptyState extends StatelessWidget {
                 ),
               ),
             ],
-            if (action != null) ...[
-              const SizedBox(height: 16),
-              action!,
-            ],
+            if (action != null) ...[const SizedBox(height: 16), action!],
           ],
         ),
       ),

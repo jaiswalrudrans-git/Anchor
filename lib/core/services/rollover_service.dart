@@ -1,7 +1,9 @@
 import 'dart:math';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../utils/app_log.dart';
 import '../utils/date_utils.dart';
 import '../../models/todo.dart';
 
@@ -45,7 +47,9 @@ class RolloverService {
   /// Idempotent: running multiple times on the same date will find 0 overdue todos.
   Future<int> runRollover({DateTime? targetToday}) async {
     if (_isRunning) {
-      debugPrint('RolloverService: rollover already in progress, skipping concurrent run');
+      AppLog.d(
+        'RolloverService: rollover already in progress, skipping concurrent run',
+      );
       return 0;
     }
     _isRunning = true;
@@ -76,7 +80,9 @@ class RolloverService {
         return 0;
       }
 
-      final todos = data.map((json) => Todo.fromJson(json as Map<String, dynamic>)).toList();
+      final todos = data
+          .map((json) => Todo.fromJson(json as Map<String, dynamic>))
+          .toList();
 
       // Concurrently update each overdue todo
       final updates = todos.map((todo) async {
@@ -84,17 +90,22 @@ class RolloverService {
         if (daysMissed <= 0) return;
 
         final newRolloverCount = todo.rolloverCount + daysMissed;
-        await client.from('todos').update({
-          'scheduled_date': todayStr,
-          'rollover_count': newRolloverCount,
-        }).eq('id', todo.id);
+        await client
+            .from('todos')
+            .update({
+              'scheduled_date': todayStr,
+              'rollover_count': newRolloverCount,
+            })
+            .eq('id', todo.id);
       });
 
       await Future.wait(updates);
-      debugPrint('RolloverService: Successfully rolled over ${todos.length} todo(s) to $todayStr');
+      AppLog.d(
+        'RolloverService: Successfully rolled over ${todos.length} todo(s) to $todayStr',
+      );
       return todos.length;
     } catch (e) {
-      debugPrint('RolloverService error: $e');
+      AppLog.e('RolloverService error', e);
       return 0;
     } finally {
       _isRunning = false;

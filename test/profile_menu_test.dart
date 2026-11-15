@@ -23,62 +23,71 @@ void main() {
   });
 
   group('Polish Stage 2 - Profile Avatar Tests', () {
-    testWidgets('ProfileAvatar renders fallback initials when no user is signed in', (tester) async {
-      await tester.pumpWidget(
-        wrapWithProfileScope(
-          const ProfileAvatar(size: 36),
-        ),
-      );
+    testWidgets(
+      'ProfileAvatar renders fallback initials when no user is signed in',
+      (tester) async {
+        await tester.pumpWidget(
+          wrapWithProfileScope(const ProfileAvatar(size: 36)),
+        );
 
-      expect(find.byType(ProfileAvatar), findsOneWidget);
-      expect(find.text('U'), findsOneWidget);
-    });
+        expect(find.byType(ProfileAvatar), findsOneWidget);
+        expect(find.text('U'), findsOneWidget);
+      },
+    );
 
     test('ProfileAvatar.getInitials extracts uppercase initials properly', () {
       expect(ProfileAvatar.getInitials(null), 'U');
     });
 
-    test('ProfileAvatar.getDisplayName extracts user display name or fallback', () {
-      expect(ProfileAvatar.getDisplayName(null), 'User');
-    });
+    test(
+      'ProfileAvatar.getDisplayName extracts user display name or fallback',
+      () {
+        expect(ProfileAvatar.getDisplayName(null), 'User');
+      },
+    );
   });
 
   group('Polish Stage 2 - Profile Menu & Theme Picker Tests', () {
-    testWidgets('ProfileMenuContent displays appearance controls, swatches, preview, and sign out', (tester) async {
-      await tester.pumpWidget(
-        wrapWithProfileScope(
-          const SizedBox(
-            width: 340,
-            height: 600,
-            child: ProfileMenuContent(),
+    testWidgets(
+      'ProfileMenuContent displays appearance controls, swatches, preview, and sign out',
+      (tester) async {
+        await tester.pumpWidget(
+          wrapWithProfileScope(
+            const SizedBox(
+              width: 340,
+              height: 600,
+              child: ProfileMenuContent(),
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Appearance segmented control
-      expect(find.text('APPEARANCE'), findsOneWidget);
-      expect(find.text('Light'), findsOneWidget);
-      expect(find.text('Dark'), findsOneWidget);
-      expect(find.text('System'), findsOneWidget);
+        // Appearance segmented control
+        expect(find.text('APPEARANCE'), findsOneWidget);
+        expect(find.text('Light'), findsOneWidget);
+        expect(find.text('Dark'), findsOneWidget);
+        expect(find.text('System'), findsOneWidget);
 
-      // Accent color section with 7 swatches
-      expect(find.text('ACCENT COLOR'), findsOneWidget);
-      for (final accent in AppAccent.values) {
-        expect(find.text(accent.displayName), findsOneWidget);
-      }
+        // Accent color section with 7 swatches
+        expect(find.text('ACCENT COLOR'), findsOneWidget);
+        for (final accent in AppAccent.values) {
+          expect(find.text(accent.displayName), findsOneWidget);
+        }
 
-      // Preview strip
-      expect(find.text('PREVIEW'), findsOneWidget);
-      expect(find.text('Daily Goals'), findsOneWidget);
-      expect(find.text('70%'), findsOneWidget);
+        // Preview strip
+        expect(find.text('PREVIEW'), findsOneWidget);
+        expect(find.text('Daily Goals'), findsOneWidget);
+        expect(find.text('70%'), findsOneWidget);
 
-      // Account sign out
-      expect(find.text('Sign out'), findsOneWidget);
-    });
+        // Account sign out
+        expect(find.text('Sign out'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Tapping Dark mode on segmented control updates theme mode', (tester) async {
+    testWidgets('Tapping Dark mode on segmented control updates theme mode', (
+      tester,
+    ) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -107,7 +116,9 @@ void main() {
       expect(container.read(themeControllerProvider).mode, ThemeMode.dark);
     });
 
-    testWidgets('Tapping an accent swatch updates active accent color', (tester) async {
+    testWidgets('Tapping an accent swatch updates active accent color', (
+      tester,
+    ) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -136,18 +147,16 @@ void main() {
       expect(container.read(themeControllerProvider).accent, AppAccent.jade);
     });
 
-    testWidgets('Tapping Sign out displays confirmation dialog', (tester) async {
+    testWidgets('Tapping Sign out displays confirmation dialog', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
 
       await tester.pumpWidget(
         wrapWithProfileScope(
-          const SizedBox(
-            width: 340,
-            height: 900,
-            child: ProfileMenuContent(),
-          ),
+          const SizedBox(width: 340, height: 900, child: ProfileMenuContent()),
         ),
       );
 
@@ -168,33 +177,35 @@ void main() {
   });
 
   group('Polish Stage 2 - Overflow & Responsiveness Tests', () {
-    testWidgets('ProfileMenuContent does not overflow at 360x640 with text scale 1.3', (tester) async {
-      tester.view.physicalSize = const Size(360, 640);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
+    testWidgets(
+      'ProfileMenuContent does not overflow at 360x640 with text scale 1.3',
+      (tester) async {
+        tester.view.physicalSize = const Size(360, 640);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
 
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: buildTheme(Brightness.light, AppAccent.iris),
-            builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: const TextScaler.linear(1.3),
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              theme: buildTheme(Brightness.light, AppAccent.iris),
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: const TextScaler.linear(1.3)),
+                child: child!,
               ),
-              child: child!,
-            ),
-            home: const Scaffold(
-              body: ProfileMenuContent(),
+              home: const Scaffold(body: ProfileMenuContent()),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-    });
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      },
+    );
 
-    testWidgets('ProfileMenuContent does not overflow on desktop 1280x800', (tester) async {
+    testWidgets('ProfileMenuContent does not overflow on desktop 1280x800', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1280, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);

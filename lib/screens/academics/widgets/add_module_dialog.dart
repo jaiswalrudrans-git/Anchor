@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../providers/academics_providers.dart';
 
 /// Dialog to add a new module under a specific subject.
 class AddModuleDialog extends ConsumerStatefulWidget {
   final String subjectId;
 
-  const AddModuleDialog({
-    super.key,
-    required this.subjectId,
-  });
+  const AddModuleDialog({super.key, required this.subjectId});
 
   static Future<void> show(BuildContext context, String subjectId) {
     return showDialog(
@@ -45,9 +43,8 @@ class _AddModuleDialogState extends ConsumerState<AddModuleDialog> {
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add module: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to add module: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

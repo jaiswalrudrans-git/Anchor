@@ -51,7 +51,9 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
     );
 
     if (newName != null && newName.isNotEmpty && newName != subject.name) {
-      await ref.read(subjectsProvider.notifier).renameSubject(subject.id, newName);
+      await ref
+          .read(subjectsProvider.notifier)
+          .renameSubject(subject.id, newName);
     }
   }
 
@@ -103,7 +105,10 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
             ),
             ListTile(
               leading: Icon(Icons.delete_outline, color: palette.danger),
-              title: Text('Delete Subject', style: TextStyle(color: palette.danger)),
+              title: Text(
+                'Delete Subject',
+                style: TextStyle(color: palette.danger),
+              ),
               onTap: () {
                 Navigator.of(ctx).pop();
                 _confirmDeleteSubject(subject);
@@ -124,7 +129,11 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
           icon: Icon(Icons.add, size: 16, color: palette.accent),
           label: Text(
             'Add Module',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.accent),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: palette.accent,
+            ),
           ),
           style: TextButton.styleFrom(
             foregroundColor: palette.accent,
@@ -140,13 +149,20 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
           icon: Icon(Icons.add, size: 16, color: palette.accent),
           label: Text(
             'Add Assignment',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.accent),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: palette.accent,
+            ),
           ),
           style: TextButton.styleFrom(
             foregroundColor: palette.accent,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           ),
-          onPressed: () => AddAssignmentSheet.show(context, initialSubjectId: selectedSubjectId),
+          onPressed: () => AddAssignmentSheet.show(
+            context,
+            initialSubjectId: selectedSubjectId,
+          ),
         );
       case AcademicsSegment.exams:
         return TextButton.icon(
@@ -154,13 +170,18 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
           icon: Icon(Icons.add, size: 16, color: palette.accent),
           label: Text(
             'Add Exam',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.accent),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: palette.accent,
+            ),
           ),
           style: TextButton.styleFrom(
             foregroundColor: palette.accent,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           ),
-          onPressed: () => AddExamSheet.show(context, initialSubjectId: selectedSubjectId),
+          onPressed: () =>
+              AddExamSheet.show(context, initialSubjectId: selectedSubjectId),
         );
     }
   }
@@ -248,7 +269,11 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
                     children: [
                       ActionChip(
                         key: const Key('academics_add_subject_chip'),
-                        avatar: Icon(Icons.add, size: 16, color: palette.textPrimary),
+                        avatar: Icon(
+                          Icons.add,
+                          size: 16,
+                          color: palette.textPrimary,
+                        ),
                         label: Text(
                           'Subject',
                           style: TextStyle(
@@ -262,7 +287,9 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
                       const SizedBox(width: 8),
                       ...subjects.map((subject) {
                         final isSelected = subject.id == selectedSubject?.id;
-                        final pendingCount = ref.watch(subjectPendingAssignmentsCountProvider(subject.id));
+                        final pendingCount = ref.watch(
+                          subjectPendingAssignmentsCountProvider(subject.id),
+                        );
 
                         return Padding(
                           padding: const EdgeInsets.only(right: 8.0),
@@ -277,17 +304,26 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
                                     subject.name,
                                     style: TextStyle(
                                       fontSize: 12,
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                      color: isSelected ? palette.onSelected : palette.textPrimary,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                      color: isSelected
+                                          ? palette.onSelected
+                                          : palette.textPrimary,
                                     ),
                                   ),
                                   if (pendingCount > 0) ...[
                                     const SizedBox(width: 5),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                        vertical: 1,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: isSelected
-                                            ? palette.onSelected.withValues(alpha: 0.2)
+                                            ? palette.onSelected.withValues(
+                                                alpha: 0.2,
+                                              )
                                             : palette.accentSoft,
                                         borderRadius: BorderRadius.circular(10),
                                       ),
@@ -296,8 +332,11 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
                                         style: TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.w700,
-                                          color: isSelected ? palette.onSelected : palette.accent,
-                                          fontFeatures: AppTypography.tabularFigures,
+                                          color: isSelected
+                                              ? palette.onSelected
+                                              : palette.accent,
+                                          fontFeatures:
+                                              AppTypography.tabularFigures,
                                         ),
                                       ),
                                     ),
@@ -328,79 +367,79 @@ class _AcademicsScreenState extends ConsumerState<AcademicsScreen> {
                   duration: const Duration(milliseconds: 200),
                   child: switch (_selectedSegment) {
                     AcademicsSegment.syllabus => Column(
-                        key: const ValueKey('syllabus_segment'),
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  selectedSubject != null
-                                      ? '${selectedSubject.name} Modules'
-                                      : 'Syllabus Modules',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: palette.textPrimary,
-                                    letterSpacing: -0.2,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                      key: const ValueKey('syllabus_segment'),
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                selectedSubject != null
+                                    ? '${selectedSubject.name} Modules'
+                                    : 'Syllabus Modules',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: palette.textPrimary,
+                                  letterSpacing: -0.2,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              _buildContextualAddButton(selectedSubject?.id),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          SyllabusTab(selectedSubject: selectedSubject),
-                        ],
-                      ),
+                            ),
+                            _buildContextualAddButton(selectedSubject?.id),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        SyllabusTab(selectedSubject: selectedSubject),
+                      ],
+                    ),
                     AcademicsSegment.assignments => Column(
-                        key: const ValueKey('assignments_segment'),
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Assignments',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: palette.textPrimary,
-                                  letterSpacing: -0.2,
-                                ),
+                      key: const ValueKey('assignments_segment'),
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Assignments',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: palette.textPrimary,
+                                letterSpacing: -0.2,
                               ),
-                              _buildContextualAddButton(selectedSubject?.id),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          const AssignmentsTab(),
-                        ],
-                      ),
+                            ),
+                            _buildContextualAddButton(selectedSubject?.id),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        const AssignmentsTab(),
+                      ],
+                    ),
                     AcademicsSegment.exams => Column(
-                        key: const ValueKey('exams_segment'),
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Upcoming Exams',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: palette.textPrimary,
-                                  letterSpacing: -0.2,
-                                ),
+                      key: const ValueKey('exams_segment'),
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Upcoming Exams',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: palette.textPrimary,
+                                letterSpacing: -0.2,
                               ),
-                              _buildContextualAddButton(selectedSubject?.id),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          const ExamsTab(),
-                        ],
-                      ),
+                            ),
+                            _buildContextualAddButton(selectedSubject?.id),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        const ExamsTab(),
+                      ],
+                    ),
                   },
                 ),
                 const SizedBox(height: 24),

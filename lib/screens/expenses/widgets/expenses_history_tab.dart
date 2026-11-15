@@ -14,10 +14,7 @@ import '../../../widgets/motion/animated_progress_bar.dart';
 class ExpensesHistoryTab extends ConsumerWidget {
   final void Function(String monthKey)? onMonthTapped;
 
-  const ExpensesHistoryTab({
-    super.key,
-    this.onMonthTapped,
-  });
+  const ExpensesHistoryTab({super.key, this.onMonthTapped});
 
   Widget _buildSummaryCard(
     BuildContext context,
@@ -161,16 +158,18 @@ class ExpensesHistoryTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildMetricItem(String label, String value, {bool isProminent = false, required AppPalette palette}) {
+  Widget _buildMetricItem(
+    String label,
+    String value, {
+    bool isProminent = false,
+    required AppPalette palette,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 10,
-            color: palette.textSecondary,
-          ),
+          style: TextStyle(fontSize: 10, color: palette.textSecondary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -199,18 +198,14 @@ class ExpensesHistoryTab extends ConsumerWidget {
         key: Key('history_empty_state'),
         icon: Icons.history_outlined,
         title: 'History appears after your first month closes.',
-        message:
-            'At the start of each new month, a permanent snapshot of your allowance, spending, and savings rollover is saved here.',
+        message: 'At the start of each new month, a permanent snapshot of your allowance, spending, and savings rollover is saved here.',
       );
     }
 
     return ListView.builder(
       itemCount: summaries.length,
-      itemBuilder: (ctx, index) => _buildSummaryCard(
-        context,
-        ref,
-        summaries[index],
-      ),
+      itemBuilder: (ctx, index) =>
+          _buildSummaryCard(context, ref, summaries[index]),
     );
   }
 }

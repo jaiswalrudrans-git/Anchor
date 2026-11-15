@@ -1,5 +1,7 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+
 import '../../core/constants/motion.dart';
 
 /// Staggered fade and 8dp slide up transition for list items.
@@ -28,12 +30,12 @@ class _FadeSlideInState extends State<FadeSlideIn>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
+    _controller = AnimationController(vsync: this, duration: widget.duration);
 
-    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Motion.standard);
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Motion.standard,
+    );
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.0, 8.0),
       end: Offset.zero,

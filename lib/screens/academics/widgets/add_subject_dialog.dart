@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../providers/academics_providers.dart';
 
 /// Dialog to add a new academic subject.
@@ -34,17 +35,17 @@ class _AddSubjectDialogState extends ConsumerState<AddSubjectDialog> {
     setState(() => _isSubmitting = true);
 
     try {
-      final newSubject =
-          await ref.read(subjectsProvider.notifier).addSubject(name);
+      final newSubject = await ref
+          .read(subjectsProvider.notifier)
+          .addSubject(name);
       if (newSubject != null) {
         ref.read(selectedSubjectIdProvider.notifier).select(newSubject.id);
       }
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add subject: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to add subject: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

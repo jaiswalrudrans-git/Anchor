@@ -24,13 +24,18 @@ class MonthlyRealityReportCard extends ConsumerWidget {
 
     // Neutral rule-based summary
     String? summaryText;
-    if (report.completions > 0 || report.missedDays > 0 || report.rebounds > 0) {
+    if (report.completions > 0 ||
+        report.missedDays > 0 ||
+        report.rebounds > 0) {
       if (report.rebounds > 0) {
-        summaryText = 'You bounced back ${report.rebounds} ${report.rebounds == 1 ? "time" : "times"} this month.';
+        summaryText =
+            'You bounced back ${report.rebounds} ${report.rebounds == 1 ? "time" : "times"} this month.';
       } else if (report.missedDays > 0) {
-        summaryText = 'You had ${report.missedDays} missed ${report.missedDays == 1 ? "day" : "days"} this month.';
+        summaryText =
+            'You had ${report.missedDays} missed ${report.missedDays == 1 ? "day" : "days"} this month.';
       } else {
-        summaryText = 'You had a clean month with ${report.completions} completions so far.';
+        summaryText =
+            'You had a clean month with ${report.completions} completions so far.';
       }
     }
 
@@ -106,10 +111,12 @@ class MonthlyRealityReportCard extends ConsumerWidget {
               if (isNarrow) {
                 return Column(
                   children: children
-                      .map((c) => Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: c,
-                          ))
+                      .map(
+                        (c) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: c,
+                        ),
+                      )
                       .toList(),
                 );
               }
@@ -137,7 +144,11 @@ class MonthlyRealityReportCard extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, size: 14, color: palette.textSecondary),
+                  Icon(
+                    Icons.info_outline,
+                    size: 14,
+                    color: palette.textSecondary,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

@@ -36,7 +36,10 @@ void main() {
     });
 
     test('parseDbDate throws on invalid input', () {
-      expect(() => AppDateUtils.parseDbDate('invalid-date'), throwsFormatException);
+      expect(
+        () => AppDateUtils.parseDbDate('invalid-date'),
+        throwsFormatException,
+      );
     });
 
     test('monthKey returns YYYY-MM format', () {
@@ -59,17 +62,20 @@ void main() {
       expect(AppDateUtils.startOfWeek(sun), DateTime(2026, 11, 9));
     });
 
-    test('daysBetween handles forward, backward, same day, and DST differences', () {
-      final a = DateTime(2026, 5, 1);
-      final b = DateTime(2026, 5, 10);
-      expect(AppDateUtils.daysBetween(a, b), 9);
-      expect(AppDateUtils.daysBetween(b, a), -9);
-      expect(AppDateUtils.daysBetween(a, a), 0);
+    test(
+      'daysBetween handles forward, backward, same day, and DST differences',
+      () {
+        final a = DateTime(2026, 5, 1);
+        final b = DateTime(2026, 5, 10);
+        expect(AppDateUtils.daysBetween(a, b), 9);
+        expect(AppDateUtils.daysBetween(b, a), -9);
+        expect(AppDateUtils.daysBetween(a, a), 0);
 
-      // Leap year difference check
-      final feb28 = DateTime(2024, 2, 28);
-      final mar1 = DateTime(2024, 3, 1);
-      expect(AppDateUtils.daysBetween(feb28, mar1), 2); // 2024 has Feb 29
-    });
+        // Leap year difference check
+        final feb28 = DateTime(2024, 2, 28);
+        final mar1 = DateTime(2024, 3, 1);
+        expect(AppDateUtils.daysBetween(feb28, mar1), 2); // 2024 has Feb 29
+      },
+    );
   });
 }

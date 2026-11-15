@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../providers/academics_providers.dart';
 
 /// Dialog to add a new chapter under a specific module.
 class AddChapterDialog extends ConsumerStatefulWidget {
   final String moduleId;
 
-  const AddChapterDialog({
-    super.key,
-    required this.moduleId,
-  });
+  const AddChapterDialog({super.key, required this.moduleId});
 
   static Future<void> show(BuildContext context, String moduleId) {
     return showDialog(
@@ -45,9 +43,8 @@ class _AddChapterDialogState extends ConsumerState<AddChapterDialog> {
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add chapter: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to add chapter: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

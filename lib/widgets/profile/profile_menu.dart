@@ -30,16 +30,17 @@ class ProfileMenu extends ConsumerStatefulWidget {
         isScrollControlled: true,
         backgroundColor: context.palette.cardRaised,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppDimens.radiusXl)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppDimens.radiusXl),
+          ),
         ),
         builder: (ctx) => DraggableScrollableSheet(
           expand: false,
           initialChildSize: 0.85,
           minChildSize: 0.5,
           maxChildSize: 0.95,
-          builder: (context, scrollController) => ProfileMenuContent(
-            scrollController: scrollController,
-          ),
+          builder: (context, scrollController) =>
+              ProfileMenuContent(scrollController: scrollController),
         ),
       );
     }
@@ -67,7 +68,10 @@ class ProfileMenu extends ConsumerStatefulWidget {
                 decoration: BoxDecoration(
                   color: ctx.palette.cardRaised,
                   borderRadius: AppDimens.borderRadiusLg,
-                  border: Border.all(color: ctx.palette.border, width: AppDimens.hairline),
+                  border: Border.all(
+                    color: ctx.palette.border,
+                    width: AppDimens.hairline,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: ctx.palette.scrim.withValues(alpha: 0.15),
@@ -136,7 +140,10 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
         backgroundColor: ctx.palette.cardRaised,
         shape: RoundedRectangleBorder(
           borderRadius: AppDimens.borderRadiusMd,
-          side: BorderSide(color: ctx.palette.border, width: AppDimens.hairline),
+          side: BorderSide(
+            color: ctx.palette.border,
+            width: AppDimens.hairline,
+          ),
         ),
         title: Text(
           'Sign out of Anchor?',
@@ -153,7 +160,10 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text('Cancel', style: TextStyle(color: ctx.palette.textSecondary)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: ctx.palette.textSecondary),
+            ),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -278,7 +288,9 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
             ],
             selected: {themeState.mode},
             onSelectionChanged: (newSelection) {
-              ref.read(themeControllerProvider.notifier).setThemeMode(newSelection.first);
+              ref
+                  .read(themeControllerProvider.notifier)
+                  .setThemeMode(newSelection.first);
             },
           ),
           if (themeState.mode == ThemeMode.system) ...[
@@ -314,13 +326,16 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
               final onColor = ContrastHelper.onAccent(swatchColor);
 
               return Semantics(
-                label: 'Accent color ${accent.displayName}${isSelected ? ", selected" : ""}',
+                label:
+                    'Accent color ${accent.displayName}${isSelected ? ", selected" : ""}',
                 button: true,
                 selected: isSelected,
                 child: PressableScale(
                   key: Key('accent_swatch_${accent.id}'),
                   onTap: () {
-                    ref.read(themeControllerProvider.notifier).setAccent(accent);
+                    ref
+                        .read(themeControllerProvider.notifier)
+                        .setAccent(accent);
                   },
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -333,7 +348,9 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
                           shape: BoxShape.circle,
                           border: isSelected
                               ? Border.all(
-                                  color: palette.textPrimary.withValues(alpha: 0.9),
+                                  color: palette.textPrimary.withValues(
+                                    alpha: 0.9,
+                                  ),
                                   width: 2.5,
                                 )
                               : Border.all(
@@ -350,8 +367,12 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
                         accent.displayName,
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                          color: isSelected ? palette.textPrimary : palette.textSecondary,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: isSelected
+                              ? palette.textPrimary
+                              : palette.textSecondary,
                         ),
                       ),
                     ],
@@ -387,7 +408,10 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
             decoration: BoxDecoration(
               color: palette.card,
               borderRadius: AppDimens.borderRadiusMd,
-              border: Border.all(color: palette.border, width: AppDimens.hairline),
+              border: Border.all(
+                color: palette.border,
+                width: AppDimens.hairline,
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -426,7 +450,11 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
                         color: palette.accent,
                         borderRadius: BorderRadius.circular(5),
                       ),
-                      child: Icon(Icons.check, size: 12, color: palette.onAccent),
+                      child: Icon(
+                        Icons.check,
+                        size: 12,
+                        color: palette.onAccent,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -484,17 +512,11 @@ class _ProfileMenuContentState extends ConsumerState<ProfileMenuContent> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                AnchorMark(
-                  size: 16.0,
-                  color: palette.textSecondary,
-                ),
+                AnchorMark(size: 16.0, color: palette.textSecondary),
                 const SizedBox(width: 6),
                 Text(
                   'Anchor v$_version',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: palette.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 11, color: palette.textMuted),
                 ),
               ],
             ),

@@ -47,16 +47,10 @@ class AssignmentFormBody extends ConsumerWidget {
           onSubmitted: (_) => onSubmit?.call(),
           autocorrect: false,
           enableSuggestions: false,
-          style: TextStyle(
-            fontSize: 14,
-            color: palette.textPrimary,
-          ),
+          style: TextStyle(fontSize: 14, color: palette.textPrimary),
           decoration: InputDecoration(
             hintText: 'e.g. Research Paper Draft',
-            hintStyle: TextStyle(
-              fontSize: 14,
-              color: palette.textMuted,
-            ),
+            hintStyle: TextStyle(fontSize: 14, color: palette.textMuted),
           ),
         ),
         const SizedBox(height: 16),
@@ -77,7 +71,10 @@ class AssignmentFormBody extends ConsumerWidget {
           initialValue: selectedSubjectId,
           dropdownColor: palette.cardRaised,
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 10,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: palette.border),
@@ -95,15 +92,17 @@ class AssignmentFormBody extends ConsumerWidget {
                 style: TextStyle(fontSize: 13, color: palette.textSecondary),
               ),
             ),
-            ...subjects.map((Subject s) => DropdownMenuItem<String?>(
-                  value: s.id,
-                  child: Text(
-                    s.name,
-                    style: TextStyle(fontSize: 13, color: palette.textPrimary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                )),
+            ...subjects.map(
+              (Subject s) => DropdownMenuItem<String?>(
+                value: s.id,
+                child: Text(
+                  s.name,
+                  style: TextStyle(fontSize: 13, color: palette.textPrimary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
           ],
           onChanged: onSubjectChanged,
         ),

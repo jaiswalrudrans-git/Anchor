@@ -28,13 +28,19 @@ class HabitsOverviewTab extends ConsumerWidget {
       loading: () => Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
-          child: CircularProgressIndicator(strokeWidth: 2, color: palette.accent),
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: palette.accent,
+          ),
         ),
       ),
       error: (err, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: Text('Error loading habits: $err', style: TextStyle(color: palette.danger)),
+          child: Text(
+            'Error loading habits: $err',
+            style: TextStyle(color: palette.danger),
+          ),
         ),
       ),
       data: (habits) {
@@ -93,7 +99,8 @@ class HabitsOverviewTab extends ConsumerWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: habits.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 10),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final habit = habits[index];
                     final logged = logsMap[habit.id] ?? <DateTime>{};
@@ -121,10 +128,7 @@ class HabitsOverviewTab extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Left column: Habit cards
-                    Expanded(
-                      flex: 5,
-                      child: habitCardsList,
-                    ),
+                    Expanded(flex: 5, child: habitCardsList),
                     const SizedBox(width: 24),
                     // Right column: Heatmap + Reality report
                     Expanded(

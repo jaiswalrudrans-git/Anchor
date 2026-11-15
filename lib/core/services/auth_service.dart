@@ -1,9 +1,12 @@
 import 'dart:async';
+
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../constants/supabase_config.dart';
+import '../utils/app_log.dart';
 
 /// Authentication service encapsulating Supabase OAuth and session management.
 class AuthService {
@@ -11,11 +14,9 @@ class AuthService {
   final AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
 
-  AuthService({
-    SupabaseClient? supabase,
-    AppLinks? appLinks,
-  })  : _supabase = supabase ?? Supabase.instance.client,
-        _appLinks = appLinks ?? AppLinks();
+  AuthService({SupabaseClient? supabase, AppLinks? appLinks})
+    : _supabase = supabase ?? Supabase.instance.client,
+      _appLinks = appLinks ?? AppLinks();
 
   SupabaseClient get client => _supabase;
   User? get currentUser => _supabase.auth.currentUser;
@@ -30,17 +31,20 @@ class AuthService {
         await handleAuthUri(uri);
       },
       onError: (err) {
-        debugPrint('AppLinks stream error: $err');
+        AppLog.e('AppLinks stream error', err);
       },
     );
 
-    _appLinks.getInitialLink().then((uri) {
-      if (uri != null) {
-        handleAuthUri(uri);
-      }
-    }).catchError((err) {
-      debugPrint('AppLinks getInitialLink error: $err');
-    });
+    _appLinks
+        .getInitialLink()
+        .then((uri) {
+          if (uri != null) {
+            handleAuthUri(uri);
+          }
+        })
+        .catchError((err) {
+          AppLog.e('AppLinks getInitialLink error', err);
+        });
   }
 
   /// Handles incoming redirect URIs containing auth tokens or PKCE codes.
@@ -49,7 +53,7 @@ class AuthService {
       try {
         await _supabase.auth.getSessionFromUrl(uri);
       } catch (e) {
-        debugPrint('AuthService: Error parsing auth session from URI: $e');
+        AppLog.e('AuthService: Error parsing auth session from URI', e);
       }
     }
   }

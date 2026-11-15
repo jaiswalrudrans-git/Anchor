@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../core/constants/theme.dart';
 import '../core/services/auth_service.dart';
 import '../widgets/brand/anchor_logo.dart';
@@ -33,11 +34,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         setState(() {
           _errorMessage = 'Failed to initiate sign in: $e';
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_errorMessage!),
-          ),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(_errorMessage!)));
       }
     } finally {
       if (mounted) {
@@ -62,9 +60,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Anchor Brand Tile
-              const Center(
-                child: AnchorTile(size: 72.0),
-              ),
+              const Center(child: AnchorTile(size: 72.0)),
               const SizedBox(height: 24),
 
               // Title
@@ -82,7 +78,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
               // Subtitle
               Text(
-                'Personal anti-procrastination, academics, expenses, habits & workout.',
+                'Personal anti-procrastination, academics, expenses, and habits.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -128,7 +124,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(palette.onAccent),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              palette.onAccent,
+                            ),
                           ),
                         )
                       : const Row(
@@ -138,7 +136,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             SizedBox(width: 10),
                             Text(
                               'Continue with Google',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),

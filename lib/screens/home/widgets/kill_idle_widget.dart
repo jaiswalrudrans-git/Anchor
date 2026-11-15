@@ -103,11 +103,17 @@ class _KillIdleWidgetState extends ConsumerState<KillIdleWidget> {
               )
             : Container(
                 key: const Key('kill_idle_locked_status'),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: palette.card,
                   borderRadius: AppDimens.borderRadiusMd,
-                  border: Border.all(color: palette.border, width: AppDimens.hairline),
+                  border: Border.all(
+                    color: palette.border,
+                    width: AppDimens.hairline,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +121,11 @@ class _KillIdleWidgetState extends ConsumerState<KillIdleWidget> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.lock_outline, size: 16, color: palette.textSecondary),
+                        Icon(
+                          Icons.lock_outline,
+                          size: 16,
+                          color: palette.textSecondary,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(

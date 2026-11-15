@@ -1,0 +1,14 @@
+# Anchor Release Keystore Configuration Template
+# --------------------------------------------------
+# To sign production APKs / AABs, copy this file to 'android/key.properties'
+# and fill in the paths and credentials for your keystore.
+#
+# Generate a keystore with:
+#   keytool -genkey -v -keystore anchor-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias anchor
+#
+# NEVER commit android/key.properties or *.jks files to git.
+
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=anchor
+storeFile=anchor-release.jks

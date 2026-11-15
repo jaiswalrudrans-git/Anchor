@@ -1,4 +1,5 @@
 import 'dart:ui' show Tristate;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -39,12 +40,24 @@ void main() {
           final slotCenterX = DockShape.slotCenterX(pos, rect.width);
           final expectedApexDepth = shape.notchRadius - shape.bubbleLift;
 
-          expect(path.contains(Offset(slotCenterX, expectedApexDepth + 1.0)), isTrue);
-          expect(path.contains(Offset(slotCenterX, expectedApexDepth - 1.0)), isFalse);
+          expect(
+            path.contains(Offset(slotCenterX, expectedApexDepth + 1.0)),
+            isTrue,
+          );
+          expect(
+            path.contains(Offset(slotCenterX, expectedApexDepth - 1.0)),
+            isFalse,
+          );
 
           // 4. Notch never crosses end caps (end cap regions stay filled)
-          expect(path.contains(Offset(rect.left + 15.0, rect.top + 20.0)), isTrue);
-          expect(path.contains(Offset(rect.right - 15.0, rect.top + 20.0)), isTrue);
+          expect(
+            path.contains(Offset(rect.left + 15.0, rect.top + 20.0)),
+            isTrue,
+          );
+          expect(
+            path.contains(Offset(rect.right - 15.0, rect.top + 20.0)),
+            isTrue,
+          );
 
           // 5. Continuous (no NaN)
           final metric = metrics.first;
@@ -89,133 +102,152 @@ void main() {
       ),
     ];
 
-    testWidgets('Destinations render in order and bubble aligns with selected slot', (tester) async {
-      tester.view.physicalSize = const Size(360, 640);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
+    testWidgets(
+      'Destinations render in order and bubble aligns with selected slot',
+      (tester) async {
+        tester.view.physicalSize = const Size(360, 640);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
 
-      int selected = 0;
+        int selected = 0;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.lightTheme,
-          home: Scaffold(
-            body: StatefulBuilder(
-              builder: (context, setState) {
-                return Center(
-                  child: SizedBox(
-                    width: 256,
-                    child: FloatingDock(
-                      destinations: testDestinations,
-                      selectedIndex: selected,
-                      onSelected: (idx) => setState(() => selected = idx),
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.lightTheme,
+            home: Scaffold(
+              body: StatefulBuilder(
+                builder: (context, setState) {
+                  return Center(
+                    child: SizedBox(
+                      width: 256,
+                      child: FloatingDock(
+                        destinations: testDestinations,
+                        selectedIndex: selected,
+                        onSelected: (idx) => setState(() => selected = idx),
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // 4 destinations in exact order
-      expect(find.text('Home'), findsOneWidget);
-      expect(find.text('Academics'), findsOneWidget);
-      expect(find.text('Expenses'), findsOneWidget);
-      expect(find.text('Habits'), findsOneWidget);
+        // 4 destinations in exact order
+        expect(find.text('Home'), findsOneWidget);
+        expect(find.text('Academics'), findsOneWidget);
+        expect(find.text('Expenses'), findsOneWidget);
+        expect(find.text('Habits'), findsOneWidget);
 
-      // Verify bubble exists and its center X equals slot 0 center X (256 / 4 * 0.5 = 32 dp)
-      final bubbleFinder = find.byKey(const Key('dock_bubble'));
-      expect(bubbleFinder, findsOneWidget);
-      final slot0Center = tester.getCenter(find.byKey(const Key('nav_tab_home')));
-      final bubbleCenterInitial = tester.getCenter(bubbleFinder);
-      expect(bubbleCenterInitial.dx, closeTo(slot0Center.dx, 1.0));
+        // Verify bubble exists and its center X equals slot 0 center X (256 / 4 * 0.5 = 32 dp)
+        final bubbleFinder = find.byKey(const Key('dock_bubble'));
+        expect(bubbleFinder, findsOneWidget);
+        final slot0Center = tester.getCenter(
+          find.byKey(const Key('nav_tab_home')),
+        );
+        final bubbleCenterInitial = tester.getCenter(bubbleFinder);
+        expect(bubbleCenterInitial.dx, closeTo(slot0Center.dx, 1.0));
 
-      // Tap Academics (slot 1)
-      await tester.tap(find.byKey(const Key('nav_tab_academics')));
-      await tester.pumpAndSettle();
+        // Tap Academics (slot 1)
+        await tester.tap(find.byKey(const Key('nav_tab_academics')));
+        await tester.pumpAndSettle();
 
-      expect(selected, 1);
-      final slot1Center = tester.getCenter(find.byKey(const Key('nav_tab_academics')));
-      final bubbleCenterAfter = tester.getCenter(bubbleFinder);
-      expect(bubbleCenterAfter.dx, closeTo(slot1Center.dx, 1.0));
+        expect(selected, 1);
+        final slot1Center = tester.getCenter(
+          find.byKey(const Key('nav_tab_academics')),
+        );
+        final bubbleCenterAfter = tester.getCenter(bubbleFinder);
+        expect(bubbleCenterAfter.dx, closeTo(slot1Center.dx, 1.0));
 
-      // Previously selected slot (Home) shows its icon and label again
-      expect(find.byIcon(Icons.check_box_outlined), findsOneWidget);
-    });
+        // Previously selected slot (Home) shows its icon and label again
+        expect(find.byIcon(Icons.check_box_outlined), findsOneWidget);
+      },
+    );
 
-    testWidgets('Semantics: each destination is a button, selected true only for active', (tester) async {
-      tester.view.physicalSize = const Size(360, 640);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
+    testWidgets(
+      'Semantics: each destination is a button, selected true only for active',
+      (tester) async {
+        tester.view.physicalSize = const Size(360, 640);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.lightTheme,
-          home: Scaffold(
-            body: Center(
-              child: SizedBox(
-                width: 256,
-                child: FloatingDock(
-                  destinations: testDestinations,
-                  selectedIndex: 2, // Expenses
-                  onSelected: (_) {},
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.lightTheme,
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 256,
+                  child: FloatingDock(
+                    destinations: testDestinations,
+                    selectedIndex: 2, // Expenses
+                    onSelected: (_) {},
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      final homeSemantics = tester.getSemantics(find.byKey(const Key('nav_tab_home')));
-      expect(homeSemantics.flagsCollection.isSelected, isNot(Tristate.isTrue));
+        final homeSemantics = tester.getSemantics(
+          find.byKey(const Key('nav_tab_home')),
+        );
+        expect(
+          homeSemantics.flagsCollection.isSelected,
+          isNot(Tristate.isTrue),
+        );
 
-      final expensesSemantics = tester.getSemantics(find.byKey(const Key('nav_tab_expenses')));
-      expect(expensesSemantics.flagsCollection.isSelected, Tristate.isTrue);
-    });
+        final expensesSemantics = tester.getSemantics(
+          find.byKey(const Key('nav_tab_expenses')),
+        );
+        expect(expensesSemantics.flagsCollection.isSelected, Tristate.isTrue);
+      },
+    );
 
-    testWidgets('Plus button is outside dock, does not move when tab changes, opens Quick Add', (tester) async {
-      tester.view.physicalSize = const Size(360, 640);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
+    testWidgets(
+      'Plus button is outside dock, does not move when tab changes, opens Quick Add',
+      (tester) async {
+        tester.view.physicalSize = const Size(360, 640);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
 
-      await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
-            home: MainShell(),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          const ProviderScope(child: MaterialApp(home: MainShell())),
+        );
+        await tester.pumpAndSettle();
 
-      // Exactly ONE quick_add_button in the whole shell
-      final plusFinder = find.byKey(const Key('quick_add_button'));
-      expect(plusFinder, findsOneWidget);
-      final plusInitialPos = tester.getCenter(plusFinder);
+        // Exactly ONE quick_add_button in the whole shell
+        final plusFinder = find.byKey(const Key('quick_add_button'));
+        expect(plusFinder, findsOneWidget);
+        final plusInitialPos = tester.getCenter(plusFinder);
 
-      // Dock is distinct and separate
-      final dockFinder = find.byType(FloatingDock);
-      expect(dockFinder, findsOneWidget);
-      final dockRect = tester.getRect(dockFinder);
-      expect(dockRect.contains(plusInitialPos), isFalse); // Outside the dock's rect
+        // Dock is distinct and separate
+        final dockFinder = find.byType(FloatingDock);
+        expect(dockFinder, findsOneWidget);
+        final dockRect = tester.getRect(dockFinder);
+        expect(
+          dockRect.contains(plusInitialPos),
+          isFalse,
+        ); // Outside the dock's rect
 
-      // Switch tab to Academics
-      await tester.tap(find.byKey(const Key('nav_tab_academics')));
-      await tester.pumpAndSettle();
+        // Switch tab to Academics
+        await tester.tap(find.byKey(const Key('nav_tab_academics')));
+        await tester.pumpAndSettle();
 
-      // Plus position has NOT moved
-      final plusAfterTabSwitch = tester.getCenter(plusFinder);
-      expect(plusAfterTabSwitch.dx, equals(plusInitialPos.dx));
-      expect(plusAfterTabSwitch.dy, equals(plusInitialPos.dy));
+        // Plus position has NOT moved
+        final plusAfterTabSwitch = tester.getCenter(plusFinder);
+        expect(plusAfterTabSwitch.dx, equals(plusInitialPos.dx));
+        expect(plusAfterTabSwitch.dy, equals(plusInitialPos.dy));
 
-      // Tapping plus opens Quick Add
-      await tester.tap(plusFinder);
-      await tester.pumpAndSettle();
+        // Tapping plus opens Quick Add
+        await tester.tap(plusFinder);
+        await tester.pumpAndSettle();
 
-      expect(find.text('Quick add'), findsOneWidget);
-    });
+        expect(find.text('Quick add'), findsOneWidget);
+      },
+    );
 
     testWidgets('Keyboard open slides dock down', (tester) async {
       tester.view.physicalSize = const Size(360, 640);
@@ -223,11 +255,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
 
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
-            home: MainShell(),
-          ),
-        ),
+        const ProviderScope(child: MaterialApp(home: MainShell())),
       );
       await tester.pumpAndSettle();
 
@@ -302,39 +330,42 @@ void main() {
 
     for (final size in viewports) {
       for (final textScale in [1.0, 1.3]) {
-        testWidgets('Renders at ${size.width}x${size.height} textScale $textScale without overflow', (tester) async {
-          tester.view.physicalSize = size;
-          tester.view.devicePixelRatio = 1.0;
-          addTearDown(tester.view.resetPhysicalSize);
+        testWidgets(
+          'Renders at ${size.width}x${size.height} textScale $textScale without overflow',
+          (tester) async {
+            tester.view.physicalSize = size;
+            tester.view.devicePixelRatio = 1.0;
+            addTearDown(tester.view.resetPhysicalSize);
 
-          await tester.pumpWidget(
-            ProviderScope(
-              child: MediaQuery(
-                data: MediaQueryData(
-                  size: size,
-                  textScaler: TextScaler.linear(textScale),
-                ),
-                child: MaterialApp(
-                  theme: AppTheme.lightTheme,
-                  home: const MainShell(),
+            await tester.pumpWidget(
+              ProviderScope(
+                child: MediaQuery(
+                  data: MediaQueryData(
+                    size: size,
+                    textScaler: TextScaler.linear(textScale),
+                  ),
+                  child: MaterialApp(
+                    theme: AppTheme.lightTheme,
+                    home: const MainShell(),
+                  ),
                 ),
               ),
-            ),
-          );
-          await tester.pumpAndSettle();
+            );
+            await tester.pumpAndSettle();
 
-          expect(tester.takeException(), isNull);
+            expect(tester.takeException(), isNull);
 
-          // Verify shell add control exists
-          expect(find.byKey(const Key('quick_add_button')), findsOneWidget);
+            // Verify shell add control exists
+            expect(find.byKey(const Key('quick_add_button')), findsOneWidget);
 
-          // Page content bottom clearance
-          if (size.width < 600) {
-            expect(find.byType(FloatingDock), findsOneWidget);
-          } else {
-            expect(find.byType(FloatingRail), findsOneWidget);
-          }
-        });
+            // Page content bottom clearance
+            if (size.width < 600) {
+              expect(find.byType(FloatingDock), findsOneWidget);
+            } else {
+              expect(find.byType(FloatingRail), findsOneWidget);
+            }
+          },
+        );
       }
     }
   });

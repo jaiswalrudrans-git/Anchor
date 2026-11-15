@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -11,6 +12,7 @@ import 'core/constants/motion.dart';
 import 'core/constants/supabase_config.dart';
 import 'core/constants/theme.dart';
 import 'core/services/auth_service.dart';
+import 'core/utils/app_log.dart';
 import 'screens/auth_screen.dart';
 import 'screens/boot_screen.dart';
 import 'screens/main_shell.dart';
@@ -19,6 +21,42 @@ import 'widgets/responsive_container.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Centralized robust error handling across release and debug
+  FlutterError.onError = (details) {
+    AppLog.e('FlutterError caught', details.exception, details.stack);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    AppLog.e('PlatformDispatcher unhandled error', error, stack);
+    return true;
+  };
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    if (kReleaseMode) {
+      return const Material(
+        color: Colors.transparent,
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Text(
+              'Something went wrong. Please restart the app.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Color(0xFF71717A)),
+            ),
+          ),
+        ),
+      );
+    }
+    return ErrorWidget(details.exception);
+  };
+
+  // High refresh rate: request 90/120 Hz on supported Android displays
+  if (!kIsWeb && Platform.isAndroid) {
+    try {
+      await FlutterDisplayMode.setHighRefreshRate();
+    } catch (e) {
+      AppLog.d('FlutterDisplayMode could not set high refresh rate: $e');
+    }
+  }
 
   // Desktop window constraints: minimum size 360 x 600
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
@@ -31,7 +69,7 @@ Future<void> main() async {
         await windowManager.focus();
       });
     } catch (e) {
-      debugPrint('WindowManager initialization error: $e');
+      AppLog.e('WindowManager initialization error', e);
     }
   }
 
@@ -45,7 +83,7 @@ Future<void> main() async {
     final prefs = await SharedPreferences.getInstance();
     ThemeController.setInitialTheme(prefs);
   } catch (e) {
-    debugPrint('SharedPreferences theme preload error: $e');
+    AppLog.e('SharedPreferences theme preload error', e);
   }
 
   // Guard against missing --dart-define parameters
@@ -225,10 +263,13 @@ class AuthGate extends ConsumerWidget {
       },
     );
 
-    final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
     return AnimatedSwitcher(
-      duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 200),
+      duration: reduceMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 200),
       switchInCurve: Curves.easeIn,
       switchOutCurve: Curves.easeOut,
       child: child,

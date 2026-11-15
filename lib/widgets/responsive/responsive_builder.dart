@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/utils/responsive.dart';
 
 /// Builder widget providing the current [SizeClass].

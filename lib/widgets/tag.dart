@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/constants/dimens.dart';
 import '../core/constants/theme.dart';
 
@@ -28,7 +29,7 @@ class Tag extends StatelessWidget {
     final bg = backgroundColor ?? palette.cardRaised;
     final bd = borderColor ?? palette.border;
 
-    Widget pill = Container(
+    final Widget pill = Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: bg,
@@ -61,10 +62,7 @@ class Tag extends StatelessWidget {
     );
 
     if (onTap != null) {
-      return GestureDetector(
-        onTap: onTap,
-        child: pill,
-      );
+      return GestureDetector(onTap: onTap, child: pill);
     }
 
     return pill;

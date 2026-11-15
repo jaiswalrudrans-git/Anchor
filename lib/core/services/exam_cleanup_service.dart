@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../models/academic_item.dart';
+import '../utils/app_log.dart';
 import '../utils/date_utils.dart';
 import 'notification_service.dart';
 
@@ -13,10 +13,8 @@ class ExamCleanupService {
   final NotificationService _notificationService;
   bool _isRunning = false;
 
-  ExamCleanupService({
-    this.client,
-    NotificationService? notificationService,
-  }) : _notificationService = notificationService ?? NotificationService();
+  ExamCleanupService({this.client, NotificationService? notificationService})
+    : _notificationService = notificationService ?? NotificationService();
 
   SupabaseClient? get _supabase {
     if (client != null) return client;
@@ -37,7 +35,10 @@ class ExamCleanupService {
   }
 
   /// Pure helper: filters all exams from a list that are strictly before today.
-  static List<AcademicItem> filterOverdueExams(List<AcademicItem> items, DateTime today) {
+  static List<AcademicItem> filterOverdueExams(
+    List<AcademicItem> items,
+    DateTime today,
+  ) {
     return items.where((item) {
       return item.itemType == 'exam' && shouldDeleteExam(item.dueDate, today);
     }).toList();
@@ -54,7 +55,9 @@ class ExamCleanupService {
       final user = client?.auth.currentUser;
       if (client == null || user == null) return 0;
 
-      final today = now != null ? AppDateUtils.dateOnly(now) : AppDateUtils.today();
+      final today = now != null
+          ? AppDateUtils.dateOnly(now)
+          : AppDateUtils.today();
       final todayStr = AppDateUtils.formatDbDate(today);
 
       // 1. Fetch overdue exams to cancel their notifications
@@ -83,10 +86,12 @@ class ExamCleanupService {
           .eq('item_type', 'exam')
           .lt('due_date', todayStr);
 
-      debugPrint('ExamCleanupService: deleted ${overdueExams.length} past exam(s).');
+      AppLog.d(
+        'ExamCleanupService: deleted ${overdueExams.length} past exam(s).',
+      );
       return overdueExams.length;
     } catch (e) {
-      debugPrint('ExamCleanupService.runCleanup failed: $e');
+      AppLog.e('ExamCleanupService.runCleanup failed', e);
       return 0;
     } finally {
       _isRunning = false;

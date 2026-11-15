@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/utils/responsive.dart';
 
 /// Centers page content with max width 1100, adaptive horizontal padding (16 / 24 / 32),
@@ -22,7 +23,8 @@ class PageContainer extends StatelessWidget {
     final hPadding = Breakpoints.horizontalPadding(sizeClass);
     final isCompact = sizeClass == SizeClass.compact;
 
-    final effectivePadding = padding ??
+    final effectivePadding =
+        padding ??
         EdgeInsets.fromLTRB(
           hPadding,
           0,
@@ -34,10 +36,7 @@ class PageContainer extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
-        child: Padding(
-          padding: effectivePadding,
-          child: child,
-        ),
+        child: Padding(padding: effectivePadding, child: child),
       ),
     );
   }

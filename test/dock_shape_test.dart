@@ -35,12 +35,24 @@ void main() {
           final slotCenterX = DockShape.slotCenterX(pos, rect.width);
           final expectedApexDepth = shape.notchRadius - shape.bubbleLift;
 
-          expect(path.contains(Offset(slotCenterX, expectedApexDepth + 1.0)), isTrue);
-          expect(path.contains(Offset(slotCenterX, expectedApexDepth - 1.0)), isFalse);
+          expect(
+            path.contains(Offset(slotCenterX, expectedApexDepth + 1.0)),
+            isTrue,
+          );
+          expect(
+            path.contains(Offset(slotCenterX, expectedApexDepth - 1.0)),
+            isFalse,
+          );
 
           // 4. Notch never crosses end caps (end cap regions stay filled)
-          expect(path.contains(Offset(rect.left + 15.0, rect.top + 20.0)), isTrue);
-          expect(path.contains(Offset(rect.right - 15.0, rect.top + 20.0)), isTrue);
+          expect(
+            path.contains(Offset(rect.left + 15.0, rect.top + 20.0)),
+            isTrue,
+          );
+          expect(
+            path.contains(Offset(rect.right - 15.0, rect.top + 20.0)),
+            isTrue,
+          );
 
           // 5. Continuous (no NaN)
           final metric = metrics.first;

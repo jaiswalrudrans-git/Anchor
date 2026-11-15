@@ -18,7 +18,11 @@ class DayLogSheet extends ConsumerWidget {
 
   const DayLogSheet({super.key, required this.date, required this.habits});
 
-  static Future<void> show(BuildContext context, {required DateTime date, required List<Habit> habits}) {
+  static Future<void> show(
+    BuildContext context, {
+    required DateTime date,
+    required List<Habit> habits,
+  }) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -96,10 +100,15 @@ class DayLogSheet extends ConsumerWidget {
               separatorBuilder: (context, index) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final habit = eligibleHabits[index];
-                final isDone = (logsMap[habit.id] ?? <DateTime>{}).contains(dDate);
+                final isDone = (logsMap[habit.id] ?? <DateTime>{}).contains(
+                  dDate,
+                );
 
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: palette.cardRaised,
                     borderRadius: BorderRadius.circular(10),
@@ -128,7 +137,9 @@ class DayLogSheet extends ConsumerWidget {
                         value: isDone,
                         size: 24,
                         onChanged: (_) {
-                          ref.read(habitLogsProvider.notifier).toggleDate(habit.id, dDate);
+                          ref
+                              .read(habitLogsProvider.notifier)
+                              .toggleDate(habit.id, dDate);
                         },
                       ),
                     ],
@@ -212,7 +223,11 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
     final monthTitle = DateFormat('MMMM yyyy').format(_selectedMonth);
 
     // Days in current selected month
-    final nextMonthFirst = DateTime(_selectedMonth.year, _selectedMonth.month + 1, 1);
+    final nextMonthFirst = DateTime(
+      _selectedMonth.year,
+      _selectedMonth.month + 1,
+      1,
+    );
     final daysInMonth = nextMonthFirst.subtract(const Duration(days: 1)).day;
 
     // Monday-based start: weekday 1 is Mon, 7 is Sun
@@ -254,11 +269,16 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
                     key: const Key('heatmap_prev_month_button'),
                     icon: const Icon(Icons.chevron_left, size: 18),
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                    constraints: const BoxConstraints(
+                      minWidth: 24,
+                      minHeight: 24,
+                    ),
                     visualDensity: VisualDensity.compact,
                     tooltip: 'Previous month',
                     onPressed: canGoPrev ? _previousMonth : null,
-                    color: canGoPrev ? palette.textPrimary : palette.disabledForeground,
+                    color: canGoPrev
+                        ? palette.textPrimary
+                        : palette.disabledForeground,
                   ),
                   const SizedBox(width: 2),
                   Flexible(
@@ -278,11 +298,16 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
                     key: const Key('heatmap_next_month_button'),
                     icon: const Icon(Icons.chevron_right, size: 18),
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                    constraints: const BoxConstraints(
+                      minWidth: 24,
+                      minHeight: 24,
+                    ),
                     visualDensity: VisualDensity.compact,
                     tooltip: 'Next month',
                     onPressed: canGoNext ? _nextMonth : null,
-                    color: canGoNext ? palette.textPrimary : palette.disabledForeground,
+                    color: canGoNext
+                        ? palette.textPrimary
+                        : palette.disabledForeground,
                   ),
                 ],
               ),
@@ -364,7 +389,11 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
                           return SizedBox(width: cellSize, height: cellSize);
                         }
 
-                        final dDate = DateTime(_selectedMonth.year, _selectedMonth.month, dayNumber);
+                        final dDate = DateTime(
+                          _selectedMonth.year,
+                          _selectedMonth.month,
+                          dayNumber,
+                        );
                         final isToday = dDate == today;
                         final isFuture = dDate.isAfter(today);
 
@@ -375,7 +404,11 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
                           isFuture: isFuture,
                         );
 
-                        final cellKeyPrefix = _selectedHabitId ?? (widget.habits.isNotEmpty ? widget.habits.first.id : '');
+                        final cellKeyPrefix =
+                            _selectedHabitId ??
+                            (widget.habits.isNotEmpty
+                                ? widget.habits.first.id
+                                : '');
 
                         return FadeSlideIn(
                           index: dayNumber - 1,
@@ -385,10 +418,10 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
                             onTap: (isFuture || intensity.isPreCreation)
                                 ? null
                                 : () => DayLogSheet.show(
-                                      context,
-                                      date: dDate,
-                                      habits: widget.habits,
-                                    ),
+                                    context,
+                                    date: dDate,
+                                    habits: widget.habits,
+                                  ),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               width: cellSize,
@@ -397,19 +430,32 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
                                 color: intensity.fillColor(palette),
                                 borderRadius: BorderRadius.circular(8),
                                 border: isToday
-                                    ? Border.all(color: palette.accent, width: 2.0)
+                                    ? Border.all(
+                                        color: palette.accent,
+                                        width: 2.0,
+                                      )
                                     : intensity.borderColor(palette) != null
-                                        ? Border.all(color: intensity.borderColor(palette)!, width: 1.0)
-                                        : null,
+                                    ? Border.all(
+                                        color: intensity.borderColor(palette)!,
+                                        width: 1.0,
+                                      )
+                                    : null,
                               ),
                               child: Center(
                                 child: Text(
                                   '$dayNumber',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
-                                    color: intensity.textColor(palette, isToday),
-                                    fontFeatures: const [FontFeature.tabularFigures()],
+                                    fontWeight: isToday
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                    color: intensity.textColor(
+                                      palette,
+                                      isToday,
+                                    ),
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -429,9 +475,15 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text('Less', style: TextStyle(fontSize: 11, color: palette.textSecondary)),
+              Text(
+                'Less',
+                style: TextStyle(fontSize: 11, color: palette.textSecondary),
+              ),
               const SizedBox(width: 6),
-              _buildLegendBox(color: Colors.transparent, borderColor: palette.border),
+              _buildLegendBox(
+                color: Colors.transparent,
+                borderColor: palette.border,
+              ),
               const SizedBox(width: 4),
               _buildLegendBox(color: palette.accent.withValues(alpha: 0.25)),
               const SizedBox(width: 4),
@@ -441,7 +493,10 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
               const SizedBox(width: 4),
               _buildLegendBox(color: palette.accent),
               const SizedBox(width: 6),
-              Text('More', style: TextStyle(fontSize: 11, color: palette.textSecondary)),
+              Text(
+                'More',
+                style: TextStyle(fontSize: 11, color: palette.textSecondary),
+              ),
             ],
           ),
         ],
@@ -499,7 +554,9 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(3),
-        border: borderColor != null ? Border.all(color: borderColor, width: 1) : null,
+        border: borderColor != null
+            ? Border.all(color: borderColor, width: 1)
+            : null,
       ),
     );
   }
@@ -514,32 +571,57 @@ class _MonthlyHeatmapState extends ConsumerState<MonthlyHeatmap> {
     }
 
     if (_selectedHabitId != null) {
-      final habit = widget.habits.firstWhere((h) => h.id == _selectedHabitId, orElse: () => widget.habits.first);
+      final habit = widget.habits.firstWhere(
+        (h) => h.id == _selectedHabitId,
+        orElse: () => widget.habits.first,
+      );
       if (date.isBefore(AppDateUtils.dateOnly(habit.createdAt))) {
         return const _HeatmapIntensity(tier: _IntensityTier.preCreation);
       }
       final isDone = (logsMap[habit.id] ?? {}).contains(date);
-      return _HeatmapIntensity(tier: isDone ? _IntensityTier.oneHundred : _IntensityTier.zero);
+      return _HeatmapIntensity(
+        tier: isDone ? _IntensityTier.oneHundred : _IntensityTier.zero,
+      );
     }
 
     // All habits view
-    final activeHabits = widget.habits.where((h) => !date.isBefore(AppDateUtils.dateOnly(h.createdAt))).toList();
+    final activeHabits = widget.habits
+        .where((h) => !date.isBefore(AppDateUtils.dateOnly(h.createdAt)))
+        .toList();
     if (activeHabits.isEmpty) {
       return const _HeatmapIntensity(tier: _IntensityTier.preCreation);
     }
 
-    final doneCount = activeHabits.where((h) => (logsMap[h.id] ?? {}).contains(date)).length;
+    final doneCount = activeHabits
+        .where((h) => (logsMap[h.id] ?? {}).contains(date))
+        .length;
     final frac = doneCount / activeHabits.length;
 
-    if (frac == 0.0) return const _HeatmapIntensity(tier: _IntensityTier.zero);
-    if (frac <= 0.33) return const _HeatmapIntensity(tier: _IntensityTier.twentyFive);
-    if (frac <= 0.66) return const _HeatmapIntensity(tier: _IntensityTier.fifty);
-    if (frac < 1.0) return const _HeatmapIntensity(tier: _IntensityTier.seventyFive);
+    if (frac == 0.0) {
+      return const _HeatmapIntensity(tier: _IntensityTier.zero);
+    }
+    if (frac <= 0.33) {
+      return const _HeatmapIntensity(tier: _IntensityTier.twentyFive);
+    }
+    if (frac <= 0.66) {
+      return const _HeatmapIntensity(tier: _IntensityTier.fifty);
+    }
+    if (frac < 1.0) {
+      return const _HeatmapIntensity(tier: _IntensityTier.seventyFive);
+    }
     return const _HeatmapIntensity(tier: _IntensityTier.oneHundred);
   }
 }
 
-enum _IntensityTier { preCreation, future, zero, twentyFive, fifty, seventyFive, oneHundred }
+enum _IntensityTier {
+  preCreation,
+  future,
+  zero,
+  twentyFive,
+  fifty,
+  seventyFive,
+  oneHundred,
+}
 
 class _HeatmapIntensity {
   final _IntensityTier tier;

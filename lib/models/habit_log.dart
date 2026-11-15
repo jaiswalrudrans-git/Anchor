@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../core/utils/date_utils.dart';
 
 @immutable
@@ -59,8 +60,5 @@ class HabitLog {
 
   @override
   int get hashCode =>
-      id.hashCode ^
-      userId.hashCode ^
-      habitId.hashCode ^
-      logDate.hashCode;
+      id.hashCode ^ userId.hashCode ^ habitId.hashCode ^ logDate.hashCode;
 }

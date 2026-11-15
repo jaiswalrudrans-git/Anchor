@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../../core/constants/motion.dart';
 
 /// Tap feedback scale widget that animates to 0.97 on press.

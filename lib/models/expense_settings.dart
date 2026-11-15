@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import 'model_helpers.dart';
 
 @immutable

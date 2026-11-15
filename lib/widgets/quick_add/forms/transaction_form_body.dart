@@ -50,7 +50,10 @@ class TransactionFormBody extends StatelessWidget {
           decoration: BoxDecoration(
             color: palette.card,
             borderRadius: AppDimens.borderRadiusSm,
-            border: Border.all(color: palette.border, width: AppDimens.hairline),
+            border: Border.all(
+              color: palette.border,
+              width: AppDimens.hairline,
+            ),
           ),
           child: Row(
             children: [
@@ -103,7 +106,10 @@ class TransactionFormBody extends StatelessWidget {
           decoration: BoxDecoration(
             color: palette.card,
             borderRadius: AppDimens.borderRadiusSm,
-            border: Border.all(color: palette.border, width: AppDimens.hairline),
+            border: Border.all(
+              color: palette.border,
+              width: AppDimens.hairline,
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -123,7 +129,9 @@ class TransactionFormBody extends StatelessWidget {
                   child: TextFormField(
                     key: const Key('transaction_amount_field'),
                     controller: amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     textInputAction: TextInputAction.next,
                     style: TextStyle(
                       fontSize: 28,
@@ -188,7 +196,10 @@ class TransactionFormBody extends StatelessWidget {
               borderRadius: AppDimens.borderRadiusSm,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected ? palette.selectedFill : palette.card,
                   borderRadius: AppDimens.borderRadiusSm,
@@ -203,15 +214,21 @@ class TransactionFormBody extends StatelessWidget {
                     Icon(
                       getExpenseCategoryIcon(cat),
                       size: 14,
-                      color: isSelected ? palette.onSelected : palette.textSecondary,
+                      color: isSelected
+                          ? palette.onSelected
+                          : palette.textSecondary,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       cat,
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                        color: isSelected ? palette.onSelected : palette.textPrimary,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isSelected
+                            ? palette.onSelected
+                            : palette.textPrimary,
                       ),
                     ),
                   ],

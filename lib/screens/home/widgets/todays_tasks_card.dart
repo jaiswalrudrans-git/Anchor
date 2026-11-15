@@ -68,9 +68,8 @@ class _TodaysTasksCardState extends ConsumerState<TodaysTasksCard> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add task: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to add task: $e')));
       }
     }
   }
@@ -146,11 +145,17 @@ class _TodaysTasksCardState extends ConsumerState<TodaysTasksCard> {
                 child: isAllDone
                     ? Container(
                         key: const ValueKey('all_done_chip'),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: palette.accentSoft,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: palette.accent.withValues(alpha: 0.3), width: AppDimens.hairline),
+                          border: Border.all(
+                            color: palette.accent.withValues(alpha: 0.3),
+                            width: AppDimens.hairline,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -169,25 +174,31 @@ class _TodaysTasksCardState extends ConsumerState<TodaysTasksCard> {
                         ),
                       )
                     : (totalCount > 0
-                        ? Container(
-                            key: const ValueKey('count_chip'),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: palette.cardRaised,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: palette.border, width: AppDimens.hairline),
-                            ),
-                            child: Text(
-                              '$completedCount/$totalCount',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: palette.textSecondary,
-                                fontFeatures: AppTypography.tabularFigures,
+                          ? Container(
+                              key: const ValueKey('count_chip'),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
                               ),
-                            ),
-                          )
-                        : const SizedBox.shrink(key: ValueKey('empty_chip'))),
+                              decoration: BoxDecoration(
+                                color: palette.cardRaised,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: palette.border,
+                                  width: AppDimens.hairline,
+                                ),
+                              ),
+                              child: Text(
+                                '$completedCount/$totalCount',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: palette.textSecondary,
+                                  fontFeatures: AppTypography.tabularFigures,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(key: ValueKey('empty_chip'))),
               ),
             ],
           ),
@@ -198,7 +209,10 @@ class _TodaysTasksCardState extends ConsumerState<TodaysTasksCard> {
             decoration: BoxDecoration(
               color: palette.cardRaised,
               borderRadius: AppDimens.borderRadiusSm,
-              border: Border.all(color: palette.border, width: AppDimens.hairline),
+              border: Border.all(
+                color: palette.border,
+                width: AppDimens.hairline,
+              ),
             ),
             child: Row(
               children: [
@@ -209,7 +223,10 @@ class _TodaysTasksCardState extends ConsumerState<TodaysTasksCard> {
                     tooltip: 'Change date',
                     shape: RoundedRectangleBorder(
                       borderRadius: AppDimens.borderRadiusSm,
-                      side: BorderSide(color: palette.border, width: AppDimens.hairline),
+                      side: BorderSide(
+                        color: palette.border,
+                        width: AppDimens.hairline,
+                      ),
                     ),
                     color: palette.cardRaised,
                     onSelected: (val) {
@@ -224,28 +241,53 @@ class _TodaysTasksCardState extends ConsumerState<TodaysTasksCard> {
                     itemBuilder: (ctx) => [
                       PopupMenuItem(
                         value: 'today',
-                        child: Text('Today', style: TextStyle(color: palette.textPrimary, fontSize: 13)),
+                        child: Text(
+                          'Today',
+                          style: TextStyle(
+                            color: palette.textPrimary,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                       PopupMenuItem(
                         value: 'tomorrow',
-                        child: Text('Tomorrow', style: TextStyle(color: palette.textPrimary, fontSize: 13)),
+                        child: Text(
+                          'Tomorrow',
+                          style: TextStyle(
+                            color: palette.textPrimary,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                       PopupMenuItem(
                         value: 'custom',
-                        child: Text('Pick date...', style: TextStyle(color: palette.accent, fontSize: 13)),
+                        child: Text(
+                          'Pick date...',
+                          style: TextStyle(color: palette.accent, fontSize: 13),
+                        ),
                       ),
                     ],
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: palette.card,
                         borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: palette.border, width: AppDimens.hairline),
+                        border: Border.all(
+                          color: palette.border,
+                          width: AppDimens.hairline,
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.calendar_today_outlined, size: 12, color: palette.textSecondary),
+                          Icon(
+                            Icons.calendar_today_outlined,
+                            size: 12,
+                            color: palette.textSecondary,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             _dateChipLabel(),
@@ -255,7 +297,11 @@ class _TodaysTasksCardState extends ConsumerState<TodaysTasksCard> {
                               color: palette.textPrimary,
                             ),
                           ),
-                          Icon(Icons.arrow_drop_down, size: 14, color: palette.textSecondary),
+                          Icon(
+                            Icons.arrow_drop_down,
+                            size: 14,
+                            color: palette.textSecondary,
+                          ),
                         ],
                       ),
                     ),
@@ -272,11 +318,17 @@ class _TodaysTasksCardState extends ConsumerState<TodaysTasksCard> {
                     style: TextStyle(fontSize: 13, color: palette.textPrimary),
                     decoration: InputDecoration(
                       hintText: _inputHint(),
-                      hintStyle: TextStyle(fontSize: 13, color: palette.textMuted),
+                      hintStyle: TextStyle(
+                        fontSize: 13,
+                        color: palette.textMuted,
+                      ),
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
                       fillColor: Colors.transparent,
                       filled: true,
                     ),
@@ -326,10 +378,7 @@ class _TodaysTasksCardState extends ConsumerState<TodaysTasksCard> {
 
               return Column(
                 children: todaysTodos.map((todo) {
-                  return TodoItemRow(
-                    key: ValueKey(todo.id),
-                    todo: todo,
-                  );
+                  return TodoItemRow(key: ValueKey(todo.id), todo: todo);
                 }).toList(),
               );
             },

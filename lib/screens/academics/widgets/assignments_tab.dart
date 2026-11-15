@@ -56,11 +56,13 @@ class _AssignmentsTabState extends ConsumerState<AssignmentsTab> {
     }
 
     final tiles = items
-        .map((item) => AssignmentTile(
-              key: ValueKey('assignment_${item.id}'),
-              item: item,
-              subject: findSubject(item.subjectId),
-            ))
+        .map(
+          (item) => AssignmentTile(
+            key: ValueKey('assignment_${item.id}'),
+            item: item,
+            subject: findSubject(item.subjectId),
+          ),
+        )
         .toList();
 
     return Padding(
@@ -73,19 +75,28 @@ class _AssignmentsTabState extends ConsumerState<AssignmentsTab> {
             onTap: () => _toggleGroup(group),
             borderRadius: AppDimens.borderRadiusSm,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 8.0,
+              ),
               decoration: BoxDecoration(
                 color: isOverdue ? palette.dangerSoft : palette.card,
                 borderRadius: AppDimens.borderRadiusSm,
                 border: Border.all(
-                  color: isOverdue ? palette.danger.withValues(alpha: 0.3) : palette.border,
+                  color: isOverdue
+                      ? palette.danger.withValues(alpha: 0.3)
+                      : palette.border,
                   width: AppDimens.hairline,
                 ),
               ),
               child: Row(
                 children: [
                   if (isOverdue) ...[
-                    Icon(Icons.warning_amber_rounded, size: 16, color: palette.danger),
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16,
+                      color: palette.danger,
+                    ),
                     const SizedBox(width: 6),
                   ],
                   Text(
@@ -99,7 +110,10 @@ class _AssignmentsTabState extends ConsumerState<AssignmentsTab> {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 1,
+                    ),
                     decoration: BoxDecoration(
                       color: isOverdue
                           ? palette.danger.withValues(alpha: 0.2)
@@ -117,14 +131,18 @@ class _AssignmentsTabState extends ConsumerState<AssignmentsTab> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: isOverdue ? palette.danger : palette.textSecondary,
+                        color: isOverdue
+                            ? palette.danger
+                            : palette.textSecondary,
                         fontFeatures: AppTypography.tabularFigures,
                       ),
                     ),
                   ),
                   const Spacer(),
                   Icon(
-                    isCollapsed ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                    isCollapsed
+                        ? Icons.keyboard_arrow_down
+                        : Icons.keyboard_arrow_up,
                     size: 18,
                     color: isOverdue ? palette.danger : palette.textSecondary,
                   ),
@@ -135,8 +153,7 @@ class _AssignmentsTabState extends ConsumerState<AssignmentsTab> {
           const SizedBox(height: 8),
 
           // Section Tiles (2 columns on expanded >= 900 dp)
-          if (!isCollapsed)
-            _buildResponsiveTileList(tiles, isExpandedWidth),
+          if (!isCollapsed) _buildResponsiveTileList(tiles, isExpandedWidth),
         ],
       ),
     );
@@ -175,7 +192,10 @@ class _AssignmentsTabState extends ConsumerState<AssignmentsTab> {
     final today = AppDateUtils.today();
 
     final grouped = groupAssignments(allItems, today);
-    final totalAssignments = grouped.values.fold<int>(0, (sum, l) => sum + l.length);
+    final totalAssignments = grouped.values.fold<int>(
+      0,
+      (sum, l) => sum + l.length,
+    );
 
     if (totalAssignments == 0) {
       return const Padding(

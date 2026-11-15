@@ -35,7 +35,9 @@ class TestTodosNotifier extends TodosNotifier {
   @override
   Future<void> toggleComplete(String id) async {
     final prev = state.value ?? [];
-    final updated = prev.map((t) => t.id == id ? t.copyWith(isCompleted: !t.isCompleted) : t).toList();
+    final updated = prev
+        .map((t) => t.id == id ? t.copyWith(isCompleted: !t.isCompleted) : t)
+        .toList();
     state = AsyncData(updated);
   }
 
@@ -48,126 +50,151 @@ class TestTodosNotifier extends TodosNotifier {
 class TestIdlePromptsNotifier extends IdlePromptsNotifier {
   @override
   Future<List<IdlePrompt>> build() async => [
-        IdlePrompt(
-          id: '1',
-          userId: 'test-user',
-          promptText: 'Solve 1 DSA problem right now',
-          createdAt: DateTime.now(),
-        ),
-      ];
+    IdlePrompt(
+      id: '1',
+      userId: 'test-user',
+      promptText: 'Solve 1 DSA problem right now',
+      createdAt: DateTime.now(),
+    ),
+  ];
 }
 
 void main() {
   group('HomeScreen & Kill Idle Time Widget Tests', () {
-    testWidgets('Kill Idle button is hidden when tasks are pending; shows status message', (tester) async {
-      final pendingTask = Todo(
-        id: 'todo-1',
-        userId: 'test-user',
-        title: 'Complete Stage 2',
-        scheduledDate: AppDateUtils.today(),
-        isCompleted: false,
-        rolloverCount: 0,
-        createdAt: DateTime.now(),
-      );
+    testWidgets(
+      'Kill Idle button is hidden when tasks are pending; shows status message',
+      (tester) async {
+        final pendingTask = Todo(
+          id: 'todo-1',
+          userId: 'test-user',
+          title: 'Complete Stage 2',
+          scheduledDate: AppDateUtils.today(),
+          isCompleted: false,
+          rolloverCount: 0,
+          createdAt: DateTime.now(),
+        );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            todosProvider.overrideWith(() => TestTodosNotifier([pendingTask])),
-            idlePromptsProvider.overrideWith(() => TestIdlePromptsNotifier()),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: const HomeScreen(),
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              todosProvider.overrideWith(
+                () => TestTodosNotifier([pendingTask]),
+              ),
+              idlePromptsProvider.overrideWith(() => TestIdlePromptsNotifier()),
+            ],
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const HomeScreen(),
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Kill Idle Time button must NOT be present
-      expect(find.byKey(const Key('kill_idle_time_button')), findsNothing);
+        // Kill Idle Time button must NOT be present
+        expect(find.byKey(const Key('kill_idle_time_button')), findsNothing);
 
-      // Status text must be visible
-      expect(find.byKey(const Key('kill_idle_locked_status')), findsOneWidget);
-      expect(find.text('1 task left today. Finish them to unlock Kill Idle Time.'), findsOneWidget);
+        // Status text must be visible
+        expect(
+          find.byKey(const Key('kill_idle_locked_status')),
+          findsOneWidget,
+        );
+        expect(
+          find.text('1 task left today. Finish them to unlock Kill Idle Time.'),
+          findsOneWidget,
+        );
 
-      // Task row must be visible
-      expect(find.text('Complete Stage 2'), findsOneWidget);
+        // Task row must be visible
+        expect(find.text('Complete Stage 2'), findsOneWidget);
 
-      // Academic radar slot exists and workout strip does not
-      expect(find.byType(AcademicRadarSlot), findsOneWidget);
-      expect(find.text('Workout'), findsNothing);
-    });
+        // Academic radar slot exists and workout strip does not
+        expect(find.byType(AcademicRadarSlot), findsOneWidget);
+        expect(find.text('Workout'), findsNothing);
+      },
+    );
 
-    testWidgets('Checking the last pending task unlocks Kill Idle Time button instantly', (tester) async {
-      final pendingTask = Todo(
-        id: 'todo-1',
-        userId: 'test-user',
-        title: 'Only task for today',
-        scheduledDate: AppDateUtils.today(),
-        isCompleted: false,
-        rolloverCount: 0,
-        createdAt: DateTime.now(),
-      );
+    testWidgets(
+      'Checking the last pending task unlocks Kill Idle Time button instantly',
+      (tester) async {
+        final pendingTask = Todo(
+          id: 'todo-1',
+          userId: 'test-user',
+          title: 'Only task for today',
+          scheduledDate: AppDateUtils.today(),
+          isCompleted: false,
+          rolloverCount: 0,
+          createdAt: DateTime.now(),
+        );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            todosProvider.overrideWith(() => TestTodosNotifier([pendingTask])),
-            idlePromptsProvider.overrideWith(() => TestIdlePromptsNotifier()),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: const HomeScreen(),
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              todosProvider.overrideWith(
+                () => TestTodosNotifier([pendingTask]),
+              ),
+              idlePromptsProvider.overrideWith(() => TestIdlePromptsNotifier()),
+            ],
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const HomeScreen(),
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Initially locked
-      expect(find.byKey(const Key('kill_idle_time_button')), findsNothing);
+        // Initially locked
+        expect(find.byKey(const Key('kill_idle_time_button')), findsNothing);
 
-      // Check the checkbox to complete the task
-      await tester.tap(find.byType(Checkbox));
-      await tester.pumpAndSettle();
+        // Check the checkbox to complete the task
+        await tester.tap(find.byType(Checkbox));
+        await tester.pumpAndSettle();
 
-      // Now Kill Idle Time button must be unlocked and prominent
-      expect(find.byKey(const Key('kill_idle_time_button')), findsOneWidget);
-      expect(find.byKey(const Key('kill_idle_locked_status')), findsNothing);
-    });
+        // Now Kill Idle Time button must be unlocked and prominent
+        expect(find.byKey(const Key('kill_idle_time_button')), findsOneWidget);
+        expect(find.byKey(const Key('kill_idle_locked_status')), findsNothing);
+      },
+    );
 
-    testWidgets('Home has exactly one inline task input and no duplicate Add Task button', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            todosProvider.overrideWith(() => TestTodosNotifier([])),
-            idlePromptsProvider.overrideWith(() => TestIdlePromptsNotifier()),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: const HomeScreen(),
+    testWidgets(
+      'Home has exactly one inline task input and no duplicate Add Task button',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              todosProvider.overrideWith(() => TestTodosNotifier([])),
+              idlePromptsProvider.overrideWith(() => TestIdlePromptsNotifier()),
+            ],
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const HomeScreen(),
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Duplicate add controls are removed
-      expect(find.byKey(const Key('home_add_todo_action_button')), findsNothing);
-      expect(find.byType(FloatingActionButton), findsNothing);
+        // Duplicate add controls are removed
+        expect(
+          find.byKey(const Key('home_add_todo_action_button')),
+          findsNothing,
+        );
+        expect(find.byType(FloatingActionButton), findsNothing);
 
-      // Exactly one inline task input on Today's Tasks card
-      expect(find.byKey(const Key('home_quick_add_input')), findsOneWidget);
-      expect(find.byKey(const Key('home_quick_add_button')), findsOneWidget);
+        // Exactly one inline task input on Today's Tasks card
+        expect(find.byKey(const Key('home_quick_add_input')), findsOneWidget);
+        expect(find.byKey(const Key('home_quick_add_button')), findsOneWidget);
 
-      // Add a task via the inline input
-      await tester.enterText(find.byKey(const Key('home_quick_add_input')), 'New Task from Inline');
-      await tester.tap(find.byKey(const Key('home_quick_add_button')));
-      await tester.pumpAndSettle();
+        // Add a task via the inline input
+        await tester.enterText(
+          find.byKey(const Key('home_quick_add_input')),
+          'New Task from Inline',
+        );
+        await tester.tap(find.byKey(const Key('home_quick_add_button')));
+        await tester.pumpAndSettle();
 
-      expect(find.text('New Task from Inline'), findsOneWidget);
-    });
+        expect(find.text('New Task from Inline'), findsOneWidget);
+      },
+    );
   });
 }

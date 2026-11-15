@@ -44,7 +44,9 @@ class AppDateUtils {
   static DateTime parseDbDate(String dateStr) {
     final parts = dateStr.trim().split('-');
     if (parts.length != 3) {
-      throw FormatException('Invalid date format (expected yyyy-MM-dd): $dateStr');
+      throw FormatException(
+        'Invalid date format (expected yyyy-MM-dd): $dateStr',
+      );
     }
     final year = int.parse(parts[0]);
     final month = int.parse(parts[1]);

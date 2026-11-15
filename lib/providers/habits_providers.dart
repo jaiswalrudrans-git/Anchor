@@ -1,9 +1,11 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/utils/app_log.dart';
 import '../core/utils/date_utils.dart';
 import '../core/utils/streak_utils.dart';
 import '../models/habit.dart';
@@ -43,9 +45,11 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
           .order('created_at', ascending: true);
 
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => Habit.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => Habit.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      debugPrint('HabitsNotifier._fetchHabits error: $e');
+      AppLog.e('HabitsNotifier._fetchHabits error', e);
       return [];
     }
   }
@@ -55,7 +59,10 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
     state = await AsyncValue.guard(() => _fetchHabits());
   }
 
-  Future<Habit> createHabit(String title, {String icon = 'check_circle'}) async {
+  Future<Habit> createHabit(
+    String title, {
+    String icon = 'check_circle',
+  }) async {
     final client = _supabase;
     final user = client?.auth.currentUser;
     final trimmed = title.trim();
@@ -79,7 +86,7 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
         await client.from('habits').insert(newHabit.toJson());
       } catch (e) {
         state = AsyncData(current);
-        debugPrint('createHabit error: $e');
+        AppLog.e('createHabit error', e);
         rethrow;
       }
     }
@@ -87,7 +94,11 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
     return newHabit;
   }
 
-  Future<void> editHabit(String id, {required String title, required String icon}) async {
+  Future<void> editHabit(
+    String id, {
+    required String title,
+    required String icon,
+  }) async {
     final client = _supabase;
     final trimmed = title.trim();
     if (trimmed.isEmpty) {
@@ -106,13 +117,13 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
 
     if (client != null) {
       try {
-        await client.from('habits').update({
-          'title': updated.title,
-          'icon': updated.icon,
-        }).eq('id', id);
+        await client
+            .from('habits')
+            .update({'title': updated.title, 'icon': updated.icon})
+            .eq('id', id);
       } catch (e) {
         state = AsyncData(current);
-        debugPrint('editHabit error: $e');
+        AppLog.e('editHabit error', e);
         rethrow;
       }
     }
@@ -132,7 +143,7 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
         await client.from('habits').delete().eq('id', habitId);
       } catch (e) {
         state = AsyncData(current);
-        debugPrint('deleteHabit error: $e');
+        AppLog.e('deleteHabit error', e);
         rethrow;
       }
     }
@@ -167,9 +178,11 @@ class HabitLogsNotifier extends AsyncNotifier<List<HabitLog>> {
           .order('log_date', ascending: true);
 
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => HabitLog.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => HabitLog.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      debugPrint('HabitLogsNotifier._fetchLogs error: $e');
+      AppLog.e('HabitLogsNotifier._fetchLogs error', e);
       return [];
     }
   }
@@ -211,7 +224,8 @@ class HabitLogsNotifier extends AsyncNotifier<List<HabitLog>> {
 
     if (existingIndex != -1) {
       // Currently logged -> DELETE log
-      final updatedLogs = List<HabitLog>.from(currentLogs)..removeAt(existingIndex);
+      final updatedLogs = List<HabitLog>.from(currentLogs)
+        ..removeAt(existingIndex);
       state = AsyncData(updatedLogs);
 
       if (client != null && user != null) {
@@ -223,7 +237,7 @@ class HabitLogsNotifier extends AsyncNotifier<List<HabitLog>> {
               .eq('log_date', dateStr);
         } catch (e) {
           state = AsyncData(currentLogs);
-          debugPrint('toggleDate delete error: $e');
+          AppLog.e('toggleDate delete error', e);
           rethrow;
         }
       }
@@ -241,19 +255,21 @@ class HabitLogsNotifier extends AsyncNotifier<List<HabitLog>> {
 
       if (client != null && user != null) {
         try {
-          await client.from('habit_logs').upsert(
-            {
-              'id': newLog.id,
-              'user_id': newLog.userId,
-              'habit_id': newLog.habitId,
-              'log_date': dateStr,
-            },
-            onConflict: 'habit_id,log_date',
-            ignoreDuplicates: true,
-          );
+          await client
+              .from('habit_logs')
+              .upsert(
+                {
+                  'id': newLog.id,
+                  'user_id': newLog.userId,
+                  'habit_id': newLog.habitId,
+                  'log_date': dateStr,
+                },
+                onConflict: 'habit_id,log_date',
+                ignoreDuplicates: true,
+              );
         } catch (e) {
           state = AsyncData(currentLogs);
-          debugPrint('toggleDate insert error: $e');
+          AppLog.e('toggleDate insert error', e);
           rethrow;
         }
       }
@@ -261,9 +277,10 @@ class HabitLogsNotifier extends AsyncNotifier<List<HabitLog>> {
   }
 }
 
-final habitLogsProvider = AsyncNotifierProvider<HabitLogsNotifier, List<HabitLog>>(() {
-  return HabitLogsNotifier();
-});
+final habitLogsProvider =
+    AsyncNotifierProvider<HabitLogsNotifier, List<HabitLog>>(() {
+      return HabitLogsNotifier();
+    });
 
 // =============================================================================
 // 3. HABIT LOGS MAP PROVIDER
@@ -276,7 +293,9 @@ final habitLogsMapProvider = Provider<Map<String, Set<DateTime>>>((ref) {
   final map = <String, Set<DateTime>>{};
 
   for (final log in logs) {
-    map.putIfAbsent(log.habitId, () => <DateTime>{}).add(AppDateUtils.dateOnly(log.logDate));
+    map
+        .putIfAbsent(log.habitId, () => <DateTime>{})
+        .add(AppDateUtils.dateOnly(log.logDate));
   }
 
   return map;
@@ -320,9 +339,10 @@ class SelectedWeekStartNotifier extends Notifier<DateTime> {
   }
 }
 
-final selectedWeekStartProvider = NotifierProvider<SelectedWeekStartNotifier, DateTime>(() {
-  return SelectedWeekStartNotifier();
-});
+final selectedWeekStartProvider =
+    NotifierProvider<SelectedWeekStartNotifier, DateTime>(() {
+      return SelectedWeekStartNotifier();
+    });
 
 // =============================================================================
 // 6. MONTHLY REALITY REPORT PROVIDER
@@ -364,7 +384,9 @@ final monthlyRealityReportProvider = Provider<MonthStats>((ref) {
     totalEligible += stats.eligibleDays;
   }
 
-  final percentage = totalEligible > 0 ? (totalCompletions / totalEligible) * 100.0 : 0.0;
+  final percentage = totalEligible > 0
+      ? (totalCompletions / totalEligible) * 100.0
+      : 0.0;
 
   return MonthStats(
     completions: totalCompletions,
@@ -398,64 +420,65 @@ class WeeklyHabitReportData {
   });
 }
 
-final weeklyHabitStatsProvider = Provider.family<WeeklyHabitReportData?, String>((ref, habitId) {
-  final habits = ref.watch(habitsProvider).value ?? [];
-  final habitIndex = habits.indexWhere((h) => h.id == habitId);
-  if (habitIndex == -1) return null;
+final weeklyHabitStatsProvider =
+    Provider.family<WeeklyHabitReportData?, String>((ref, habitId) {
+      final habits = ref.watch(habitsProvider).value ?? [];
+      final habitIndex = habits.indexWhere((h) => h.id == habitId);
+      if (habitIndex == -1) return null;
 
-  final habit = habits[habitIndex];
-  final logsMap = ref.watch(habitLogsMapProvider);
-  final logged = logsMap[habitId] ?? <DateTime>{};
-  final today = AppDateUtils.today();
-  final weekStart = ref.watch(selectedWeekStartProvider);
+      final habit = habits[habitIndex];
+      final logsMap = ref.watch(habitLogsMapProvider);
+      final logged = logsMap[habitId] ?? <DateTime>{};
+      final today = AppDateUtils.today();
+      final weekStart = ref.watch(selectedWeekStartProvider);
 
-  final stats = StreakUtils.weekStats(
-    logged: logged,
-    weekStart: weekStart,
-    today: today,
-    createdDate: habit.createdAt,
-  );
+      final stats = StreakUtils.weekStats(
+        logged: logged,
+        weekStart: weekStart,
+        today: today,
+        createdDate: habit.createdAt,
+      );
 
-  final streak = StreakUtils.currentStreak(logged, today);
+      final streak = StreakUtils.currentStreak(logged, today);
 
-  // Check previous week
-  final prevWeekStart = weekStart.subtract(const Duration(days: 7));
-  final prevWeekEnd = prevWeekStart.add(const Duration(days: 6));
-  final createdDateOnly = AppDateUtils.dateOnly(habit.createdAt);
+      // Check previous week
+      final prevWeekStart = weekStart.subtract(const Duration(days: 7));
+      final prevWeekEnd = prevWeekStart.add(const Duration(days: 6));
+      final createdDateOnly = AppDateUtils.dateOnly(habit.createdAt);
 
-  int? prevCompletions;
-  int? diff;
-  String comparisonText = '';
+      int? prevCompletions;
+      int? diff;
+      String comparisonText = '';
 
-  // Only compare if habit existed during previous week (i.e. created on or before prevWeekEnd)
-  if (!createdDateOnly.isAfter(prevWeekEnd)) {
-    final prevStats = StreakUtils.weekStats(
-      logged: logged,
-      weekStart: prevWeekStart,
-      today: today,
-      createdDate: habit.createdAt,
-    );
-    prevCompletions = prevStats.completions;
-    diff = stats.completions - prevCompletions;
+      // Only compare if habit existed during previous week (i.e. created on or before prevWeekEnd)
+      if (!createdDateOnly.isAfter(prevWeekEnd)) {
+        final prevStats = StreakUtils.weekStats(
+          logged: logged,
+          weekStart: prevWeekStart,
+          today: today,
+          createdDate: habit.createdAt,
+        );
+        prevCompletions = prevStats.completions;
+        diff = stats.completions - prevCompletions;
 
-    if (diff > 0) {
-      comparisonText = '+$diff vs last week';
-    } else if (diff < 0) {
-      comparisonText = '$diff vs last week';
-    } else {
-      comparisonText = 'same';
-    }
-  }
+        if (diff > 0) {
+          comparisonText = '+$diff vs last week';
+        } else if (diff < 0) {
+          comparisonText = '$diff vs last week';
+        } else {
+          comparisonText = 'same';
+        }
+      }
 
-  return WeeklyHabitReportData(
-    habit: habit,
-    stats: stats,
-    prevWeekCompletions: prevCompletions,
-    diff: diff,
-    comparisonText: comparisonText,
-    currentStreak: streak,
-  );
-});
+      return WeeklyHabitReportData(
+        habit: habit,
+        stats: stats,
+        prevWeekCompletions: prevCompletions,
+        diff: diff,
+        comparisonText: comparisonText,
+        currentStreak: streak,
+      );
+    });
 
 // =============================================================================
 // 8. OVERALL WEEKLY SUMMARY PROVIDER
@@ -498,7 +521,10 @@ final overallWeeklySummaryProvider = Provider<OverallWeeklySummary>((ref) {
   }).toList();
 
   if (activeHabits.isEmpty) {
-    return const OverallWeeklySummary(totalCompletions: 0, hasHabitsThisWeek: false);
+    return const OverallWeeklySummary(
+      totalCompletions: 0,
+      hasHabitsThisWeek: false,
+    );
   }
 
   int totalCompletions = 0;

@@ -14,10 +14,7 @@ import '../../motion/animated_checkbox.dart';
 class HabitTodayChecklist extends ConsumerWidget {
   final VoidCallback onOpenHabits;
 
-  const HabitTodayChecklist({
-    super.key,
-    required this.onOpenHabits,
-  });
+  const HabitTodayChecklist({super.key, required this.onOpenHabits});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,16 +64,21 @@ class HabitTodayChecklist extends ConsumerWidget {
         const SizedBox(height: 8),
 
         ...habits.map((habit) {
-          final isLoggedToday = logs.any((l) =>
-              l.habitId == habit.id &&
-              AppDateUtils.dateOnly(l.logDate) == today);
+          final isLoggedToday = logs.any(
+            (l) =>
+                l.habitId == habit.id &&
+                AppDateUtils.dateOnly(l.logDate) == today,
+          );
           final streak = ref.watch(habitStreakProvider(habit.id));
 
           return Container(
             key: ValueKey('quick_add_habit_${habit.id}'),
             margin: const EdgeInsets.only(bottom: 8.0),
             child: AppCard(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14.0,
+                vertical: 10.0,
+              ),
               child: Row(
                 children: [
                   // Habit Icon
@@ -96,7 +98,9 @@ class HabitTodayChecklist extends ConsumerWidget {
                     child: Icon(
                       HabitIcons.getIcon(habit.icon),
                       size: 18,
-                      color: isLoggedToday ? palette.accent : palette.textSecondary,
+                      color: isLoggedToday
+                          ? palette.accent
+                          : palette.textSecondary,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -128,7 +132,9 @@ class HabitTodayChecklist extends ConsumerWidget {
                             Icon(
                               Icons.local_fire_department,
                               size: 14,
-                              color: streak > 0 ? palette.accent : palette.textMuted,
+                              color: streak > 0
+                                  ? palette.accent
+                                  : palette.textMuted,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -136,7 +142,9 @@ class HabitTodayChecklist extends ConsumerWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: streak > 0 ? palette.textPrimary : palette.textSecondary,
+                                color: streak > 0
+                                    ? palette.textPrimary
+                                    : palette.textSecondary,
                               ),
                             ),
                           ],
@@ -151,7 +159,9 @@ class HabitTodayChecklist extends ConsumerWidget {
                     key: ValueKey('quick_add_habit_checkbox_${habit.id}'),
                     value: isLoggedToday,
                     onChanged: (_) {
-                      ref.read(habitLogsProvider.notifier).toggleToday(habit.id);
+                      ref
+                          .read(habitLogsProvider.notifier)
+                          .toggleToday(habit.id);
                     },
                     size: 28,
                   ),

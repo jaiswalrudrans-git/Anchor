@@ -24,7 +24,7 @@ class TestChapterFilesNotifier extends ChapterFilesNotifier {
 }
 
 void main() {
-  final testChapter = const Chapter(
+  const testChapter = Chapter(
     id: 'ch-1',
     userId: 'user-1',
     moduleId: 'mod-1',
@@ -55,132 +55,174 @@ void main() {
   );
 
   group('ChapterVaultSheet Widget Tests', () {
-    testWidgets('Empty state renders "No materials yet." when chapter has no files', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            chapterFilesProvider.overrideWith(() => TestChapterFilesNotifier([])),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: Scaffold(
-              body: ChapterVaultSheet(chapter: testChapter),
+    testWidgets(
+      'Empty state renders "No materials yet." when chapter has no files',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              chapterFilesProvider.overrideWith(
+                () => TestChapterFilesNotifier([]),
+              ),
+            ],
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const Scaffold(
+                body: ChapterVaultSheet(chapter: testChapter),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('chapter_vault_sheet')), findsOneWidget);
-      expect(find.text('CHAPTER VAULT'), findsOneWidget);
-      expect(find.text('Chapter 1: Network Layers'), findsOneWidget);
-      expect(find.byKey(const Key('chapter_vault_upload_button')), findsOneWidget);
-      expect(find.text('+ Upload Material (PPT / PDF)'), findsOneWidget);
-      expect(find.byKey(const Key('chapter_vault_empty_state')), findsOneWidget);
-      expect(find.text('No materials yet.'), findsOneWidget);
-    });
+        expect(find.byKey(const Key('chapter_vault_sheet')), findsOneWidget);
+        expect(find.text('CHAPTER VAULT'), findsOneWidget);
+        expect(find.text('Chapter 1: Network Layers'), findsOneWidget);
+        expect(
+          find.byKey(const Key('chapter_vault_upload_button')),
+          findsOneWidget,
+        );
+        expect(find.text('+ Upload Material (PPT / PDF)'), findsOneWidget);
+        expect(
+          find.byKey(const Key('chapter_vault_empty_state')),
+          findsOneWidget,
+        );
+        expect(find.text('No materials yet.'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Displays files with type badge, file name, formatted size, and status badges', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            chapterFilesProvider.overrideWith(() => TestChapterFilesNotifier([testFile1, testFile2])),
-            fileCacheStatusProvider.overrideWith((ref, file) async {
-              return file.fileName.contains('cached')
-                  ? VaultFileStatus.cachedOffline
-                  : VaultFileStatus.cloudOnly;
-            }),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: Scaffold(
-              body: ChapterVaultSheet(chapter: testChapter),
+    testWidgets(
+      'Displays files with type badge, file name, formatted size, and status badges',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              chapterFilesProvider.overrideWith(
+                () => TestChapterFilesNotifier([testFile1, testFile2]),
+              ),
+              fileCacheStatusProvider.overrideWith((ref, file) async {
+                return file.fileName.contains('cached')
+                    ? VaultFileStatus.cachedOffline
+                    : VaultFileStatus.cloudOnly;
+              }),
+            ],
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const Scaffold(
+                body: ChapterVaultSheet(chapter: testChapter),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Assert file names
-      expect(find.text('lecture_notes_cached.pdf'), findsOneWidget);
-      expect(find.text('slides_cloud.pptx'), findsOneWidget);
+        // Assert file names
+        expect(find.text('lecture_notes_cached.pdf'), findsOneWidget);
+        expect(find.text('slides_cloud.pptx'), findsOneWidget);
 
-      // Assert type badges
-      expect(find.text('PDF'), findsOneWidget);
-      expect(find.text('PPTX'), findsOneWidget);
+        // Assert type badges
+        expect(find.text('PDF'), findsOneWidget);
+        expect(find.text('PPTX'), findsOneWidget);
 
-      // Assert sizes
-      expect(find.text('2.0 MB'), findsOneWidget);
-      expect(find.text('512.0 KB'), findsOneWidget);
+        // Assert sizes
+        expect(find.text('2.0 MB'), findsOneWidget);
+        expect(find.text('512.0 KB'), findsOneWidget);
 
-      // Assert cache status badges
-      expect(find.text('Cached Offline'), findsOneWidget);
-      expect(find.text('Cloud Only'), findsOneWidget);
+        // Assert cache status badges
+        expect(find.text('Cached Offline'), findsOneWidget);
+        expect(find.text('Cloud Only'), findsOneWidget);
 
-      // Assert delete action buttons
-      expect(find.byKey(const ValueKey('vault_delete_file-1')), findsOneWidget);
-      expect(find.byKey(const ValueKey('vault_delete_file-2')), findsOneWidget);
-    });
+        // Assert delete action buttons
+        expect(
+          find.byKey(const ValueKey('vault_delete_file-1')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const ValueKey('vault_delete_file-2')),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('Tapping delete button shows confirmation dialog and deleting removes file from list', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            chapterFilesProvider.overrideWith(() => TestChapterFilesNotifier([testFile1])),
-            fileCacheStatusProvider.overrideWith((ref, file) async => VaultFileStatus.cachedOffline),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: Scaffold(
-              body: ChapterVaultSheet(chapter: testChapter),
+    testWidgets(
+      'Tapping delete button shows confirmation dialog and deleting removes file from list',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              chapterFilesProvider.overrideWith(
+                () => TestChapterFilesNotifier([testFile1]),
+              ),
+              fileCacheStatusProvider.overrideWith(
+                (ref, file) async => VaultFileStatus.cachedOffline,
+              ),
+            ],
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const Scaffold(
+                body: ChapterVaultSheet(chapter: testChapter),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
-      expect(find.text('lecture_notes_cached.pdf'), findsOneWidget);
+        await tester.pumpAndSettle();
+        expect(find.text('lecture_notes_cached.pdf'), findsOneWidget);
 
-      // Tap delete button
-      await tester.tap(find.byKey(const ValueKey('vault_delete_file-1')));
-      await tester.pumpAndSettle();
+        // Tap delete button
+        await tester.tap(find.byKey(const ValueKey('vault_delete_file-1')));
+        await tester.pumpAndSettle();
 
-      // Confirm dialog appears
-      expect(find.text('Delete File'), findsOneWidget);
-      expect(find.textContaining('lecture_notes_cached.pdf'), findsWidgets);
+        // Confirm dialog appears
+        expect(find.text('Delete File'), findsOneWidget);
+        expect(find.textContaining('lecture_notes_cached.pdf'), findsWidgets);
 
-      // Tap Delete in dialog
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
-      await tester.pumpAndSettle();
+        // Tap Delete in dialog
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
+        await tester.pumpAndSettle();
 
-      // File removed, empty state shown
-      expect(find.text('lecture_notes_cached.pdf'), findsNothing);
-      expect(find.byKey(const Key('chapter_vault_empty_state')), findsOneWidget);
-    });
+        // File removed, empty state shown
+        expect(find.text('lecture_notes_cached.pdf'), findsNothing);
+        expect(
+          find.byKey(const Key('chapter_vault_empty_state')),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('Only "+ Upload Material (PPT / PDF)" is the add control; no FAB present', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            chapterFilesProvider.overrideWith(() => TestChapterFilesNotifier([testFile1])),
-            fileCacheStatusProvider.overrideWith((ref, file) async => VaultFileStatus.cachedOffline),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: Scaffold(
-              body: ChapterVaultSheet(chapter: testChapter),
+    testWidgets(
+      'Only "+ Upload Material (PPT / PDF)" is the add control; no FAB present',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              chapterFilesProvider.overrideWith(
+                () => TestChapterFilesNotifier([testFile1]),
+              ),
+              fileCacheStatusProvider.overrideWith(
+                (ref, file) async => VaultFileStatus.cachedOffline,
+              ),
+            ],
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const Scaffold(
+                body: ChapterVaultSheet(chapter: testChapter),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Assert upload button exists
-      expect(find.byKey(const Key('chapter_vault_upload_button')), findsOneWidget);
-      expect(find.byType(FloatingActionButton), findsNothing);
-    });
+        // Assert upload button exists
+        expect(
+          find.byKey(const Key('chapter_vault_upload_button')),
+          findsOneWidget,
+        );
+        expect(find.byType(FloatingActionButton), findsNothing);
+      },
+    );
   });
 }

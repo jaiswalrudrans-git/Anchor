@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../core/constants/motion.dart';
 import '../../../core/constants/theme.dart';
 
@@ -65,7 +66,12 @@ class CardProgressStrokePainter extends CustomPainter {
   }
 
   /// Pure helper returning the extracted path length for unit testing.
-  static double getExtractedPathLength(Size size, double radius, double strokeWidth, double progress) {
+  static double getExtractedPathLength(
+    Size size,
+    double radius,
+    double strokeWidth,
+    double progress,
+  ) {
     final path = buildClockwisePath(size, radius, strokeWidth);
     final metrics = path.computeMetrics().toList();
     if (metrics.isEmpty) return 0.0;
@@ -76,7 +82,11 @@ class CardProgressStrokePainter extends CustomPainter {
   }
 
   /// Pure helper returning total perimeter length.
-  static double getTotalPathLength(Size size, double radius, double strokeWidth) {
+  static double getTotalPathLength(
+    Size size,
+    double radius,
+    double strokeWidth,
+  ) {
     final path = buildClockwisePath(size, radius, strokeWidth);
     final metrics = path.computeMetrics().toList();
     if (metrics.isEmpty) return 0.0;

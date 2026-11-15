@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,10 +21,7 @@ import '../../../widgets/skeleton_box.dart';
 class KillIdleDialog extends ConsumerStatefulWidget {
   final bool isSheet;
 
-  const KillIdleDialog({
-    super.key,
-    this.isSheet = false,
-  });
+  const KillIdleDialog({super.key, this.isSheet = false});
 
   static Future<void> show(BuildContext context) {
     final isCompact = Breakpoints.isCompact(context);
@@ -134,8 +132,13 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
       isScrollControlled: true,
       backgroundColor: context.palette.cardRaised,
       shape: RoundedRectangleBorder(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppDimens.radiusLg)),
-        side: BorderSide(color: context.palette.border, width: AppDimens.hairline),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppDimens.radiusLg),
+        ),
+        side: BorderSide(
+          color: context.palette.border,
+          width: AppDimens.hairline,
+        ),
       ),
       builder: (ctx) => const _ManagePoolSheet(),
     );
@@ -148,7 +151,8 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
     final prompts = promptsAsync.value ?? [];
 
     if (prompts.isNotEmpty) {
-      if (_currentPrompt == null || !prompts.any((p) => p.id == _currentPrompt!.id)) {
+      if (_currentPrompt == null ||
+          !prompts.any((p) => p.id == _currentPrompt!.id)) {
         _currentPrompt = prompts[math.Random().nextInt(prompts.length)];
       }
     } else {
@@ -199,7 +203,10 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
             decoration: BoxDecoration(
               color: palette.card,
               borderRadius: AppDimens.borderRadiusSm,
-              border: Border.all(color: palette.border, width: AppDimens.hairline),
+              border: Border.all(
+                color: palette.border,
+                width: AppDimens.hairline,
+              ),
             ),
             child: Column(
               children: [
@@ -216,7 +223,10 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
                 if (promptsAsync.isLoading)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: SkeletonBox(height: 44, borderRadius: AppDimens.borderRadiusSm),
+                    child: SkeletonBox(
+                      height: 44,
+                      borderRadius: AppDimens.borderRadiusSm,
+                    ),
                   )
                 else if (prompts.isEmpty)
                   Column(
@@ -230,8 +240,13 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
                       ),
                       const SizedBox(height: 8),
                       TextButton(
-                        onPressed: () => ref.read(idlePromptsProvider.notifier).seedIfEmpty(),
-                        child: Text('Seed Default Prompts', style: TextStyle(color: palette.accent)),
+                        onPressed: () => ref
+                            .read(idlePromptsProvider.notifier)
+                            .seedIfEmpty(),
+                        child: Text(
+                          'Seed Default Prompts',
+                          style: TextStyle(color: palette.accent),
+                        ),
                       ),
                     ],
                   )
@@ -261,14 +276,24 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
                 const SizedBox(height: 14),
                 OutlinedButton.icon(
                   key: const Key('shuffle_prompt_button'),
-                  onPressed: prompts.isEmpty ? null : () => _shufflePrompt(prompts),
+                  onPressed: prompts.isEmpty
+                      ? null
+                      : () => _shufflePrompt(prompts),
                   icon: const Icon(Icons.shuffle, size: 16),
                   label: const Text('Shuffle another'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: palette.textPrimary,
-                    side: BorderSide(color: palette.border, width: AppDimens.hairline),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: AppDimens.borderRadiusSm),
+                    side: BorderSide(
+                      color: palette.border,
+                      width: AppDimens.hairline,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: AppDimens.borderRadiusSm,
+                    ),
                   ),
                 ),
               ],
@@ -295,7 +320,11 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
                         ? Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.check_circle_outline, size: 36, color: palette.accent),
+                              Icon(
+                                Icons.check_circle_outline,
+                                size: 36,
+                                color: palette.accent,
+                              ),
                               const SizedBox(height: 4),
                               Text(
                                 'Focus session\ndone',
@@ -323,7 +352,9 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
                                 ),
                               ),
                               Text(
-                                _isTimerRunning ? 'focusing...' : '15 min sprint',
+                                _isTimerRunning
+                                    ? 'focusing...'
+                                    : '15 min sprint',
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: palette.textSecondary,
@@ -374,7 +405,10 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
                   child: ElevatedButton.icon(
                     key: const Key('start_pause_timer_button'),
                     onPressed: _startOrPauseTimer,
-                    icon: Icon(_isTimerRunning ? Icons.pause : Icons.play_arrow, size: 18),
+                    icon: Icon(
+                      _isTimerRunning ? Icons.pause : Icons.play_arrow,
+                      size: 18,
+                    ),
                     label: Text(_isTimerRunning ? 'Pause' : 'Start'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: palette.accent,
@@ -390,7 +424,10 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: palette.textSecondary,
                     side: BorderSide(color: palette.border),
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
                   ),
                   child: const Text('Reset'),
                 ),
@@ -402,7 +439,11 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
           Center(
             child: TextButton.icon(
               key: const Key('manage_pool_button'),
-              icon: Icon(Icons.settings_outlined, size: 15, color: palette.textSecondary),
+              icon: Icon(
+                Icons.settings_outlined,
+                size: 15,
+                color: palette.textSecondary,
+              ),
               label: Text(
                 'Manage pool (${prompts.length})',
                 style: TextStyle(fontSize: 12, color: palette.textSecondary),
@@ -418,7 +459,9 @@ class _KillIdleDialogState extends ConsumerState<KillIdleDialog> {
       return Container(
         decoration: BoxDecoration(
           color: palette.cardRaised,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(AppDimens.radiusLg)),
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppDimens.radiusLg),
+          ),
           border: Border.all(color: palette.border, width: AppDimens.hairline),
         ),
         child: SingleChildScrollView(child: dialogContent),
@@ -523,9 +566,8 @@ class _ManagePoolSheetState extends ConsumerState<_ManagePoolSheet> {
       _textController.clear();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add prompt: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to add prompt: $e')));
       }
     } finally {
       if (mounted) setState(() => _isAdding = false);
@@ -598,7 +640,8 @@ class _ManagePoolSheetState extends ConsumerState<_ManagePoolSheet> {
             child: ListView.separated(
               shrinkWrap: true,
               itemCount: prompts.length,
-              separatorBuilder: (context, index) => Divider(height: 1, color: palette.border),
+              separatorBuilder: (context, index) =>
+                  Divider(height: 1, color: palette.border),
               itemBuilder: (ctx, index) {
                 final prompt = prompts[index];
                 return ListTile(
@@ -610,21 +653,32 @@ class _ManagePoolSheetState extends ConsumerState<_ManagePoolSheet> {
                   ),
                   trailing: IconButton(
                     key: Key('delete_prompt_${prompt.id}'),
-                    icon: Icon(Icons.delete_outline, size: 18, color: palette.textSecondary),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: palette.textSecondary,
+                    ),
                     onPressed: () {
                       final deleted = prompt;
-                      ref.read(idlePromptsProvider.notifier).deletePrompt(prompt.id);
+                      ref
+                          .read(idlePromptsProvider.notifier)
+                          .deletePrompt(prompt.id);
                       ScaffoldMessenger.of(context).clearSnackBars();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Prompt deleted', style: TextStyle(color: palette.textPrimary)),
+                          content: Text(
+                            'Prompt deleted',
+                            style: TextStyle(color: palette.textPrimary),
+                          ),
                           duration: const Duration(seconds: 4),
                           backgroundColor: palette.cardRaised,
                           action: SnackBarAction(
                             label: 'Undo',
                             textColor: palette.accent,
                             onPressed: () {
-                              ref.read(idlePromptsProvider.notifier).restorePrompt(deleted);
+                              ref
+                                  .read(idlePromptsProvider.notifier)
+                                  .restorePrompt(deleted);
                             },
                           ),
                         ),

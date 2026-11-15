@@ -202,17 +202,20 @@ class TestHabitLogsNotifier extends HabitLogsNotifier {
   @override
   Future<void> toggleToday(String habitId) async {
     final today = AppDateUtils.today();
-    final idx = logs.indexWhere((l) =>
-        l.habitId == habitId && AppDateUtils.dateOnly(l.logDate) == today);
+    final idx = logs.indexWhere(
+      (l) => l.habitId == habitId && AppDateUtils.dateOnly(l.logDate) == today,
+    );
     if (idx >= 0) {
       logs.removeAt(idx);
     } else {
-      logs.add(HabitLog(
-        id: 'log-${DateTime.now().millisecondsSinceEpoch}',
-        userId: 'test-user',
-        habitId: habitId,
-        logDate: today,
-      ));
+      logs.add(
+        HabitLog(
+          id: 'log-${DateTime.now().millisecondsSinceEpoch}',
+          userId: 'test-user',
+          habitId: habitId,
+          logDate: today,
+        ),
+      );
     }
     state = AsyncData(List.from(logs));
   }
@@ -315,7 +318,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Enter Title
-      await tester.enterText(find.byKey(const Key('add_todo_title_field')), 'Submit Report');
+      await tester.enterText(
+        find.byKey(const Key('add_todo_title_field')),
+        'Submit Report',
+      );
       await tester.pumpAndSettle();
 
       // Submit Done
@@ -345,13 +351,20 @@ void main() {
 
       final testItems = <AcademicItem>[];
       final subjects = [
-        const Subject(id: 'sub-1', userId: 'user-1', name: 'Physics', sortOrder: 0),
+        const Subject(
+          id: 'sub-1',
+          userId: 'user-1',
+          name: 'Physics',
+          sortOrder: 0,
+        ),
       ];
 
       final container = ProviderContainer(
         overrides: [
           mainNavIndexProvider.overrideWith(() => CustomNavIndexNotifier(1)),
-          academicItemsProvider.overrideWith(() => TestAcademicItemsNotifier(testItems)),
+          academicItemsProvider.overrideWith(
+            () => TestAcademicItemsNotifier(testItems),
+          ),
           subjectsProvider.overrideWith(() => TestSubjectsNotifier(subjects)),
         ],
       );
@@ -378,7 +391,10 @@ void main() {
       await tester.tap(find.byKey(const Key('open_quick_add')));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byKey(const Key('add_assignment_title_field')), 'Physics Problem Set');
+      await tester.enterText(
+        find.byKey(const Key('add_assignment_title_field')),
+        'Physics Problem Set',
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('quick_add_done_button')));
@@ -406,7 +422,9 @@ void main() {
           academicsActiveSegmentProvider.overrideWith(
             () => CustomSegmentNotifier(AcademicsSegment.exams),
           ),
-          academicItemsProvider.overrideWith(() => TestAcademicItemsNotifier(testItems)),
+          academicItemsProvider.overrideWith(
+            () => TestAcademicItemsNotifier(testItems),
+          ),
           subjectsProvider.overrideWith(() => TestSubjectsNotifier(const [])),
         ],
       );
@@ -433,7 +451,10 @@ void main() {
       await tester.tap(find.byKey(const Key('open_quick_add')));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byKey(const Key('add_exam_title_field')), 'Final Exam');
+      await tester.enterText(
+        find.byKey(const Key('add_exam_title_field')),
+        'Final Exam',
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('quick_add_done_button')));
@@ -458,16 +479,22 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           mainNavIndexProvider.overrideWith(() => CustomNavIndexNotifier(2)),
-          allTransactionsProvider.overrideWith(() => TestAllTransactionsNotifier(testTxs)),
-          monthSummariesProvider.overrideWith(() => TestMonthSummariesNotifier(const [])),
-          expenseSettingsProvider.overrideWith(() => TestExpenseSettingsNotifier(
-                const ExpenseSettings(
-                  userId: 'test-user',
-                  monthlyAllowance: 5000,
-                  totalSavings: 1000,
-                  lastResetMonth: '2026-11',
-                ),
-              )),
+          allTransactionsProvider.overrideWith(
+            () => TestAllTransactionsNotifier(testTxs),
+          ),
+          monthSummariesProvider.overrideWith(
+            () => TestMonthSummariesNotifier(const []),
+          ),
+          expenseSettingsProvider.overrideWith(
+            () => TestExpenseSettingsNotifier(
+              const ExpenseSettings(
+                userId: 'test-user',
+                monthlyAllowance: 5000,
+                totalSavings: 1000,
+                lastResetMonth: '2026-11',
+              ),
+            ),
+          ),
         ],
       );
 
@@ -494,7 +521,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Enter Amount
-      await tester.enterText(find.byKey(const Key('transaction_amount_field')), '150');
+      await tester.enterText(
+        find.byKey(const Key('transaction_amount_field')),
+        '150',
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('quick_add_done_button')));
@@ -512,159 +542,195 @@ void main() {
   });
 
   group('3. Habit Checklist & Isolation Tests', () {
-    testWidgets('Habit type shows today habits with checkboxes, no text field, no create control', (tester) async {
-      final testHabits = [
-        Habit(id: 'h-1', userId: 'user-1', title: 'Read 20 mins', icon: 'menu_book', createdAt: DateTime.now()),
-      ];
-      final testLogs = <HabitLog>[];
+    testWidgets(
+      'Habit type shows today habits with checkboxes, no text field, no create control',
+      (tester) async {
+        final testHabits = [
+          Habit(
+            id: 'h-1',
+            userId: 'user-1',
+            title: 'Read 20 mins',
+            icon: 'menu_book',
+            createdAt: DateTime.now(),
+          ),
+        ];
+        final testLogs = <HabitLog>[];
 
-      final container = ProviderContainer(
-        overrides: [
-          habitsProvider.overrideWith(() => TestHabitsNotifier(testHabits)),
-          habitLogsProvider.overrideWith(() => TestHabitLogsNotifier(testLogs)),
-        ],
-      );
+        final container = ProviderContainer(
+          overrides: [
+            habitsProvider.overrideWith(() => TestHabitsNotifier(testHabits)),
+            habitLogsProvider.overrideWith(
+              () => TestHabitLogsNotifier(testLogs),
+            ),
+          ],
+        );
 
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: const Scaffold(
-              body: QuickAddSheet(initialType: QuickAddType.habit),
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const Scaffold(
+                body: QuickAddSheet(initialType: QuickAddType.habit),
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Habit name visible
-      expect(find.text('Read 20 mins'), findsOneWidget);
-      // Checkbox visible
-      expect(find.byKey(const Key('quick_add_habit_checkbox_h-1')), findsOneWidget);
+        // Habit name visible
+        expect(find.text('Read 20 mins'), findsOneWidget);
+        // Checkbox visible
+        expect(
+          find.byKey(const Key('quick_add_habit_checkbox_h-1')),
+          findsOneWidget,
+        );
 
-      // NO text fields and NO create habit button
-      expect(find.byKey(const Key('add_habit_title_field')), findsNothing);
-      expect(find.byKey(const Key('create_habit_button')), findsNothing);
+        // NO text fields and NO create habit button
+        expect(find.byKey(const Key('add_habit_title_field')), findsNothing);
+        expect(find.byKey(const Key('create_habit_button')), findsNothing);
 
-      // Tap checkbox marks done
-      await tester.tap(find.byKey(const Key('quick_add_habit_checkbox_h-1')));
-      await tester.pumpAndSettle();
-      expect(testLogs.length, 1);
+        // Tap checkbox marks done
+        await tester.tap(find.byKey(const Key('quick_add_habit_checkbox_h-1')));
+        await tester.pumpAndSettle();
+        expect(testLogs.length, 1);
 
-      // Tap Done pops sheet
-      expect(find.byKey(const Key('quick_add_done_button')), findsOneWidget);
-      await tester.tap(find.byKey(const Key('quick_add_done_button')));
-      await tester.pumpAndSettle();
-    });
+        // Tap Done pops sheet
+        expect(find.byKey(const Key('quick_add_done_button')), findsOneWidget);
+        await tester.tap(find.byKey(const Key('quick_add_done_button')));
+        await tester.pumpAndSettle();
+      },
+    );
 
-    testWidgets('Habit empty state shows Open Habits button which navigates to Habits tab', (tester) async {
-      final navIndexNotifier = MainNavIndexNotifier();
-      final container = ProviderContainer(
-        overrides: [
-          mainNavIndexProvider.overrideWith(() => navIndexNotifier),
-          habitsProvider.overrideWith(() => TestHabitsNotifier(const [])),
-          habitLogsProvider.overrideWith(() => TestHabitLogsNotifier([])),
-        ],
-      );
+    testWidgets(
+      'Habit empty state shows Open Habits button which navigates to Habits tab',
+      (tester) async {
+        final navIndexNotifier = MainNavIndexNotifier();
+        final container = ProviderContainer(
+          overrides: [
+            mainNavIndexProvider.overrideWith(() => navIndexNotifier),
+            habitsProvider.overrideWith(() => TestHabitsNotifier(const [])),
+            habitLogsProvider.overrideWith(() => TestHabitLogsNotifier([])),
+          ],
+        );
 
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: const Scaffold(
-              body: QuickAddSheet(initialType: QuickAddType.habit),
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const Scaffold(
+                body: QuickAddSheet(initialType: QuickAddType.habit),
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('No habits yet'), findsOneWidget);
-      expect(find.byKey(const Key('quick_add_open_habits_button')), findsOneWidget);
+        expect(find.text('No habits yet'), findsOneWidget);
+        expect(
+          find.byKey(const Key('quick_add_open_habits_button')),
+          findsOneWidget,
+        );
 
-      await tester.tap(find.byKey(const Key('quick_add_open_habits_button')));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('quick_add_open_habits_button')));
+        await tester.pumpAndSettle();
 
-      // Switched to Habits tab (index 3)
-      expect(container.read(mainNavIndexProvider), 3);
-    });
+        // Switched to Habits tab (index 3)
+        expect(container.read(mainNavIndexProvider), 3);
+      },
+    );
   });
 
   group('4. Title Preservation & Discard Confirmation Tests', () {
-    testWidgets('Preserves typed title when switching among To-do, Assignment, Exam', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: const Scaffold(
-              body: QuickAddSheet(initialType: QuickAddType.todo),
+    testWidgets(
+      'Preserves typed title when switching among To-do, Assignment, Exam',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const Scaffold(
+                body: QuickAddSheet(initialType: QuickAddType.todo),
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Enter title in To-do
-      await tester.enterText(find.byKey(const Key('add_todo_title_field')), 'Draft Proposal');
-      await tester.pumpAndSettle();
+        // Enter title in To-do
+        await tester.enterText(
+          find.byKey(const Key('add_todo_title_field')),
+          'Draft Proposal',
+        );
+        await tester.pumpAndSettle();
 
-      // Switch to Assignment
-      await tester.tap(find.byKey(const Key('quick_add_type_assignment')));
-      await tester.pumpAndSettle();
+        // Switch to Assignment
+        await tester.tap(find.byKey(const Key('quick_add_type_assignment')));
+        await tester.pumpAndSettle();
 
-      // Title must be preserved
-      final assignmentField = tester.widget<TextField>(find.byKey(const Key('add_assignment_title_field')));
-      expect(assignmentField.controller?.text, 'Draft Proposal');
+        // Title must be preserved
+        final assignmentField = tester.widget<TextField>(
+          find.byKey(const Key('add_assignment_title_field')),
+        );
+        expect(assignmentField.controller?.text, 'Draft Proposal');
 
-      // Switch to Exam
-      await tester.tap(find.byKey(const Key('quick_add_type_exam')));
-      await tester.pumpAndSettle();
+        // Switch to Exam
+        await tester.tap(find.byKey(const Key('quick_add_type_exam')));
+        await tester.pumpAndSettle();
 
-      // Title must still be preserved
-      final examField = tester.widget<TextField>(find.byKey(const Key('add_exam_title_field')));
-      expect(examField.controller?.text, 'Draft Proposal');
-    });
+        // Title must still be preserved
+        final examField = tester.widget<TextField>(
+          find.byKey(const Key('add_exam_title_field')),
+        );
+        expect(examField.controller?.text, 'Draft Proposal');
+      },
+    );
 
-    testWidgets('Discard confirmation dialog appears when dirty and dismissed', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: const Scaffold(
-              body: QuickAddSheet(initialType: QuickAddType.todo),
+    testWidgets(
+      'Discard confirmation dialog appears when dirty and dismissed',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              theme: AppTheme.lightTheme,
+              home: const Scaffold(
+                body: QuickAddSheet(initialType: QuickAddType.todo),
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Type title to make dirty
-      await tester.enterText(find.byKey(const Key('add_todo_title_field')), 'Unsaved task');
-      await tester.pumpAndSettle();
+        // Type title to make dirty
+        await tester.enterText(
+          find.byKey(const Key('add_todo_title_field')),
+          'Unsaved task',
+        );
+        await tester.pumpAndSettle();
 
-      // Tap Close button
-      await tester.tap(find.byKey(const Key('quick_add_close_button')));
-      await tester.pumpAndSettle();
+        // Tap Close button
+        await tester.tap(find.byKey(const Key('quick_add_close_button')));
+        await tester.pumpAndSettle();
 
-      // Confirmation dialog must appear
-      expect(find.text('Discard this entry?'), findsOneWidget);
-      expect(find.byKey(const Key('discard_cancel_button')), findsOneWidget);
-      expect(find.byKey(const Key('discard_confirm_button')), findsOneWidget);
+        // Confirmation dialog must appear
+        expect(find.text('Discard this entry?'), findsOneWidget);
+        expect(find.byKey(const Key('discard_cancel_button')), findsOneWidget);
+        expect(find.byKey(const Key('discard_confirm_button')), findsOneWidget);
 
-      // Cancel keeps sheet open
-      await tester.tap(find.byKey(const Key('discard_cancel_button')));
-      await tester.pumpAndSettle();
-      expect(find.text('Discard this entry?'), findsNothing);
-      expect(find.byKey(const Key('quick_add_sheet')), findsOneWidget);
+        // Cancel keeps sheet open
+        await tester.tap(find.byKey(const Key('discard_cancel_button')));
+        await tester.pumpAndSettle();
+        expect(find.text('Discard this entry?'), findsNothing);
+        expect(find.byKey(const Key('quick_add_sheet')), findsOneWidget);
 
-      // Tap Close button again and confirm Discard
-      await tester.tap(find.byKey(const Key('quick_add_close_button')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('discard_confirm_button')));
-      await tester.pumpAndSettle();
-    });
+        // Tap Close button again and confirm Discard
+        await tester.tap(find.byKey(const Key('quick_add_close_button')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('discard_confirm_button')));
+        await tester.pumpAndSettle();
+      },
+    );
   });
 
   group('5. Responsive Layout & Accessibility Matrix Tests', () {
@@ -673,32 +739,33 @@ void main() {
       const Size(800, 1000),
       const Size(1280, 800),
     ]) {
-      testWidgets('Renders at ${size.width}x${size.height} with textScale 1.3 without overflow', (tester) async {
-        tester.view.physicalSize = size;
-        tester.view.devicePixelRatio = 1.0;
-        addTearDown(tester.view.resetPhysicalSize);
+      testWidgets(
+        'Renders at ${size.width}x${size.height} with textScale 1.3 without overflow',
+        (tester) async {
+          tester.view.physicalSize = size;
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(tester.view.resetPhysicalSize);
 
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MediaQuery(
-              data: MediaQueryData(
-                size: size,
-                textScaler: const TextScaler.linear(1.3),
-              ),
-              child: MaterialApp(
-                theme: AppTheme.lightTheme,
-                home: const Scaffold(
-                  body: QuickAddSheet(),
+          await tester.pumpWidget(
+            ProviderScope(
+              child: MediaQuery(
+                data: MediaQueryData(
+                  size: size,
+                  textScaler: const TextScaler.linear(1.3),
+                ),
+                child: MaterialApp(
+                  theme: AppTheme.lightTheme,
+                  home: const Scaffold(body: QuickAddSheet()),
                 ),
               ),
             ),
-          ),
-        );
-        await tester.pumpAndSettle();
+          );
+          await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('quick_add_sheet')), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      });
+          expect(find.byKey(const Key('quick_add_sheet')), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        },
+      );
     }
   });
 }

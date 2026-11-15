@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/constants/motion.dart';
 import '../../core/constants/theme.dart';
 
@@ -28,14 +29,12 @@ class _PulseRingState extends State<PulseRing>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
+    _controller = AnimationController(vsync: this, duration: widget.duration);
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.03).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.03,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _opacityAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 0.6), weight: 30),
@@ -71,13 +70,16 @@ class _PulseRingState extends State<PulseRing>
         return Stack(
           alignment: Alignment.center,
           children: [
-            if (_controller.isAnimating && !MediaQuery.of(context).disableAnimations)
+            if (_controller.isAnimating &&
+                !MediaQuery.of(context).disableAnimations)
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: palette.accent.withValues(alpha: _opacityAnimation.value),
+                      color: palette.accent.withValues(
+                        alpha: _opacityAnimation.value,
+                      ),
                       width: 2.0,
                     ),
                   ),

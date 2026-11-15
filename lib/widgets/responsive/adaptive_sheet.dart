@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/utils/responsive.dart';
 
 /// Opens a bottom sheet on compact devices and a centered dialog (max width 480) on medium/expanded.
@@ -31,10 +32,10 @@ Future<T?> showAdaptiveSheet<T>({
           clipBehavior: clipBehavior,
           insetPadding: const EdgeInsets.all(24.0),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: Breakpoints.maxSheetDialogWidth),
-            child: SingleChildScrollView(
-              child: builder(ctx),
+            constraints: const BoxConstraints(
+              maxWidth: Breakpoints.maxSheetDialogWidth,
             ),
+            child: SingleChildScrollView(child: builder(ctx)),
           ),
         );
       },

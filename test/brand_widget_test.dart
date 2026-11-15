@@ -31,30 +31,40 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('AnchorMark Brand Widget Tests', () {
-    testWidgets('renders glyph_black asset and tints with palette.textPrimary in light theme', (tester) async {
-      await tester.pumpWidget(
-        _buildThemedTestHarness(
-          child: const AnchorMark(size: 48.0),
-          brightness: Brightness.light,
-        ),
-      );
+    testWidgets(
+      'renders glyph_black asset and tints with palette.textPrimary in light theme',
+      (tester) async {
+        await tester.pumpWidget(
+          _buildThemedTestHarness(
+            child: const AnchorMark(size: 48.0),
+            brightness: Brightness.light,
+          ),
+        );
 
-      final imageFinder = find.byType(Image);
-      expect(imageFinder, findsOneWidget);
+        final imageFinder = find.byType(Image);
+        expect(imageFinder, findsOneWidget);
 
-      final Image imageWidget = tester.widget<Image>(imageFinder);
-      expect(imageWidget.image, isA<ResizeImage>());
-      final ResizeImage resizeImage = imageWidget.image as ResizeImage;
-      expect(resizeImage.imageProvider, isA<AssetImage>());
-      final AssetImage asset = resizeImage.imageProvider as AssetImage;
-      expect(asset.assetName, equals('assets/branding/glyph_black.png'));
+        final Image imageWidget = tester.widget<Image>(imageFinder);
+        expect(imageWidget.image, isA<ResizeImage>());
+        final ResizeImage resizeImage = imageWidget.image as ResizeImage;
+        expect(resizeImage.imageProvider, isA<AssetImage>());
+        final AssetImage asset = resizeImage.imageProvider as AssetImage;
+        expect(asset.assetName, equals('assets/branding/glyph_black.png'));
 
-      final colorFilteredFinder = find.byType(ColorFiltered);
-      expect(colorFilteredFinder, findsOneWidget);
-      final ColorFiltered filtered = tester.widget<ColorFiltered>(colorFilteredFinder);
-      final BuildContext element = tester.element(find.byType(AnchorMark));
-      expect(filtered.colorFilter, equals(ColorFilter.mode(element.palette.textPrimary, BlendMode.srcIn)));
-    });
+        final colorFilteredFinder = find.byType(ColorFiltered);
+        expect(colorFilteredFinder, findsOneWidget);
+        final ColorFiltered filtered = tester.widget<ColorFiltered>(
+          colorFilteredFinder,
+        );
+        final BuildContext element = tester.element(find.byType(AnchorMark));
+        expect(
+          filtered.colorFilter,
+          equals(
+            ColorFilter.mode(element.palette.textPrimary, BlendMode.srcIn),
+          ),
+        );
+      },
+    );
 
     testWidgets('tints with palette.textPrimary in dark theme', (tester) async {
       await tester.pumpWidget(
@@ -66,9 +76,14 @@ void main() {
 
       final colorFilteredFinder = find.byType(ColorFiltered);
       expect(colorFilteredFinder, findsOneWidget);
-      final ColorFiltered filtered = tester.widget<ColorFiltered>(colorFilteredFinder);
+      final ColorFiltered filtered = tester.widget<ColorFiltered>(
+        colorFilteredFinder,
+      );
       final BuildContext element = tester.element(find.byType(AnchorMark));
-      expect(filtered.colorFilter, equals(ColorFilter.mode(element.palette.textPrimary, BlendMode.srcIn)));
+      expect(
+        filtered.colorFilter,
+        equals(ColorFilter.mode(element.palette.textPrimary, BlendMode.srcIn)),
+      );
     });
 
     testWidgets('respects explicit color parameter override', (tester) async {
@@ -80,14 +95,21 @@ void main() {
       );
 
       final colorFilteredFinder = find.byType(ColorFiltered);
-      final ColorFiltered filtered = tester.widget<ColorFiltered>(colorFilteredFinder);
-      expect(filtered.colorFilter, equals(const ColorFilter.mode(customColor, BlendMode.srcIn)));
+      final ColorFiltered filtered = tester.widget<ColorFiltered>(
+        colorFilteredFinder,
+      );
+      expect(
+        filtered.colorFilter,
+        equals(const ColorFilter.mode(customColor, BlendMode.srcIn)),
+      );
     });
   });
 
   group('AnchorTile Widget Tests', () {
     for (final accent in AppAccent.values) {
-      testWidgets('renders cleanly in accent ${accent.name} without overflow', (tester) async {
+      testWidgets('renders cleanly in accent ${accent.name} without overflow', (
+        tester,
+      ) async {
         await tester.pumpWidget(
           _buildThemedTestHarness(
             child: const AnchorTile(size: 72.0),
@@ -105,9 +127,7 @@ void main() {
   group('AnchorWordmark Widget Tests', () {
     testWidgets('renders mark and anchor label in Inter font', (tester) async {
       await tester.pumpWidget(
-        _buildThemedTestHarness(
-          child: const AnchorWordmark(markSize: 28.0),
-        ),
+        _buildThemedTestHarness(child: const AnchorWordmark(markSize: 28.0)),
       );
 
       expect(find.byType(AnchorWordmark), findsOneWidget);
@@ -117,11 +137,11 @@ void main() {
   });
 
   group('BootScreen Widget Tests', () {
-    testWidgets('displays AnchorMark and handles progress bar after 600ms', (tester) async {
+    testWidgets('displays AnchorMark and handles progress bar after 600ms', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        _buildThemedTestHarness(
-          child: const BootScreen(),
-        ),
+        _buildThemedTestHarness(child: const BootScreen()),
       );
 
       expect(find.byType(BootScreen), findsOneWidget);
@@ -156,13 +176,11 @@ void main() {
   });
 
   group('AuthScreen Branding Tests', () {
-    testWidgets('uses AnchorTile and no longer contains legacy A monogram', (tester) async {
+    testWidgets('uses AnchorTile and no longer contains legacy A monogram', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
-            home: AuthScreen(),
-          ),
-        ),
+        const ProviderScope(child: MaterialApp(home: AuthScreen())),
       );
 
       // Confirms AnchorTile is present
@@ -170,7 +188,9 @@ void main() {
 
       // Asserts that no standalone 'A' text monogram tile exists
       final textWidgets = tester.widgetList<Text>(find.byType(Text));
-      final hasOldAMonogram = textWidgets.any((t) => t.data == 'A' && t.style?.fontSize == 28);
+      final hasOldAMonogram = textWidgets.any(
+        (t) => t.data == 'A' && t.style?.fontSize == 28,
+      );
       expect(hasOldAMonogram, isFalse);
     });
   });

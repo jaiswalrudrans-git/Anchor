@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -192,8 +193,14 @@ class AppPalette extends ThemeExtension<AppPalette> {
     assert(() {
       final bgLum = ContrastHelper.relativeLuminance(bg);
       final cardLum = ContrastHelper.relativeLuminance(cardBg);
-      assert(bgLum < 0.1, 'Dark palette background luminance ($bgLum) must be < 0.1');
-      assert(cardLum < 0.1, 'Dark palette card luminance ($cardLum) must be < 0.1');
+      assert(
+        bgLum < 0.1,
+        'Dark palette background luminance ($bgLum) must be < 0.1',
+      );
+      assert(
+        cardLum < 0.1,
+        'Dark palette card luminance ($cardLum) must be < 0.1',
+      );
       return true;
     }());
 
@@ -290,7 +297,11 @@ class AppPalette extends ThemeExtension<AppPalette> {
       onAccent: Color.lerp(onAccent, other.onAccent, t)!,
       selectedFill: Color.lerp(selectedFill, other.selectedFill, t)!,
       onSelected: Color.lerp(onSelected, other.onSelected, t)!,
-      disabledForeground: Color.lerp(disabledForeground, other.disabledForeground, t)!,
+      disabledForeground: Color.lerp(
+        disabledForeground,
+        other.disabledForeground,
+        t,
+      )!,
       disabledFill: Color.lerp(disabledFill, other.disabledFill, t)!,
       scrim: Color.lerp(scrim, other.scrim, t)!,
       success: Color.lerp(success, other.success, t)!,
@@ -319,7 +330,9 @@ class AppTypography {
   AppTypography._();
 
   static const String fontFamily = 'Inter';
-  static const List<FontFeature> tabularFigures = [FontFeature.tabularFigures()];
+  static const List<FontFeature> tabularFigures = [
+    FontFeature.tabularFigures(),
+  ];
 
   static TextTheme buildTextTheme(AppPalette palette) {
     return TextTheme(
@@ -481,7 +494,9 @@ ThemeData buildTheme(Brightness brightness, AppAccent accent) {
     shadow: isLight ? const Color(0x14000000) : const Color(0x00000000),
     scrim: palette.scrim,
     inverseSurface: isLight ? const Color(0xFF17171A) : const Color(0xFFF4F4F5),
-    onInverseSurface: isLight ? const Color(0xFFEDEDED) : const Color(0xFF111111),
+    onInverseSurface: isLight
+        ? const Color(0xFFEDEDED)
+        : const Color(0xFF111111),
     inversePrimary: isLight ? accent.darkColor : accent.lightColor,
     surfaceTint: Colors.transparent,
   );
@@ -543,7 +558,9 @@ ThemeData buildTheme(Brightness brightness, AppAccent accent) {
         color: palette.textPrimary,
         letterSpacing: -0.2,
       ),
-      shape: Border(bottom: BorderSide(color: palette.border, width: AppDimens.hairline)),
+      shape: Border(
+        bottom: BorderSide(color: palette.border, width: AppDimens.hairline),
+      ),
     ),
 
     // Card
@@ -715,20 +732,46 @@ ThemeData buildTheme(Brightness brightness, AppAccent accent) {
       filled: true,
       fillColor: palette.cardRaised,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      hintStyle: TextStyle(fontFamily: AppTypography.fontFamily, color: palette.textMuted, fontSize: 14),
-      labelStyle: TextStyle(fontFamily: AppTypography.fontFamily, color: palette.textSecondary, fontSize: 14),
-      floatingLabelStyle: TextStyle(fontFamily: AppTypography.fontFamily, color: palette.accent, fontSize: 14),
-      helperStyle: TextStyle(fontFamily: AppTypography.fontFamily, color: palette.textMuted, fontSize: 12),
-      errorStyle: TextStyle(fontFamily: AppTypography.fontFamily, color: palette.danger, fontSize: 12),
+      hintStyle: TextStyle(
+        fontFamily: AppTypography.fontFamily,
+        color: palette.textMuted,
+        fontSize: 14,
+      ),
+      labelStyle: TextStyle(
+        fontFamily: AppTypography.fontFamily,
+        color: palette.textSecondary,
+        fontSize: 14,
+      ),
+      floatingLabelStyle: TextStyle(
+        fontFamily: AppTypography.fontFamily,
+        color: palette.accent,
+        fontSize: 14,
+      ),
+      helperStyle: TextStyle(
+        fontFamily: AppTypography.fontFamily,
+        color: palette.textMuted,
+        fontSize: 12,
+      ),
+      errorStyle: TextStyle(
+        fontFamily: AppTypography.fontFamily,
+        color: palette.danger,
+        fontSize: 12,
+      ),
       prefixIconColor: palette.textSecondary,
       suffixIconColor: palette.textSecondary,
       border: OutlineInputBorder(
         borderRadius: AppDimens.borderRadiusMd,
-        borderSide: BorderSide(color: palette.border, width: AppDimens.hairline),
+        borderSide: BorderSide(
+          color: palette.border,
+          width: AppDimens.hairline,
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: AppDimens.borderRadiusMd,
-        borderSide: BorderSide(color: palette.border, width: AppDimens.hairline),
+        borderSide: BorderSide(
+          color: palette.border,
+          width: AppDimens.hairline,
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: AppDimens.borderRadiusMd,
@@ -736,7 +779,10 @@ ThemeData buildTheme(Brightness brightness, AppAccent accent) {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: AppDimens.borderRadiusMd,
-        borderSide: BorderSide(color: palette.danger, width: AppDimens.hairline),
+        borderSide: BorderSide(
+          color: palette.danger,
+          width: AppDimens.hairline,
+        ),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: AppDimens.borderRadiusMd,
@@ -744,7 +790,10 @@ ThemeData buildTheme(Brightness brightness, AppAccent accent) {
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: AppDimens.borderRadiusMd,
-        borderSide: BorderSide(color: palette.border.withValues(alpha: 0.5), width: AppDimens.hairline),
+        borderSide: BorderSide(
+          color: palette.border.withValues(alpha: 0.5),
+          width: AppDimens.hairline,
+        ),
       ),
     ),
 
@@ -831,7 +880,9 @@ ThemeData buildTheme(Brightness brightness, AppAccent accent) {
       showDragHandle: true,
       dragHandleColor: palette.textMuted,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppDimens.radiusXl)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimens.radiusXl),
+        ),
       ),
     ),
 
@@ -979,7 +1030,10 @@ ThemeData buildTheme(Brightness brightness, AppAccent accent) {
       elevation: 0,
       indicatorColor: palette.accentSoft,
       selectedIconTheme: IconThemeData(color: palette.accent, size: 22),
-      unselectedIconTheme: IconThemeData(color: palette.textSecondary, size: 22),
+      unselectedIconTheme: IconThemeData(
+        color: palette.textSecondary,
+        size: 22,
+      ),
       selectedLabelTextStyle: TextStyle(
         fontFamily: AppTypography.fontFamily,
         fontSize: 12,
@@ -1043,19 +1097,10 @@ class ThemeState {
   final ThemeMode mode;
   final AppAccent accent;
 
-  const ThemeState({
-    required this.mode,
-    required this.accent,
-  });
+  const ThemeState({required this.mode, required this.accent});
 
-  ThemeState copyWith({
-    ThemeMode? mode,
-    AppAccent? accent,
-  }) {
-    return ThemeState(
-      mode: mode ?? this.mode,
-      accent: accent ?? this.accent,
-    );
+  ThemeState copyWith({ThemeMode? mode, AppAccent? accent}) {
+    return ThemeState(mode: mode ?? this.mode, accent: accent ?? this.accent);
   }
 
   @override
@@ -1073,18 +1118,33 @@ class ThemeState {
 class ThemeController extends Notifier<ThemeState> {
   static AppPalette currentPalette = AppPalette.light(AppAccent.iris);
 
-  static void updateCurrentPalette(ThemeState state, [Brightness? platformBrightness]) {
-    final isDark = state.mode == ThemeMode.dark ||
-        (state.mode == ThemeMode.system && platformBrightness == Brightness.dark);
-    currentPalette = isDark ? AppPalette.dark(state.accent) : AppPalette.light(state.accent);
+  static void updateCurrentPalette(
+    ThemeState state, [
+    Brightness? platformBrightness,
+  ]) {
+    final isDark =
+        state.mode == ThemeMode.dark ||
+        (state.mode == ThemeMode.system &&
+            platformBrightness == Brightness.dark);
+    currentPalette = isDark
+        ? AppPalette.dark(state.accent)
+        : AppPalette.light(state.accent);
   }
 
-  static void updateDesktopWindow(ThemeMode mode, [Brightness? platformBrightness]) {
-    if (kIsWeb || !(Platform.isWindows || Platform.isLinux || Platform.isMacOS)) return;
-    final isDark = mode == ThemeMode.dark ||
+  static void updateDesktopWindow(
+    ThemeMode mode, [
+    Brightness? platformBrightness,
+  ]) {
+    if (kIsWeb || !(Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+      return;
+    }
+    final isDark =
+        mode == ThemeMode.dark ||
         (mode == ThemeMode.system && platformBrightness == Brightness.dark);
     try {
-      windowManager.setBackgroundColor(isDark ? const Color(0xFF0E0E10) : const Color(0xFFFFFFFF));
+      windowManager.setBackgroundColor(
+        isDark ? const Color(0xFF0E0E10) : const Color(0xFFFFFFFF),
+      );
       windowManager.setBrightness(isDark ? Brightness.dark : Brightness.light);
     } catch (_) {}
   }
@@ -1105,7 +1165,10 @@ class ThemeController extends Notifier<ThemeState> {
   static ThemeState loadInitialTheme([SharedPreferences? prefs]) {
     // Check --dart-define overrides first (for testing and build configs)
     const defineMode = String.fromEnvironment('THEME_MODE', defaultValue: '');
-    const defineAccent = String.fromEnvironment('THEME_ACCENT', defaultValue: '');
+    const defineAccent = String.fromEnvironment(
+      'THEME_ACCENT',
+      defaultValue: '',
+    );
 
     ThemeMode mode = ThemeMode.light;
     if (defineMode.isNotEmpty) {
@@ -1154,11 +1217,13 @@ class ThemeController extends Notifier<ThemeState> {
       final client = Supabase.instance.client;
       if (client.auth.currentUser != null) {
         await client.auth.updateUser(
-          UserAttributes(data: {
-            'theme_mode': modeStr,
-            'theme_accent': accentId,
-            'theme_updated_at': DateTime.now().toUtc().toIso8601String(),
-          }),
+          UserAttributes(
+            data: {
+              'theme_mode': modeStr,
+              'theme_accent': accentId,
+              'theme_updated_at': DateTime.now().toUtc().toIso8601String(),
+            },
+          ),
         );
       }
     } catch (_) {
@@ -1200,10 +1265,11 @@ class ThemeController extends Notifier<ThemeState> {
   }
 }
 
-final themeControllerProvider =
-    NotifierProvider<ThemeController, ThemeState>(() {
-  return ThemeController();
-});
+final themeControllerProvider = NotifierProvider<ThemeController, ThemeState>(
+  () {
+    return ThemeController();
+  },
+);
 
 // =============================================================================
 // 6. BACKWARDS COMPATIBILITY SHIM (AppColors & AppTheme)
@@ -1229,8 +1295,12 @@ class AppTheme {
 
   static const double maxRadius = 8.0;
   static final BorderRadius borderRadius8 = BorderRadius.circular(maxRadius);
-  static const BorderSide borderSide1 = BorderSide(color: AppColors.border, width: 1.0);
+  static const BorderSide borderSide1 = BorderSide(
+    color: AppColors.border,
+    width: 1.0,
+  );
 
-  static ThemeData get lightTheme => buildTheme(Brightness.light, AppAccent.iris);
+  static ThemeData get lightTheme =>
+      buildTheme(Brightness.light, AppAccent.iris);
   static ThemeData get darkTheme => buildTheme(Brightness.dark, AppAccent.iris);
 }

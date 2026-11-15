@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/constants/dimens.dart';
 import '../core/constants/motion.dart';
 import '../core/constants/theme.dart';
@@ -18,13 +19,11 @@ class SkeletonBox extends StatefulWidget {
     this.shape = BoxShape.rectangle,
   });
 
-  const SkeletonBox.circle({
-    super.key,
-    required double size,
-  })  : width = size,
-        height = size,
-        borderRadius = null,
-        shape = BoxShape.circle;
+  const SkeletonBox.circle({super.key, required double size})
+    : width = size,
+      height = size,
+      borderRadius = null,
+      shape = BoxShape.circle;
 
   @override
   State<SkeletonBox> createState() => _SkeletonBoxState();
@@ -43,12 +42,10 @@ class _SkeletonBoxState extends State<SkeletonBox>
       duration: const Duration(milliseconds: 900),
     );
 
-    _opacityAnim = Tween<double>(begin: 0.35, end: 0.75).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
+    _opacityAnim = Tween<double>(
+      begin: 0.35,
+      end: 0.75,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.repeat(reverse: true);
   }
@@ -61,7 +58,8 @@ class _SkeletonBoxState extends State<SkeletonBox>
 
   @override
   Widget build(BuildContext context) {
-    if (Motion.duration(context, const Duration(milliseconds: 1)) == Duration.zero) {
+    if (Motion.duration(context, const Duration(milliseconds: 1)) ==
+        Duration.zero) {
       _controller.stop();
     }
 

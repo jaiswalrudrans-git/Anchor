@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -33,49 +34,65 @@ void main() {
 
           // Skip comments
           final trimmed = line.trim();
-          if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*')) {
+          if (trimmed.startsWith('//') ||
+              trimmed.startsWith('/*') ||
+              trimmed.startsWith('*')) {
             continue;
           }
 
           // 1. Color(0x...)
           if (colorHexRegex.hasMatch(line)) {
-            violations.add('$normalizedPath:$lineNum - Hardcoded Color(0x...): $trimmed');
+            violations.add(
+              '$normalizedPath:$lineNum - Hardcoded Color(0x...): $trimmed',
+            );
           }
 
           // 2. Color.fromARGB(...)
           if (colorFromARGBRegex.hasMatch(line)) {
-            violations.add('$normalizedPath:$lineNum - Hardcoded Color.fromARGB: $trimmed');
+            violations.add(
+              '$normalizedPath:$lineNum - Hardcoded Color.fromARGB: $trimmed',
+            );
           }
 
           // 3. Color.fromRGBO(...)
           if (colorRGBORegex.hasMatch(line)) {
-            violations.add('$normalizedPath:$lineNum - Hardcoded Color.fromRGBO: $trimmed');
+            violations.add(
+              '$normalizedPath:$lineNum - Hardcoded Color.fromRGBO: $trimmed',
+            );
           }
 
           // 4. Colors.<name> except transparent
           final colorsMatch = colorsEnumRegex.firstMatch(line);
           if (colorsMatch != null) {
-            violations.add('$normalizedPath:$lineNum - Hardcoded Material color (${colorsMatch.group(0)}): $trimmed');
+            violations.add(
+              '$normalizedPath:$lineNum - Hardcoded Material color (${colorsMatch.group(0)}): $trimmed',
+            );
           }
 
           // 5. AppColors.<token> (deprecated legacy color palette)
           final appColorsMatch = appColorsRegex.firstMatch(line);
           if (appColorsMatch != null) {
-            violations.add('$normalizedPath:$lineNum - Legacy AppColors token (${appColorsMatch.group(0)}): $trimmed');
+            violations.add(
+              '$normalizedPath:$lineNum - Legacy AppColors token (${appColorsMatch.group(0)}): $trimmed',
+            );
           }
 
           // 6. Brightness.light / Brightness.dark (only permitted in main.dart at MaterialApp root)
           if (!normalizedPath.endsWith('lib/main.dart')) {
             final brightnessMatch = brightnessRegex.firstMatch(line);
             if (brightnessMatch != null) {
-              violations.add('$normalizedPath:$lineNum - Brightness check outside theme.dart (${brightnessMatch.group(0)}): $trimmed');
+              violations.add(
+                '$normalizedPath:$lineNum - Brightness check outside theme.dart (${brightnessMatch.group(0)}): $trimmed',
+              );
             }
           }
 
           // 7. ThemeData.light / ThemeData.dark
           final themeDataMatch = themeDataLightDarkRegex.firstMatch(line);
           if (themeDataMatch != null) {
-            violations.add('$normalizedPath:$lineNum - Hardcoded ThemeData constructor (${themeDataMatch.group(0)}): $trimmed');
+            violations.add(
+              '$normalizedPath:$lineNum - Hardcoded ThemeData constructor (${themeDataMatch.group(0)}): $trimmed',
+            );
           }
         }
       }

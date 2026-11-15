@@ -8,10 +8,7 @@ import '../../../providers/expenses_providers.dart';
 class EditAllowanceDialog extends ConsumerStatefulWidget {
   final double currentAllowance;
 
-  const EditAllowanceDialog({
-    super.key,
-    required this.currentAllowance,
-  });
+  const EditAllowanceDialog({super.key, required this.currentAllowance});
 
   static Future<void> show(BuildContext context, double currentAllowance) {
     return showDialog<void>(
@@ -21,7 +18,8 @@ class EditAllowanceDialog extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<EditAllowanceDialog> createState() => _EditAllowanceDialogState();
+  ConsumerState<EditAllowanceDialog> createState() =>
+      _EditAllowanceDialogState();
 }
 
 class _EditAllowanceDialogState extends ConsumerState<EditAllowanceDialog> {
@@ -107,7 +105,9 @@ class _EditAllowanceDialogState extends ConsumerState<EditAllowanceDialog> {
               TextFormField(
                 key: const Key('allowance_input_field'),
                 controller: _controller,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 autofocus: true,
                 decoration: const InputDecoration(
                   labelText: 'Monthly Allowance',

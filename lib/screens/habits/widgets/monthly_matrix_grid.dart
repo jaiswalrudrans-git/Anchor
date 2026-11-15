@@ -29,7 +29,10 @@ class MonthlyMatrixGrid extends ConsumerWidget {
     final logsMap = ref.watch(habitLogsMapProvider);
     final monthName = DateFormat('MMMM yyyy').format(today);
 
-    final daysList = List.generate(daysInMonth, (i) => DateTime(today.year, today.month, i + 1));
+    final daysList = List.generate(
+      daysInMonth,
+      (i) => DateTime(today.year, today.month, i + 1),
+    );
 
     const double leftColWidth = 130.0;
     const double cellWidth = 28.0;
@@ -45,7 +48,10 @@ class MonthlyMatrixGrid extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -96,24 +102,31 @@ class MonthlyMatrixGrid extends ConsumerWidget {
                     ),
                     Divider(height: 1, thickness: 1, color: palette.border),
                     // Habit names
-                    ...habits.map((h) => Container(
-                          height: rowHeight,
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          decoration: BoxDecoration(
-                            border: Border(bottom: BorderSide(color: palette.border, width: 0.5)),
-                          ),
-                          child: Text(
-                            h.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: palette.textPrimary,
+                    ...habits.map(
+                      (h) => Container(
+                        height: rowHeight,
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: palette.border,
+                              width: 0.5,
                             ),
                           ),
-                        )),
+                        ),
+                        child: Text(
+                          h.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: palette.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
                     // Aggregate row label
                     Container(
                       height: rowHeight,
@@ -160,8 +173,12 @@ class MonthlyMatrixGrid extends ConsumerWidget {
                                     '${d.day}',
                                     style: TextStyle(
                                       fontSize: 10,
-                                      fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
-                                      color: isToday ? palette.textPrimary : palette.textSecondary,
+                                      fontWeight: isToday
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: isToday
+                                          ? palette.textPrimary
+                                          : palette.textSecondary,
                                     ),
                                   ),
                                 ),
@@ -177,7 +194,12 @@ class MonthlyMatrixGrid extends ConsumerWidget {
                           return Container(
                             height: rowHeight,
                             decoration: BoxDecoration(
-                              border: Border(bottom: BorderSide(color: palette.border, width: 0.5)),
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: palette.border,
+                                  width: 0.5,
+                                ),
+                              ),
                             ),
                             child: Row(
                               children: daysList.map((d) {
@@ -199,7 +221,8 @@ class MonthlyMatrixGrid extends ConsumerWidget {
                                       habitId: habit.id,
                                       date: dDate,
                                       status: status,
-                                      keyPrefix: 'matrix_cell_${habit.id}_${d.day}',
+                                      keyPrefix:
+                                          'matrix_cell_${habit.id}_${d.day}',
                                     ),
                                   ),
                                 );
@@ -219,7 +242,8 @@ class MonthlyMatrixGrid extends ConsumerWidget {
 
                               // Active habits created on or before this day
                               final activeHabits = habits.where((h) {
-                                return !AppDateUtils.dateOnly(h.createdAt).isAfter(dDate);
+                                return !AppDateUtils.dateOnly(h.createdAt)
+                                    .isAfter(dDate);
                               }).toList();
 
                               if (activeHabits.isEmpty || isFuture) {
@@ -230,10 +254,16 @@ class MonthlyMatrixGrid extends ConsumerWidget {
                                       width: 14,
                                       height: 14,
                                       decoration: BoxDecoration(
-                                        color: isFuture ? Colors.transparent : palette.cardRaised,
+                                        color: isFuture
+                                            ? Colors.transparent
+                                            : palette.cardRaised,
                                         borderRadius: BorderRadius.circular(3),
                                         border: Border.all(
-                                          color: isFuture ? palette.border.withValues(alpha: 0.3) : palette.border,
+                                          color: isFuture
+                                              ? palette.border.withValues(
+                                                  alpha: 0.3,
+                                                )
+                                              : palette.border,
                                           width: 1,
                                         ),
                                       ),
@@ -247,22 +277,28 @@ class MonthlyMatrixGrid extends ConsumerWidget {
                                 return logged.contains(dDate);
                               }).length;
 
-                              final allCompleted = completedCount == activeHabits.length;
+                              final allCompleted =
+                                  completedCount == activeHabits.length;
 
                               return SizedBox(
                                 width: cellWidth,
                                 child: Center(
                                   child: Tooltip(
-                                    message: '$completedCount / ${activeHabits.length} habits done',
+                                    message:
+                                        '$completedCount / ${activeHabits.length} habits done',
                                     child: Container(
                                       key: Key('matrix_aggregate_${d.day}'),
                                       width: 16,
                                       height: 16,
                                       decoration: BoxDecoration(
-                                        color: allCompleted ? palette.selectedFill : Colors.transparent,
+                                        color: allCompleted
+                                            ? palette.selectedFill
+                                            : Colors.transparent,
                                         borderRadius: BorderRadius.circular(3),
                                         border: Border.all(
-                                          color: allCompleted ? palette.selectedFill : palette.border,
+                                          color: allCompleted
+                                              ? palette.selectedFill
+                                              : palette.border,
                                           width: 1.5,
                                         ),
                                       ),
@@ -309,11 +345,7 @@ class MonthlyMatrixGrid extends ConsumerWidget {
               color: palette.selectedFill,
               borderRadius: BorderRadius.circular(3),
             ),
-            child: Icon(
-              Icons.check,
-              size: 12,
-              color: palette.onSelected,
-            ),
+            child: Icon(Icons.check, size: 12, color: palette.onSelected),
           ),
         );
 
@@ -343,7 +375,10 @@ class MonthlyMatrixGrid extends ConsumerWidget {
           decoration: BoxDecoration(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(3),
-            border: Border.all(color: palette.border.withValues(alpha: 0.35), width: 1),
+            border: Border.all(
+              color: palette.border.withValues(alpha: 0.35),
+              width: 1,
+            ),
           ),
         );
 
